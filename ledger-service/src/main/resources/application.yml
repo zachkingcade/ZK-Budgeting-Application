@@ -1,6 +1,20 @@
 spring:
   application:
     name: ledger-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/budgeting?currentSchema=ledger
+    username: ledger_svc
+    password: ledger_svc
+  jpa:
+    properties:
+      hibernate:
+        default_schema: ledger
+    hibernate:
+      ddl-auto: validate
+    flyway:
+      schemas: ledger
+      default-schema: ledger
+      create-schemas: false
 
 spring.autoconfigure.exclude:
   - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
