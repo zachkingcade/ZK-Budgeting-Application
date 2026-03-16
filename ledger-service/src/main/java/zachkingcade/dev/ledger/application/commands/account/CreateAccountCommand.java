@@ -1,4 +1,4 @@
-package zachkingcade.dev.ledger.application.commands;
+package zachkingcade.dev.ledger.application.commands.account;
 
 import java.util.Optional;
 

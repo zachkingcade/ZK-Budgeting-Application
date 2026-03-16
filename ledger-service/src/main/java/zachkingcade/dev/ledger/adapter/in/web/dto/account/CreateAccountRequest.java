@@ -1,4 +1,4 @@
-package zachkingcade.dev.ledger.adapter.in.web.dto;
+package zachkingcade.dev.ledger.adapter.in.web.dto.account;
 
 import java.util.Optional;
 
