@@ -4,6 +4,6 @@ import zachkingcade.dev.ledger.domain.account.Account;
 
 import java.util.List;
 
-public interface GetallAccountsUseCase {
+public interface GetAllAccountsUseCase {
     List<Account> getAllAccounts();
 }

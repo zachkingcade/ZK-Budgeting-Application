@@ -1,21 +1,20 @@
 package zachkingcade.dev.ledger.application.port.out.account;
 
-import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
+import zachkingcade.dev.ledger.domain.account.Account;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AccountRepositoryPort {
 
-    List<AccountEntity> findAll();
+    List<Account> findAll();
 
-    Optional<AccountEntity> findById(Long id);
+    Account findById(Long id);
 
-    AccountEntity findByDescription(String description);
+    Account findByDescription(String description);
 
     Boolean existsByDescription(String description);
 
-    AccountEntity save(AccountEntity accountToSave);
+    Account save(Account accountToSave);
 
 
 }

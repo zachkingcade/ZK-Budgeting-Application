@@ -4,6 +4,6 @@ public record CreateAccountResponse(
         Long accountId,
         Long typeId,
         String description,
-        boolean active,
+        Boolean active,
         String notes
 ) { }

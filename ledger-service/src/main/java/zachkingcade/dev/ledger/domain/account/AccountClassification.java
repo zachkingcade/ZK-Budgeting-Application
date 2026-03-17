@@ -28,6 +28,11 @@ public class AccountClassification {
         this.debitEffect = debitEffect;
     }
 
+    public static AccountClassification rehydrate(Long id, String description, char creditEffect, char debitEffect) {
+        if (id == null) throw new DomainException("id is required for rehydration");
+        return new AccountClassification(id, description, creditEffect, debitEffect);
+    }
+
     public Long id() {
         return id;
     }

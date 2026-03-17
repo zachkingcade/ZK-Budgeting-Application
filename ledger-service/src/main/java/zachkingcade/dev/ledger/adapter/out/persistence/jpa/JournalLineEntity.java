@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "journal_lines")
-public class JournalLinesEntity {
+public class JournalLineEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +19,7 @@ public class JournalLinesEntity {
     @JoinColumn(name = "journal_entry_id", nullable = false)
     @Getter
     @Setter
-    private JournalEntriesEntity journalEntry;
+    private JournalEntryEntity journalEntry;
 
     @Column(name = "amount", nullable = false)
     @Getter

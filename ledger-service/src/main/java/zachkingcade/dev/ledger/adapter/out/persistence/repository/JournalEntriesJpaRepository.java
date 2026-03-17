@@ -1,7 +1,7 @@
 package zachkingcade.dev.ledger.adapter.out.persistence.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalEntriesEntity;
+import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalEntryEntity;
 
-public interface JournalEntriesJpaRepository extends JpaRepository<JournalEntriesEntity, Long> {
+public interface JournalEntriesJpaRepository extends JpaRepository<JournalEntryEntity, Long> {
 }

@@ -13,13 +13,13 @@ public class AccountEntity {
     @Column(name = "account_id", nullable = false)
     @Setter
     @Getter
-    private Long Id;
+    private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "account_type_id", nullable = false)
     @Setter
     @Getter
-    private AccountTypeEntity Type;
+    private AccountTypeEntity type;
 
     @Column(name = "account_description", nullable = false)
     @Setter

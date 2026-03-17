@@ -8,7 +8,7 @@ import java.sql.Date;
 
 @Entity
 @Table(name = "journal_entries")
-public class JournalEntriesEntity {
+public class JournalEntryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

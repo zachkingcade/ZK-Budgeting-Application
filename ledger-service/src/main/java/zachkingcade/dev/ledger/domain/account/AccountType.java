@@ -1,6 +1,5 @@
 package zachkingcade.dev.ledger.domain.account;
 
-import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountClassificationEntity;
 import zachkingcade.dev.ledger.domain.exception.DomainException;
 
 public class AccountType {

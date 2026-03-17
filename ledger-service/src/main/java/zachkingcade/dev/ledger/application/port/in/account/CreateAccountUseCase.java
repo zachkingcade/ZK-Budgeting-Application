@@ -7,5 +7,5 @@ import zachkingcade.dev.ledger.domain.account.Account;
 @Service
 public interface CreateAccountUseCase {
 
-    Account createAccount(CreateAccountCommand command) throws Exception;
+    Account createAccount(CreateAccountCommand command);
 }
