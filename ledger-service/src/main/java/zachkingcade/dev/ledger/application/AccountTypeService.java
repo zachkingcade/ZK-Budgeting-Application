@@ -8,7 +8,7 @@ import zachkingcade.dev.ledger.application.port.in.accounttype.CreateAccountType
 import zachkingcade.dev.ledger.application.port.in.accounttype.GetAllAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.GetByIdAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.UpdateAccountTypeUseCase;
-import zachkingcade.dev.ledger.application.port.out.type.AccountTypeClassificationRepositoryPort;
+import zachkingcade.dev.ledger.application.port.out.type.AccountClassificationRepositoryPort;
 import zachkingcade.dev.ledger.application.port.out.type.AccountTypeRepositoryPort;
 import zachkingcade.dev.ledger.domain.account.AccountType;
 
@@ -19,11 +19,11 @@ public class AccountTypeService implements CreateAccountTypeUseCase, GetAllAccou
 
     AccountTypeRepositoryPort accountTypeRepository;
 
-    AccountTypeClassificationRepositoryPort accountTypeClassificationRepository;
+    AccountClassificationRepositoryPort accountClassificationRepository;
 
-    public AccountTypeService(AccountTypeRepositoryPort accountTypeRepository, AccountTypeClassificationRepositoryPort accountTypeClassificationRepository) {
+    public AccountTypeService(AccountTypeRepositoryPort accountTypeRepository, AccountClassificationRepositoryPort accountClassificationRepository) {
         this.accountTypeRepository = accountTypeRepository;
-        this.accountTypeClassificationRepository = accountTypeClassificationRepository;
+        this.accountClassificationRepository = accountClassificationRepository;
     }
 
     @Override

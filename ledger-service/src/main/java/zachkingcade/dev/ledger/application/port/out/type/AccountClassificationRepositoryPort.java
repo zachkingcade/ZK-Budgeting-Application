@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public interface AccountTypeClassificationRepositoryPort {
+public interface AccountClassificationRepositoryPort {
 
     public AccountClassification findById(Long id);
 

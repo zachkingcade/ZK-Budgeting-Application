@@ -22,10 +22,10 @@
 
 ### /accountclassifications
 
-| End point     |Command|Example Input| Implemented |
-|---------------|-------------|-------------|-------------|
-| /getall       | TBD | TBD | TODO|
-| /getbyid      | TBD | TBD | TODO|
+| End point     |Command| Example Input | Implemented |
+|---------------|-------------|---------------|-------------|
+| /getall       | /all |               | Y           |
+| /getbyid      | /byid | /1            | Y           |
 
 ### /journal/entries
 
