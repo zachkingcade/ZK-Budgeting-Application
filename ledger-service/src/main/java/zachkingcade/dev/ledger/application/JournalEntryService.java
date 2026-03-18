@@ -3,7 +3,6 @@ package zachkingcade.dev.ledger.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import zachkingcade.dev.ledger.adapter.in.web.dto.GlobalExceptionHandler;
 import zachkingcade.dev.ledger.application.commands.journal.*;
 import zachkingcade.dev.ledger.application.port.in.journal.CreateJournalEntryUseCase;
 import zachkingcade.dev.ledger.application.port.in.journal.GetAllJournalEntryUsecase;
@@ -14,7 +13,9 @@ import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJournalEntryUsecase, GetByIdJournalEntryUseCase, UpdateJournalEntryUsecase {
@@ -28,38 +29,48 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
 
     @Override
     public JournalEntry createJournalEntry(CreateJournalEntryCommand command) {
-        log.info("Starting Create Journal Entry for new JE [{}]", command.description());
+        log.debug("Starting Create Journal Entry entryDate:[{}] descriptionLength:[{}] notesLength:[{}] journalLinesCount:[{}]",command.entryDate(),command.description().length(),command.notes() == null ? 0 : command.notes().length(),command.journalLinesList().size());
         List<JournalLine> lineList = new ArrayList<>();
         for(JournalLineCommandObject line : command.journalLinesList()){
             lineList.add(JournalLine.createNew(line.amount(), line.accountId(), line.direction(), line.notes()));
         }
         JournalEntry entry = JournalEntry.createNew(command.entryDate(), command.description(), command.notes(),lineList);
-        return journalEntryRepository.save(entry);
+        JournalEntry saved = journalEntryRepository.save(entry);
+        log.debug("Ending Create Journal Entry createdId:[{}] journalLinesCount:[{}]",saved.id(),saved.journalLines().size());
+        return saved;
     }
 
     @Override
     public List<JournalEntry> getAllJournalEntries() {
-        return journalEntryRepository.findAll();
+        log.debug("Starting Get All Journal Entries");
+        List<JournalEntry> results = journalEntryRepository.findAll();
+        log.debug("Ending Get All Journal Entries results:[{}]",results.size());
+        return results;
     }
 
     @Override
     public JournalEntry getByIdJournalEntry(GetByIdJournalEntryCommand command) {
-        return journalEntryRepository.findById(command.id());
+        log.debug("Starting Get Journal Entry by id:[{}]",command.id());
+        JournalEntry result = journalEntryRepository.findById(command.id());
+        log.debug("Ending Get Journal Entry by id:[{}] lineCount:[{}]",result.id(),result.journalLines().size());
+        return result;
     }
 
     @Override
     public JournalEntry updateJournalEntry(UpdateJournalEntryCommand command) {
-        log.info("Starting Update Journal Entry for JE [{}][{}]",command.id(), command.description());
+        log.debug("Starting Update Journal Entry jeId:[{}] description:[{}]",command.id(),command.description());
         JournalEntry entryToUpdate = journalEntryRepository.findById(command.id());
         List<JournalLine> updatedLineList;
 
         if(!command.journalLinesList().isEmpty()) {
-            log.info("Preparing Journal Line correcitons for JE [{}][{}]",command.id(), command.description());
+            log.debug("Preparing Journal Line corrections jeId:[{}] originalLinesCount:[{}] requestedLineUpdatesCount:[{}]",command.id(),entryToUpdate.journalLines().size(),command.journalLinesList().size());
             updatedLineList = new ArrayList<>();
+            Set<Long> updatedLineIds = new HashSet<>();
             // Add lines requested to updated
             for (JournalLineUpdateCommandObject lineUpdate : command.journalLinesList()) {
                 for (JournalLine originalLine : entryToUpdate.journalLines()) {
                     if (lineUpdate.id().equals(originalLine.id())) {
+                        updatedLineIds.add(originalLine.id());
                         updatedLineList.add(JournalLine.rehydrate(
                                 originalLine.id(),
                                 originalLine.amount(),
@@ -67,23 +78,19 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
                                 originalLine.direction(),
                                 lineUpdate.notes()
                         ));
+                        break;
                     }
                 }
             }
             // Add lines not changed
             for (JournalLine originalLine : entryToUpdate.journalLines()) {
-                boolean foundLine = false;
-                for (JournalLine newLine : updatedLineList) {
-                    if (newLine.id().equals(originalLine.id())) {
-                        foundLine = true;
-                    }
-                }
-                if (!foundLine) {
+                if (!updatedLineIds.contains(originalLine.id())) {
                     updatedLineList.add(originalLine);
                 }
             }
+            log.debug("Prepared Journal Line corrections jeId:[{}] originalLinesCount:[{}] resultingLinesCount:[{}]",command.id(),entryToUpdate.journalLines().size(),updatedLineList.size());
         } else {
-            log.info("No Journal Line updates for JE [{}][{}]",command.id(), command.description());
+            log.debug("No Journal Line updates for JE jeId:[{}] originalLinesCount:[{}]",command.id(),entryToUpdate.journalLines().size());
             updatedLineList = entryToUpdate.journalLines();
         }
 
@@ -95,7 +102,9 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
                 updatedLineList
                 );
 
-        return journalEntryRepository.save(entry);
+        JournalEntry saved = journalEntryRepository.save(entry);
+        log.debug("Ending Update Journal Entry updatedId:[{}] journalLinesCount:[{}]",saved.id(),saved.journalLines().size());
+        return saved;
     }
 
 }

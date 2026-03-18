@@ -36,7 +36,7 @@ public class JournalEntryController {
 
     @GetMapping("/all")
     public ResponseEntity<GetAllJournalEntryResponse> getAll(){
-        log.info("Starting Rest Controller /journalentry endpoint /all");
+        log.debug("Starting Rest Controller /journalentry endpoint /all");
         List<JournalEntry> entryList = getAllJournalEntryUsecase.getAllJournalEntries();
         List<JournalEntryDTOResponse> resultingEntryList = new ArrayList<>();
         for(JournalEntry entry : entryList){
@@ -47,13 +47,13 @@ public class JournalEntryController {
             resultingEntryList.add(new JournalEntryDTOResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList));
         }
         GetAllJournalEntryResponse response = new GetAllJournalEntryResponse(resultingEntryList);
-        log.info("Ending Rest Controller /journalentry endpoint /all with [{}] results",resultingEntryList.size());
+        log.debug("Ending Rest Controller /journalentry endpoint /all with [{}] results",resultingEntryList.size());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/byid/{id}")
     public ResponseEntity<GetByIdJournalEntryResponse> getById(@PathVariable Long id){
-        log.info("Starting Rest Controller /journalentry endpoint /byid/{id}");
+        log.debug("Starting Rest Controller /journalentry endpoint /byid id:[{}]",id);
         GetByIdJournalEntryCommand command = new GetByIdJournalEntryCommand(id);
         JournalEntry entry = getByIdJournalEntryUseCase.getByIdJournalEntry(command);
         List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
@@ -61,13 +61,13 @@ public class JournalEntryController {
             currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
         }
         GetByIdJournalEntryResponse response = new GetByIdJournalEntryResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList);
-        log.info("Ending Rest Controller /journalentry endpoint /byid/{id}");
+        log.debug("Ending Rest Controller /journalentry endpoint /byid id:[{}] lineCount:[{}]",response.id(),currentEntryLineList.size());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/add")
     public ResponseEntity<CreateJournalEntryResponse> createJournalEntry(@RequestBody CreateJournalEntryRequest request){
-        log.info("Starting Rest Controller /journalentry endpoint /add");
+        log.debug("Starting Rest Controller /journalentry endpoint /add description:[{}] journalLinesCount:[{}]",request.description(),request.journalLines() == null ? 0 : request.journalLines().size());
         List<JournalLineCommandObject> resultingCommandLineList = new ArrayList<>();
         for(JournalLineDTORequest requestLine: request.journalLines()){
             resultingCommandLineList.add(new JournalLineCommandObject(requestLine.amount(), requestLine.accountId(), requestLine.direction(), requestLine.notes()));
@@ -79,13 +79,13 @@ public class JournalEntryController {
             currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
         }
         CreateJournalEntryResponse response = new CreateJournalEntryResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList);
-        log.info("Ending Rest Controller /journalentry endpoint /add");
+        log.debug("Ending Rest Controller /journalentry endpoint /add createdId:[{}] journalLinesCount:[{}]",response.id(),currentEntryLineList.size());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/update")
     public ResponseEntity<UpdateJournalEntryResponse> updateJournalEntry(@RequestBody UpdateJournalEntryRequest request){
-        log.info("Starting Rest Controller /journalentry endpoint /update");
+        log.debug("Starting Rest Controller /journalentry endpoint /update id:[{}] description:[{}] requestedLineUpdatesCount:[{}]",request.id(),request.description(),request.journalLines() == null ? 0 : request.journalLines().size());
         List<JournalLineUpdateCommandObject> resultingCommandLineList = new ArrayList<>();
         for(JournalLineDTOUpdate requestLine: request.journalLines()){
             resultingCommandLineList.add(new JournalLineUpdateCommandObject(requestLine.id(), requestLine.notes()));
@@ -102,7 +102,7 @@ public class JournalEntryController {
             currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
         }
         UpdateJournalEntryResponse response = new UpdateJournalEntryResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList);
-        log.info("Ending Rest Controller /journalentry endpoint /update");
+        log.debug("Ending Rest Controller /journalentry endpoint /update updatedId:[{}] journalLinesCount:[{}]",response.id(),currentEntryLineList.size());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

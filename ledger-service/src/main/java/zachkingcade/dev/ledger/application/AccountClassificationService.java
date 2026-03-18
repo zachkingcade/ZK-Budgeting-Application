@@ -1,5 +1,7 @@
 package zachkingcade.dev.ledger.application;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.application.port.in.accountclassification.GetAllAccountClassifcationsUseCase;
 import zachkingcade.dev.ledger.application.port.in.accountclassification.GetByIdAccountClassificaitonUseCase;
@@ -12,6 +14,7 @@ import java.util.List;
 public class AccountClassificationService implements GetAllAccountClassifcationsUseCase, GetByIdAccountClassificaitonUseCase {
 
     private final AccountClassificationRepositoryPort accountClassificationRepository;
+    private static final Logger log = LoggerFactory.getLogger(AccountClassificationService.class);
 
     public AccountClassificationService(AccountClassificationRepositoryPort accountClassificationRepository) {
         this.accountClassificationRepository = accountClassificationRepository;
@@ -19,11 +22,17 @@ public class AccountClassificationService implements GetAllAccountClassifcations
 
     @Override
     public List<AccountClassification> getAllAccountClassifications() {
-        return accountClassificationRepository.findAll();
+        log.debug("Starting Get All Account Classifications");
+        List<AccountClassification> results = accountClassificationRepository.findAll();
+        log.debug("Ending Get All Account Classifications results:[{}]",results.size());
+        return results;
     }
 
     @Override
     public AccountClassification getByIdAccountClassifcation(Long id) {
-        return accountClassificationRepository.findById(id);
+        log.debug("Starting Get Account Classification by id:[{}]",id);
+        AccountClassification result = accountClassificationRepository.findById(id);
+        log.debug("Ending Get Account Classification by id:[{}]",result.id());
+        return result;
     }
 }

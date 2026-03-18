@@ -1,5 +1,7 @@
 package zachkingcade.dev.ledger.adapter.in.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,8 @@ import java.util.List;
 @RequestMapping("/accountclassifications")
 public class AccountClassificationController {
 
+    private static final Logger log = LoggerFactory.getLogger(AccountClassificationController.class);
+
     private final GetAllAccountClassifcationsUseCase getAllAccountClassifcationsUseCase;
     private final GetByIdAccountClassificaitonUseCase getByIdAccountClassificaitonUseCase;
 
@@ -30,19 +34,23 @@ public class AccountClassificationController {
 
     @GetMapping("/all")
     public ResponseEntity<GetAllAccountClassificationResponse> getAll(){
+        log.debug("Starting Rest Controller /accountclassifications endpoint /all");
         List<AccountClassification> domainList = getAllAccountClassifcationsUseCase.getAllAccountClassifications();
         List<AccountClassificationObject> resultingList = new ArrayList<>();
         for(AccountClassification accountClass: domainList){
             resultingList.add(new AccountClassificationObject(accountClass.id(), accountClass.description(),accountClass.creditEffect(),accountClass.debitEffect()));
         }
         GetAllAccountClassificationResponse response = new GetAllAccountClassificationResponse(resultingList);
+        log.debug("Ending Rest Controller /accountclassifications endpoint /all with [{}] results",resultingList.size());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/byid/{id}")
     public ResponseEntity<GetByIdAccountClassificationResponse> getById(@PathVariable Long id){
+        log.debug("Starting Rest Controller /accountclassifications endpoint /byid id:[{}]",id);
         AccountClassification accountClass = getByIdAccountClassificaitonUseCase.getByIdAccountClassifcation(id);
         GetByIdAccountClassificationResponse response = new GetByIdAccountClassificationResponse(accountClass.id(), accountClass.description(),accountClass.creditEffect(),accountClass.debitEffect());
+        log.debug("Ending Rest Controller /accountclassifications endpoint /byid id:[{}]",response.id());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

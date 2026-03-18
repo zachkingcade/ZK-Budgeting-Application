@@ -26,22 +26,30 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
     }
 
     public List<Account> getAllAccounts(){
-        return accountRepository.findAll();
+        log.debug("Starting Get All Accounts");
+        List<Account> results = accountRepository.findAll();
+        log.debug("Ending Get All Accounts results:[{}]", results.size());
+        return results;
     }
 
     public Account getAccountById(Long id){
-        return accountRepository.findById(id);
+        log.debug("Starting Get Account by id:[{}]", id);
+        Account result = accountRepository.findById(id);
+        log.debug("Ending Get Account by id:[{}]", result.id());
+        return result;
     }
 
     @Override
     public Account createAccount(CreateAccountCommand command) {
-        log.info("Starting Create Account for new account [{}]", command.description());
+        log.debug("Starting Create Account typeId:[{}] description:[{}]", command.typeId(), command.description());
         Account account = Account.createNew(command.typeId(), command.description(), command.notes().orElse(""));
-        return accountRepository.save(account);
+        Account saved = accountRepository.save(account);
+        log.debug("Ending Create Account createdId:[{}]", saved.id());
+        return saved;
     }
 
     public Account updateAccount(UpdateAccountCommand command){
-        log.info("Starting Update Account for account [{}][{}]", command.id(),command.description());
+        log.debug("Starting Update Account accountId:[{}] descriptionPresent:[{}] notesPresent:[{}] activePresent:[{}]", command.id(), command.description().isPresent(), command.notes().isPresent(), command.active().isPresent());
         Account account = accountRepository.findById(command.id());
 
         Account newAccount = Account.rehydrate(
@@ -53,10 +61,16 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
                 );
 
         // Check for unique description
-        if(command.description().isPresent() && accountRepository.existsByDescription(newAccount.description()) && !accountRepository.findByDescription(newAccount.description()).id().equals(newAccount.id()) ){
-            throw new ApplicationException(String.format("An account already exists with the description: [%s]", newAccount.description()));
+        if(command.description().isPresent() && accountRepository.existsByDescription(newAccount.description()) ){
+            Account existing = accountRepository.findByDescription(newAccount.description());
+            if(!existing.id().equals(newAccount.id()) ){
+                log.debug("Update Account unique-description validation failed description:[{}] existingId:[{}] currentId:[{}]", newAccount.description(), existing.id(), newAccount.id());
+                throw new ApplicationException(String.format("An account already exists with the description: [%s]", newAccount.description()));
+            }
         }
 
-        return accountRepository.save(newAccount);
+        Account saved = accountRepository.save(newAccount);
+        log.debug("Ending Update Account updatedId:[{}]", saved.id());
+        return saved;
     }
 }
