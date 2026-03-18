@@ -5,7 +5,7 @@ import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountTypeEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountJpaRepository;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountTypeJpaRepository;
-import zachkingcade.dev.ledger.application.exception.AccountException;
+import zachkingcade.dev.ledger.application.exception.ApplicationException;
 import zachkingcade.dev.ledger.application.port.out.account.AccountRepositoryPort;
 import zachkingcade.dev.ledger.domain.account.Account;
 
@@ -29,7 +29,7 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
     public List<Account> findAll() {
         List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll();
         // Convert to domain objects
-        List<Account> results = new ArrayList<Account>();
+        List<Account> results = new ArrayList<>();
         for(AccountEntity entity : accountEntitiesList){
             Account newResultItem = Account.rehydrate(entity.getId(), entity.getType().getId(), entity.getDescription(),entity.isActive(), entity.getNotes());
             results.add(newResultItem);
@@ -65,7 +65,7 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
     @Override
     public Account save(Account accountToSave) {
         AccountTypeEntity type = accountTypeRepository.findById(accountToSave.typeId()).orElseThrow(
-                () -> new AccountException(String.format("Unknown typeID: [%s]", accountToSave.typeId())));
+                () -> new ApplicationException(String.format("Unknown typeID: [%s]", accountToSave.typeId())));
 
         AccountEntity entity = new AccountEntity();
         if(accountToSave.id() != null){

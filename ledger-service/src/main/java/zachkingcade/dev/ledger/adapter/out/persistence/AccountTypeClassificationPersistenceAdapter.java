@@ -3,7 +3,7 @@ package zachkingcade.dev.ledger.adapter.out.persistence;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountClassificationEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountClassificationJpaRepository;
-import zachkingcade.dev.ledger.application.port.out.type.AccountClassificationRepositoryPort;
+import zachkingcade.dev.ledger.application.port.out.accounttype.AccountClassificationRepositoryPort;
 import zachkingcade.dev.ledger.domain.account.AccountClassification;
 
 import java.util.ArrayList;

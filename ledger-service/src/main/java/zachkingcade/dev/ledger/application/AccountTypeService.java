@@ -1,15 +1,17 @@
 package zachkingcade.dev.ledger.application;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.application.commands.accounttype.CreateAccountTypeCommand;
 import zachkingcade.dev.ledger.application.commands.accounttype.UpdateAccountTypeCommand;
-import zachkingcade.dev.ledger.application.exception.AccountException;
+import zachkingcade.dev.ledger.application.exception.ApplicationException;
 import zachkingcade.dev.ledger.application.port.in.accounttype.CreateAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.GetAllAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.GetByIdAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.UpdateAccountTypeUseCase;
-import zachkingcade.dev.ledger.application.port.out.type.AccountClassificationRepositoryPort;
-import zachkingcade.dev.ledger.application.port.out.type.AccountTypeRepositoryPort;
+import zachkingcade.dev.ledger.application.port.out.accounttype.AccountClassificationRepositoryPort;
+import zachkingcade.dev.ledger.application.port.out.accounttype.AccountTypeRepositoryPort;
 import zachkingcade.dev.ledger.domain.account.AccountType;
 
 import java.util.List;
@@ -18,8 +20,8 @@ import java.util.List;
 public class AccountTypeService implements CreateAccountTypeUseCase, GetAllAccountTypeUseCase, GetByIdAccountTypeUseCase, UpdateAccountTypeUseCase {
 
     AccountTypeRepositoryPort accountTypeRepository;
-
     AccountClassificationRepositoryPort accountClassificationRepository;
+    private static final Logger log = LoggerFactory.getLogger(AccountTypeService.class);
 
     public AccountTypeService(AccountTypeRepositoryPort accountTypeRepository, AccountClassificationRepositoryPort accountClassificationRepository) {
         this.accountTypeRepository = accountTypeRepository;
@@ -38,12 +40,14 @@ public class AccountTypeService implements CreateAccountTypeUseCase, GetAllAccou
 
     @Override
     public AccountType createAccountType(CreateAccountTypeCommand command) {
+        log.info("Starting Create Account Type for new type [{}]", command.description());
         AccountType accountType = AccountType.createNew(command.description(), command.classificationId(), command.notes().orElse(""));
         return accountTypeRepository.save(accountType);
     }
 
     @Override
     public AccountType updateAccountType(UpdateAccountTypeCommand command) {
+        log.info("Starting Update Account Type for type [{}][{}]", command.id(),command.description());
         AccountType accountType = accountTypeRepository.findById(command.id());
 
         AccountType newAccountType = AccountType.rehydrate(
@@ -56,7 +60,7 @@ public class AccountTypeService implements CreateAccountTypeUseCase, GetAllAccou
 
         // Check for unique description
         if(command.description().isPresent() && accountTypeRepository.existsByDescription(newAccountType.description()) && !accountTypeRepository.findByDescription(newAccountType.description()).id().equals(newAccountType.id()) ){
-            throw new AccountException(String.format("An account type already exists with the description: [%s]", newAccountType.description()));
+            throw new ApplicationException(String.format("An account type already exists with the description: [%s]", newAccountType.description()));
         }
 
         return accountTypeRepository.save(newAccountType);

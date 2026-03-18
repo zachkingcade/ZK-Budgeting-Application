@@ -15,7 +15,7 @@ public class JournalLineEntity {
     @Setter
     private Long id;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "journal_entry_id", nullable = false)
     @Getter
     @Setter

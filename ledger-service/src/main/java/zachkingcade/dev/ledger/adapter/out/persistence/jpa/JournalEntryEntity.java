@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "journal_entries")
@@ -31,4 +33,9 @@ public class JournalEntryEntity {
     @Getter
     @Setter
     private String notes = "";
+
+    @OneToMany(mappedBy = "journalEntry", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Getter
+    @Setter
+    private List<JournalLineEntity> journalLines = new ArrayList<>();
 }

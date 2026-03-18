@@ -1,4 +1,4 @@
-package zachkingcade.dev.ledger.application.port.out.type;
+package zachkingcade.dev.ledger.application.port.out.accounttype;
 
 import zachkingcade.dev.ledger.domain.account.AccountType;
 
@@ -14,5 +14,5 @@ public interface AccountTypeRepositoryPort {
 
     Boolean existsByDescription(String description);
 
-    AccountType save(AccountType accountToSave);
+    AccountType save(AccountType accountTypeToSave);
 }

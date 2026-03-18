@@ -5,8 +5,8 @@ import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountClassification
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountTypeEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountClassificationJpaRepository;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountTypeJpaRepository;
-import zachkingcade.dev.ledger.application.exception.AccountTypeException;
-import zachkingcade.dev.ledger.application.port.out.type.AccountTypeRepositoryPort;
+import zachkingcade.dev.ledger.application.exception.ApplicationException;
+import zachkingcade.dev.ledger.application.port.out.accounttype.AccountTypeRepositoryPort;
 import zachkingcade.dev.ledger.domain.account.AccountType;
 
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ public class AccountTypePersistenceAdapter implements AccountTypeRepositoryPort 
     @Override
     public AccountType save(AccountType accountTypeToSave) {
         AccountClassificationEntity accountClassification = accountClassificationJpaRepository.findById(accountTypeToSave.classificationId()).orElseThrow( () ->
-                new AccountTypeException(String.format("Unable to find Account Type Classificaiton [%s]",accountTypeToSave.classificationId()))
+                new ApplicationException(String.format("Unable to find Account Type Classificaiton [%s]",accountTypeToSave.classificationId()))
         );
 
         AccountTypeEntity entity = new AccountTypeEntity();
