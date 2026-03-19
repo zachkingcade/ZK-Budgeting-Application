@@ -50,6 +50,11 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
     }
 
     @Override
+    public void removeJournalEntry(Long id) {
+        journalEntryJpaRepository.deleteById(id);
+    }
+
+    @Override
     public JournalEntry save(JournalEntry journalEntryToSave) {
          // Save Journal entry
         JournalEntryEntity entity = new JournalEntryEntity();

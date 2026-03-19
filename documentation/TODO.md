@@ -1,6 +1,5 @@
 # TODO
 ### Core Features
-- Add remove function to the main 4 services/controllers
 - Add sort order to accounts
 - Add sort order to account types
 - Add sort order to journal entries

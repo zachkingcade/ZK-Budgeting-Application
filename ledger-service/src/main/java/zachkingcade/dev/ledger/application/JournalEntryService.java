@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.application.commands.journal.*;
-import zachkingcade.dev.ledger.application.port.in.journal.CreateJournalEntryUseCase;
-import zachkingcade.dev.ledger.application.port.in.journal.GetAllJournalEntryUsecase;
-import zachkingcade.dev.ledger.application.port.in.journal.GetByIdJournalEntryUseCase;
-import zachkingcade.dev.ledger.application.port.in.journal.UpdateJournalEntryUsecase;
+import zachkingcade.dev.ledger.application.port.in.journal.*;
 import zachkingcade.dev.ledger.application.port.out.journal.JournalEntryRepositoryPort;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
@@ -18,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJournalEntryUsecase, GetByIdJournalEntryUseCase, UpdateJournalEntryUsecase {
+public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJournalEntryUsecase, GetByIdJournalEntryUseCase, UpdateJournalEntryUsecase, RemoveByIdJournalEntryUseCase {
 
     private final JournalEntryRepositoryPort journalEntryRepository;
     private static final Logger log = LoggerFactory.getLogger(JournalEntryService.class);
@@ -127,4 +124,16 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
         }
     }
 
+
+    @Override
+    public void removeJournalEntryById(RemoveByIdJournalEntryCommand command) {
+        try {
+            log.debug("Starting remove Journal Entry jeId:[{}]",command.id());
+            journalEntryRepository.removeJournalEntry(command.id());
+            log.debug("Ending remove Journal Entry jeId:[{}]",command.id());
+        } catch (RuntimeException ex) {
+            log.error("JournalEntryService.removeJournalEntryById failed for command:[{}]", command, ex);
+            throw new RuntimeException(ex);
+        }
+    }
 }

@@ -11,5 +11,7 @@ public interface JournalEntryRepositoryPort {
 
     List<JournalEntry> findAll();
 
+    void removeJournalEntry(Long id);
+
     JournalEntry save(JournalEntry journalEntryToSave);
 }

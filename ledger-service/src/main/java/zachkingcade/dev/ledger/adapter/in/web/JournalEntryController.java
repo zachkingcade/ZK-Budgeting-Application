@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import zachkingcade.dev.ledger.adapter.in.web.dto.journal.*;
 import zachkingcade.dev.ledger.application.AccountService;
 import zachkingcade.dev.ledger.application.commands.journal.*;
-import zachkingcade.dev.ledger.application.port.in.journal.CreateJournalEntryUseCase;
-import zachkingcade.dev.ledger.application.port.in.journal.GetAllJournalEntryUsecase;
-import zachkingcade.dev.ledger.application.port.in.journal.GetByIdJournalEntryUseCase;
-import zachkingcade.dev.ledger.application.port.in.journal.UpdateJournalEntryUsecase;
+import zachkingcade.dev.ledger.application.port.in.journal.*;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
 import java.util.ArrayList;
@@ -25,13 +22,15 @@ public class JournalEntryController {
     GetByIdJournalEntryUseCase getByIdJournalEntryUseCase;
     CreateJournalEntryUseCase createJournalEntryUseCase;
     UpdateJournalEntryUsecase updateJournalEntryUsecase;
+    RemoveByIdJournalEntryUseCase removeByIdJournalEntryUseCase;
     private static final Logger log = LoggerFactory.getLogger(JournalEntryController.class);
 
-    public JournalEntryController(GetAllJournalEntryUsecase getAllJournalEntryUsecase, GetByIdJournalEntryUseCase getByIdJournalEntryUseCase, CreateJournalEntryUseCase createJournalEntryUseCase, UpdateJournalEntryUsecase updateJournalEntryUsecase) {
+    public JournalEntryController(GetAllJournalEntryUsecase getAllJournalEntryUsecase, GetByIdJournalEntryUseCase getByIdJournalEntryUseCase, CreateJournalEntryUseCase createJournalEntryUseCase, UpdateJournalEntryUsecase updateJournalEntryUsecase,RemoveByIdJournalEntryUseCase removeByIdJournalEntryUseCase) {
         this.getAllJournalEntryUsecase = getAllJournalEntryUsecase;
         this.getByIdJournalEntryUseCase = getByIdJournalEntryUseCase;
         this.createJournalEntryUseCase = createJournalEntryUseCase;
         this.updateJournalEntryUsecase = updateJournalEntryUsecase;
+        this.removeByIdJournalEntryUseCase = removeByIdJournalEntryUseCase;
     }
 
     @GetMapping("/all")
@@ -123,6 +122,21 @@ public class JournalEntryController {
         } catch (RuntimeException ex) {
             log.error("JournalEntryController.updateJournalEntry failed for request:[{}]", request, ex);
             throw ex;
+        }
+    }
+
+    @DeleteMapping("/remove/{id}")
+    public ResponseEntity<RemoveJournalEntryDTOResponse> removeJournalEntry(@PathVariable Long id){
+        try{
+            log.debug("Starting Rest Controller /journalentry endpoint /remove/{id} id:[{}]",id);
+            RemoveByIdJournalEntryCommand command = new RemoveByIdJournalEntryCommand(id);
+            removeByIdJournalEntryUseCase.removeJournalEntryById(command);
+            RemoveJournalEntryDTOResponse response = new RemoveJournalEntryDTOResponse(id);
+            log.debug("Ending Rest Controller /journalentry endpoint /remove/{id} id:[{}]",id);
+            return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+        } catch (RuntimeException ex) {
+            log.error("JournalEntryController.removeJournalEntry failed for id:[{}]", id, ex);
+            throw new RuntimeException(ex);
         }
     }
 }

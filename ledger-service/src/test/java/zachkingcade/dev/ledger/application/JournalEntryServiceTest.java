@@ -45,6 +45,11 @@ class JournalEntryServiceTest {
         }
 
         @Override
+        public void removeJournalEntry(Long id) {
+            return;
+        }
+
+        @Override
         public JournalEntry save(JournalEntry journalEntryToSave) {
             saveCalls++;
             this.saved = journalEntryToSave;
