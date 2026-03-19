@@ -91,7 +91,7 @@ public class JournalEntryController {
             }
             CreateJournalEntryResponse response = new CreateJournalEntryResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList);
             log.debug("Ending Rest Controller /journalentry endpoint /add createdId:[{}] journalLinesCount:[{}]",response.id(),currentEntryLineList.size());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException ex) {
             log.error("JournalEntryController.createJournalEntry failed for request:[{}]", request, ex);
             throw ex;

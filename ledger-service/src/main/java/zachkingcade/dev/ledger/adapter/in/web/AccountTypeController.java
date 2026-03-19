@@ -77,7 +77,7 @@ public class AccountTypeController {
             AccountType accountType = createAccountTypeUseCase.createAccountType(command);
             CreateAccountTypeResponse response = new CreateAccountTypeResponse(accountType.id(), accountType.classificationId(), accountType.description(), accountType.active(), accountType.notes());
             log.debug("Ending Rest Controller /accounttypes endpoint /add createdId:[{}]",response.id());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException ex) {
             log.error("AccountTypeController.createAccountType failed for request:[{}]", request, ex);
             throw ex;
