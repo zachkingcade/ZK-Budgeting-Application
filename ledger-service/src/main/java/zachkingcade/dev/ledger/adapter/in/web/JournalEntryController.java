@@ -36,73 +36,93 @@ public class JournalEntryController {
 
     @GetMapping("/all")
     public ResponseEntity<GetAllJournalEntryResponse> getAll(){
-        log.debug("Starting Rest Controller /journalentry endpoint /all");
-        List<JournalEntry> entryList = getAllJournalEntryUsecase.getAllJournalEntries();
-        List<JournalEntryDTOResponse> resultingEntryList = new ArrayList<>();
-        for(JournalEntry entry : entryList){
-            List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
-            for(JournalLine line: entry.journalLines()){
-                currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
+        try {
+            log.debug("Starting Rest Controller /journalentry endpoint /all");
+            List<JournalEntry> entryList = getAllJournalEntryUsecase.getAllJournalEntries();
+            List<JournalEntryDTOResponse> resultingEntryList = new ArrayList<>();
+            for(JournalEntry entry : entryList){
+                List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
+                for(JournalLine line: entry.journalLines()){
+                    currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
+                }
+                resultingEntryList.add(new JournalEntryDTOResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList));
             }
-            resultingEntryList.add(new JournalEntryDTOResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList));
+            GetAllJournalEntryResponse response = new GetAllJournalEntryResponse(resultingEntryList);
+            log.debug("Ending Rest Controller /journalentry endpoint /all with [{}] results",resultingEntryList.size());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (RuntimeException ex) {
+            log.error("JournalEntryController.getAll failed", ex);
+            throw ex;
         }
-        GetAllJournalEntryResponse response = new GetAllJournalEntryResponse(resultingEntryList);
-        log.debug("Ending Rest Controller /journalentry endpoint /all with [{}] results",resultingEntryList.size());
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/byid/{id}")
     public ResponseEntity<GetByIdJournalEntryResponse> getById(@PathVariable Long id){
-        log.debug("Starting Rest Controller /journalentry endpoint /byid id:[{}]",id);
-        GetByIdJournalEntryCommand command = new GetByIdJournalEntryCommand(id);
-        JournalEntry entry = getByIdJournalEntryUseCase.getByIdJournalEntry(command);
-        List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
-        for(JournalLine line: entry.journalLines()){
-            currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
+        try {
+            log.debug("Starting Rest Controller /journalentry endpoint /byid id:[{}]",id);
+            GetByIdJournalEntryCommand command = new GetByIdJournalEntryCommand(id);
+            JournalEntry entry = getByIdJournalEntryUseCase.getByIdJournalEntry(command);
+            List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
+            for(JournalLine line: entry.journalLines()){
+                currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
+            }
+            GetByIdJournalEntryResponse response = new GetByIdJournalEntryResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList);
+            log.debug("Ending Rest Controller /journalentry endpoint /byid id:[{}] lineCount:[{}]",response.id(),currentEntryLineList.size());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (RuntimeException ex) {
+            log.error("JournalEntryController.getById failed for id:[{}]", id, ex);
+            throw ex;
         }
-        GetByIdJournalEntryResponse response = new GetByIdJournalEntryResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList);
-        log.debug("Ending Rest Controller /journalentry endpoint /byid id:[{}] lineCount:[{}]",response.id(),currentEntryLineList.size());
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/add")
     public ResponseEntity<CreateJournalEntryResponse> createJournalEntry(@RequestBody CreateJournalEntryRequest request){
-        log.debug("Starting Rest Controller /journalentry endpoint /add description:[{}] journalLinesCount:[{}]",request.description(),request.journalLines() == null ? 0 : request.journalLines().size());
-        List<JournalLineCommandObject> resultingCommandLineList = new ArrayList<>();
-        for(JournalLineDTORequest requestLine: request.journalLines()){
-            resultingCommandLineList.add(new JournalLineCommandObject(requestLine.amount(), requestLine.accountId(), requestLine.direction(), requestLine.notes()));
+        try {
+            log.debug("Starting Rest Controller /journalentry endpoint /add description:[{}] journalLinesCount:[{}]",request.description(),request.journalLines() == null ? 0 : request.journalLines().size());
+            List<JournalLineCommandObject> resultingCommandLineList = new ArrayList<>();
+            for(JournalLineDTORequest requestLine: request.journalLines()){
+                resultingCommandLineList.add(new JournalLineCommandObject(requestLine.amount(), requestLine.accountId(), requestLine.direction(), requestLine.notes()));
+            }
+            CreateJournalEntryCommand command = new CreateJournalEntryCommand(request.entryDate(),request.description(),request.notes(),resultingCommandLineList);
+            JournalEntry entry = createJournalEntryUseCase.createJournalEntry(command);
+            List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
+            for(JournalLine line: entry.journalLines()){
+                currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
+            }
+            CreateJournalEntryResponse response = new CreateJournalEntryResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList);
+            log.debug("Ending Rest Controller /journalentry endpoint /add createdId:[{}] journalLinesCount:[{}]",response.id(),currentEntryLineList.size());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (RuntimeException ex) {
+            log.error("JournalEntryController.createJournalEntry failed for request:[{}]", request, ex);
+            throw ex;
         }
-        CreateJournalEntryCommand command = new CreateJournalEntryCommand(request.entryDate(),request.description(),request.notes(),resultingCommandLineList);
-        JournalEntry entry = createJournalEntryUseCase.createJournalEntry(command);
-        List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
-        for(JournalLine line: entry.journalLines()){
-            currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
-        }
-        CreateJournalEntryResponse response = new CreateJournalEntryResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList);
-        log.debug("Ending Rest Controller /journalentry endpoint /add createdId:[{}] journalLinesCount:[{}]",response.id(),currentEntryLineList.size());
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/update")
     public ResponseEntity<UpdateJournalEntryResponse> updateJournalEntry(@RequestBody UpdateJournalEntryRequest request){
-        log.debug("Starting Rest Controller /journalentry endpoint /update id:[{}] description:[{}] requestedLineUpdatesCount:[{}]",request.id(),request.description(),request.journalLines() == null ? 0 : request.journalLines().size());
-        List<JournalLineUpdateCommandObject> resultingCommandLineList = new ArrayList<>();
-        for(JournalLineDTOUpdate requestLine: request.journalLines()){
-            resultingCommandLineList.add(new JournalLineUpdateCommandObject(requestLine.id(), requestLine.notes()));
+        try {
+            log.debug("Starting Rest Controller /journalentry endpoint /update id:[{}] description:[{}] requestedLineUpdatesCount:[{}]",request.id(),request.description(),request.journalLines() == null ? 0 : request.journalLines().size());
+            List<JournalLineUpdateCommandObject> resultingCommandLineList = new ArrayList<>();
+            for(JournalLineDTOUpdate requestLine: request.journalLines()){
+                resultingCommandLineList.add(new JournalLineUpdateCommandObject(requestLine.id(), requestLine.notes()));
+            }
+            UpdateJournalEntryCommand command = new UpdateJournalEntryCommand(
+                    request.id(),
+                    request.description(),
+                    request.notes(),
+                    resultingCommandLineList
+            );
+            JournalEntry entry = updateJournalEntryUsecase.updateJournalEntry(command);
+            List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
+            for(JournalLine line: entry.journalLines()){
+                currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
+            }
+            UpdateJournalEntryResponse response = new UpdateJournalEntryResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList);
+            log.debug("Ending Rest Controller /journalentry endpoint /update updatedId:[{}] journalLinesCount:[{}]",response.id(),currentEntryLineList.size());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (RuntimeException ex) {
+            log.error("JournalEntryController.updateJournalEntry failed for request:[{}]", request, ex);
+            throw ex;
         }
-        UpdateJournalEntryCommand command = new UpdateJournalEntryCommand(
-                request.id(),
-                request.description(),
-                request.notes(),
-                resultingCommandLineList
-        );
-        JournalEntry entry = updateJournalEntryUsecase.updateJournalEntry(command);
-        List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
-        for(JournalLine line: entry.journalLines()){
-            currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
-        }
-        UpdateJournalEntryResponse response = new UpdateJournalEntryResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), currentEntryLineList);
-        log.debug("Ending Rest Controller /journalentry endpoint /update updatedId:[{}] journalLinesCount:[{}]",response.id(),currentEntryLineList.size());
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

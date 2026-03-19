@@ -37,43 +37,63 @@ public class AccountController {
 
     @GetMapping("/all")
     public ResponseEntity<GetAllAccountsResponse> getAll(){
-        log.debug("Starting Rest Controller /accounts endpoint /all");
-        List<Account> domainList = getallAccountsUseCase.getAllAccounts();
-        List<AccountObject> resultingList = new ArrayList<>();
-        for(Account account: domainList){
-            resultingList.add(new AccountObject(account.id(), account.typeId(), account.description(),account.active(),account.notes()));
+        try {
+            log.debug("Starting Rest Controller /accounts endpoint /all");
+            List<Account> domainList = getallAccountsUseCase.getAllAccounts();
+            List<AccountObject> resultingList = new ArrayList<>();
+            for(Account account: domainList){
+                resultingList.add(new AccountObject(account.id(), account.typeId(), account.description(),account.active(),account.notes()));
+            }
+            GetAllAccountsResponse response = new GetAllAccountsResponse(resultingList);
+            log.debug("Ending Rest Controller /accounts endpoint /all with [{}] results",resultingList.size());
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        } catch (RuntimeException ex) {
+            log.error("AccountController.getAll failed", ex);
+            throw ex;
         }
-        GetAllAccountsResponse response = new GetAllAccountsResponse(resultingList);
-        log.debug("Ending Rest Controller /accounts endpoint /all with [{}] results",resultingList.size());
-        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
     @GetMapping("/byid/{id}")
     public ResponseEntity<GetAccountByIdResponse> getById(@PathVariable Long id){
-        log.debug("Starting Rest Controller /accounts endpoint /byid id:[{}]",id);
-        Account foundAccount = getByIdAccountUseCase.getAccountById(id);
-        GetAccountByIdResponse response = new GetAccountByIdResponse(foundAccount.id(), foundAccount.typeId(), foundAccount.description(), foundAccount.active(), foundAccount.notes());
-        log.debug("Ending Rest Controller /accounts endpoint /byid id:[{}]",response.accountId());
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        try {
+            log.debug("Starting Rest Controller /accounts endpoint /byid id:[{}]",id);
+            Account foundAccount = getByIdAccountUseCase.getAccountById(id);
+            GetAccountByIdResponse response = new GetAccountByIdResponse(foundAccount.id(), foundAccount.typeId(), foundAccount.description(), foundAccount.active(), foundAccount.notes());
+            log.debug("Ending Rest Controller /accounts endpoint /byid id:[{}]",response.accountId());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (RuntimeException ex) {
+            log.error("AccountController.getById failed for id:[{}]", id, ex);
+            throw ex;
+        }
     }
 
     @PostMapping("/add")
     public ResponseEntity<CreateAccountResponse> create(@RequestBody CreateAccountRequest request) {
-        log.debug("Starting Rest Controller /accounts endpoint /add typeId:[{}] description:[{}]",request.typeId(),request.description());
-        CreateAccountCommand command = new CreateAccountCommand(request.typeId(), request.description(), request.notes());
-        Account result = createAccountUseCase.createAccount(command);
-        CreateAccountResponse response = new CreateAccountResponse(result.id(), result.typeId(), result.description(), result.active(), result.notes());
-        log.debug("Ending Rest Controller /accounts endpoint /add createdId:[{}]",response.accountId());
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        try {
+            log.debug("Starting Rest Controller /accounts endpoint /add typeId:[{}] description:[{}]",request.typeId(),request.description());
+            CreateAccountCommand command = new CreateAccountCommand(request.typeId(), request.description(), request.notes());
+            Account result = createAccountUseCase.createAccount(command);
+            CreateAccountResponse response = new CreateAccountResponse(result.id(), result.typeId(), result.description(), result.active(), result.notes());
+            log.debug("Ending Rest Controller /accounts endpoint /add createdId:[{}]",response.accountId());
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (RuntimeException ex) {
+            log.error("AccountController.create failed for request:[{}]", request, ex);
+            throw ex;
+        }
     }
 
     @PostMapping("/update")
     public ResponseEntity<UpdateAccountResponse> updateAccount(@RequestBody UpdateAccountRequest request){
-        log.debug("Starting Rest Controller /accounts endpoint /update id:[{}] description:[{}]",request.id(),request.description());
-        UpdateAccountCommand command = new UpdateAccountCommand(request.id(), request.description(), request.notes(), request.active());
-        Account result = updateAccountUseCase.updateAccount(command);
-        UpdateAccountResponse response = new UpdateAccountResponse(request.id(), result.typeId(), result.description(), result.active(), result.notes());
-        log.debug("Ending Rest Controller /accounts endpoint /update updatedId:[{}]",response.accountId());
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        try {
+            log.debug("Starting Rest Controller /accounts endpoint /update id:[{}] description:[{}]",request.id(),request.description());
+            UpdateAccountCommand command = new UpdateAccountCommand(request.id(), request.description(), request.notes(), request.active());
+            Account result = updateAccountUseCase.updateAccount(command);
+            UpdateAccountResponse response = new UpdateAccountResponse(request.id(), result.typeId(), result.description(), result.active(), result.notes());
+            log.debug("Ending Rest Controller /accounts endpoint /update updatedId:[{}]",response.accountId());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (RuntimeException ex) {
+            log.error("AccountController.updateAccount failed for request:[{}]", request, ex);
+            throw ex;
+        }
     }
 }

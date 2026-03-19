@@ -22,17 +22,27 @@ public class AccountClassificationService implements GetAllAccountClassifcations
 
     @Override
     public List<AccountClassification> getAllAccountClassifications() {
-        log.debug("Starting Get All Account Classifications");
-        List<AccountClassification> results = accountClassificationRepository.findAll();
-        log.debug("Ending Get All Account Classifications results:[{}]",results.size());
-        return results;
+        try {
+            log.debug("Starting Get All Account Classifications");
+            List<AccountClassification> results = accountClassificationRepository.findAll();
+            log.debug("Ending Get All Account Classifications results:[{}]",results.size());
+            return results;
+        } catch (RuntimeException ex) {
+            log.error("AccountClassificationService.getAllAccountClassifications failed", ex);
+            throw ex;
+        }
     }
 
     @Override
     public AccountClassification getByIdAccountClassifcation(Long id) {
-        log.debug("Starting Get Account Classification by id:[{}]",id);
-        AccountClassification result = accountClassificationRepository.findById(id);
-        log.debug("Ending Get Account Classification by id:[{}]",result.id());
-        return result;
+        try {
+            log.debug("Starting Get Account Classification by id:[{}]",id);
+            AccountClassification result = accountClassificationRepository.findById(id);
+            log.debug("Ending Get Account Classification by id:[{}]",result.id());
+            return result;
+        } catch (RuntimeException ex) {
+            log.error("AccountClassificationService.getByIdAccountClassifcation failed for id:[{}]", id, ex);
+            throw ex;
+        }
     }
 }
