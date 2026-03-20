@@ -5,7 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import zachkingcade.dev.ledger.adapter.in.web.dto.ApiResponse;
+import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
 import zachkingcade.dev.ledger.adapter.in.web.dto.account.*;
+import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.GetAllAccountClassificationResponse;
 import zachkingcade.dev.ledger.application.commands.account.CreateAccountCommand;
 import zachkingcade.dev.ledger.application.commands.account.UpdateAccountCommand;
 import zachkingcade.dev.ledger.application.port.in.account.CreateAccountUseCase;
@@ -36,7 +39,7 @@ public class AccountController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<GetAllAccountsResponse> getAll(){
+    public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAll(){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /all");
             List<Account> domainList = getallAccountsUseCase.getAllAccounts();
@@ -45,8 +48,9 @@ public class AccountController {
                 resultingList.add(new AccountObject(account.id(), account.typeId(), account.description(),account.active(),account.notes()));
             }
             GetAllAccountsResponse response = new GetAllAccountsResponse(resultingList);
+            ApiResponse<GetAllAccountsResponse> apiResponse = new ApiResponse<>(String.format("Returned [%s] Accounts", resultingList.size()),new MetaData((long) resultingList.size()),response);
             log.debug("Ending Rest Controller /accounts endpoint /all with [{}] results",resultingList.size());
-            return new ResponseEntity<>(response,HttpStatus.OK);
+            return new ResponseEntity< >(apiResponse,HttpStatus.OK);
         } catch (RuntimeException ex) {
             log.error("AccountController.getAll failed", ex);
             throw ex;
@@ -54,13 +58,14 @@ public class AccountController {
     }
 
     @GetMapping("/byid/{id}")
-    public ResponseEntity<GetAccountByIdResponse> getById(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<GetAccountByIdResponse>> getById(@PathVariable Long id){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /byid id:[{}]",id);
             Account foundAccount = getByIdAccountUseCase.getAccountById(id);
             GetAccountByIdResponse response = new GetAccountByIdResponse(foundAccount.id(), foundAccount.typeId(), foundAccount.description(), foundAccount.active(), foundAccount.notes());
+            ApiResponse<GetAccountByIdResponse> apiResponse = new ApiResponse<>(String.format("Returned Account of ID:[%s]", id),new MetaData(1L),response);
             log.debug("Ending Rest Controller /accounts endpoint /byid id:[{}]",response.accountId());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         } catch (RuntimeException ex) {
             log.error("AccountController.getById failed for id:[{}]", id, ex);
             throw ex;
@@ -68,14 +73,15 @@ public class AccountController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<CreateAccountResponse> create(@RequestBody CreateAccountRequest request) {
+    public ResponseEntity<ApiResponse<CreateAccountResponse>> create(@RequestBody CreateAccountRequest request) {
         try {
             log.debug("Starting Rest Controller /accounts endpoint /add typeId:[{}] description:[{}]",request.typeId(),request.description());
             CreateAccountCommand command = new CreateAccountCommand(request.typeId(), request.description(), request.notes());
             Account result = createAccountUseCase.createAccount(command);
             CreateAccountResponse response = new CreateAccountResponse(result.id(), result.typeId(), result.description(), result.active(), result.notes());
+            ApiResponse<CreateAccountResponse> apiResponse = new ApiResponse<>(String.format("Created Account [%s]", request.description()),new MetaData(1L),response);
             log.debug("Ending Rest Controller /accounts endpoint /add createdId:[{}]",response.accountId());
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
         } catch (RuntimeException ex) {
             log.error("AccountController.create failed for request:[{}]", request, ex);
             throw ex;
@@ -83,14 +89,15 @@ public class AccountController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<UpdateAccountResponse> updateAccount(@RequestBody UpdateAccountRequest request){
+    public ResponseEntity<ApiResponse<UpdateAccountResponse>> updateAccount(@RequestBody UpdateAccountRequest request){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /update id:[{}] description:[{}]",request.id(),request.description());
             UpdateAccountCommand command = new UpdateAccountCommand(request.id(), request.description(), request.notes(), request.active());
             Account result = updateAccountUseCase.updateAccount(command);
             UpdateAccountResponse response = new UpdateAccountResponse(request.id(), result.typeId(), result.description(), result.active(), result.notes());
+            ApiResponse<UpdateAccountResponse> apiResponse = new ApiResponse<>(String.format("Updated Account of ID:[%s]", request.id()),new MetaData(1L),response);
             log.debug("Ending Rest Controller /accounts endpoint /update updatedId:[{}]",response.accountId());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         } catch (RuntimeException ex) {
             log.error("AccountController.updateAccount failed for request:[{}]", request, ex);
             throw ex;
