@@ -12,10 +12,6 @@
 ### Bugs
 
 ### Improvements
-- Add basic metadata to responseDTO for accounts
-- Add basic metadata to responseDTO for account types
-- Add basic metadata to responseDTO for account classifications
-- Add basic metadata to responseDTO for journal entries
 
 ### Docs
 

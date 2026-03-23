@@ -27,12 +27,12 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
     @Override
     public JournalEntry createJournalEntry(CreateJournalEntryCommand command) {
         try {
-            log.debug("Starting Create Journal Entry entryDate:[{}] descriptionLength:[{}] notesLength:[{}] journalLinesCount:[{}]",command.entryDate(),command.description().length(),command.notes() == null ? 0 : command.notes().length(),command.journalLinesList().size());
+            log.debug("Starting Create Journal Entry entryDate:[{}] description:[{}] journalLinesCount:[{}]",command.entryDate(),command.description(),command.journalLinesList().size());
             List<JournalLine> lineList = new ArrayList<>();
             for(JournalLineCommandObject line : command.journalLinesList()){
-                lineList.add(JournalLine.createNew(line.amount(), line.accountId(), line.direction(), line.notes()));
+                lineList.add(JournalLine.createNew(line.amount(), line.accountId(), line.direction(), line.notes().orElse("")));
             }
-            JournalEntry entry = JournalEntry.createNew(command.entryDate(), command.description(), command.notes(),lineList);
+            JournalEntry entry = JournalEntry.createNew(command.entryDate(), command.description(), command.notes().orElse(""),lineList);
             JournalEntry saved = journalEntryRepository.save(entry);
             log.debug("Ending Create Journal Entry createdId:[{}] journalLinesCount:[{}]",saved.id(),saved.journalLines().size());
             return saved;
