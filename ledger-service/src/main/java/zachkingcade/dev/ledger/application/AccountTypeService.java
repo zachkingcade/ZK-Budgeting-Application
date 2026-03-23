@@ -2,8 +2,10 @@ package zachkingcade.dev.ledger.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.application.commands.accounttype.CreateAccountTypeCommand;
+import zachkingcade.dev.ledger.application.commands.accounttype.GetAllAccountTypesCommand;
 import zachkingcade.dev.ledger.application.commands.accounttype.UpdateAccountTypeCommand;
 import zachkingcade.dev.ledger.application.exception.ApplicationException;
 import zachkingcade.dev.ledger.application.port.in.accounttype.CreateAccountTypeUseCase;
@@ -12,6 +14,8 @@ import zachkingcade.dev.ledger.application.port.in.accounttype.GetByIdAccountTyp
 import zachkingcade.dev.ledger.application.port.in.accounttype.UpdateAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.out.accounttype.AccountClassificationRepositoryPort;
 import zachkingcade.dev.ledger.application.port.out.accounttype.AccountTypeRepositoryPort;
+import zachkingcade.dev.ledger.application.validation.SortDirection;
+import zachkingcade.dev.ledger.domain.account.Account;
 import zachkingcade.dev.ledger.domain.account.AccountType;
 
 import java.util.List;
@@ -29,10 +33,16 @@ public class AccountTypeService implements CreateAccountTypeUseCase, GetAllAccou
     }
 
     @Override
-    public List<AccountType> getAllAccountTypes() {
+    public List<AccountType> getAllAccountTypes(GetAllAccountTypesCommand command) {
         try {
             log.debug("Starting Get All Account Types");
-            List<AccountType> results = accountTypeRepository.findAll();
+            List<AccountType> results;
+            if(command.sort().isPresent()){
+                Sort sort = Sort.by(command.sort().get().direction() == SortDirection.ascending? Sort.Direction.ASC : Sort.Direction.DESC, command.sort().get().type().toString());
+                results = accountTypeRepository.findAll(sort);
+            } else {
+                results = accountTypeRepository.findAll();
+            }
             log.debug("Ending Get All Account Types results:[{}]", results.size());
             return results;
         } catch (RuntimeException ex) {

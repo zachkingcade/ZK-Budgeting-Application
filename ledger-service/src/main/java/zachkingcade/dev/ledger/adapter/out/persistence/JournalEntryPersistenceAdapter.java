@@ -1,5 +1,6 @@
 package zachkingcade.dev.ledger.adapter.out.persistence;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalEntryEntity;
@@ -42,6 +43,16 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
     @Override
     public List<JournalEntry> findAll() {
         List<JournalEntryEntity> list = journalEntryJpaRepository.findAll();
+        List<JournalEntry> resultingEntriesList = new ArrayList<>();
+        for(JournalEntryEntity entry: list){
+            resultingEntriesList.add(mapToDomain(entry));
+        }
+        return resultingEntriesList;
+    }
+
+    @Override
+    public List<JournalEntry> findAll(Sort sort) {
+        List<JournalEntryEntity> list = journalEntryJpaRepository.findAll(sort);
         List<JournalEntry> resultingEntriesList = new ArrayList<>();
         for(JournalEntryEntity entry: list){
             resultingEntriesList.add(mapToDomain(entry));

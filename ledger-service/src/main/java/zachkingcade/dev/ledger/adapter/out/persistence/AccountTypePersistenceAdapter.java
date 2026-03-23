@@ -1,5 +1,6 @@
 package zachkingcade.dev.ledger.adapter.out.persistence;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountClassificationEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountTypeEntity;
@@ -28,6 +29,18 @@ public class AccountTypePersistenceAdapter implements AccountTypeRepositoryPort 
     @Override
     public List<AccountType> findAll() {
         List<AccountTypeEntity> AccountTypeList = accountTypeJpaRepository.findAll();
+
+        List<AccountType> resultingList = new ArrayList<>();
+        for(AccountTypeEntity entity: AccountTypeList){
+            resultingList.add(AccountType.rehydrate(entity.getId(), entity.getDescription(),entity.getClassification().getId(),entity.getNotes(),entity.isActive()));
+        }
+
+        return resultingList;
+    }
+
+    @Override
+    public List<AccountType> findAll(Sort sort) {
+        List<AccountTypeEntity> AccountTypeList = accountTypeJpaRepository.findAll(sort);
 
         List<AccountType> resultingList = new ArrayList<>();
         for(AccountTypeEntity entity: AccountTypeList){

@@ -2,10 +2,13 @@ package zachkingcade.dev.ledger.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.application.commands.journal.*;
 import zachkingcade.dev.ledger.application.port.in.journal.*;
 import zachkingcade.dev.ledger.application.port.out.journal.JournalEntryRepositoryPort;
+import zachkingcade.dev.ledger.application.validation.SortDirection;
+import zachkingcade.dev.ledger.domain.account.AccountType;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
 
@@ -43,10 +46,16 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
     }
 
     @Override
-    public List<JournalEntry> getAllJournalEntries() {
+    public List<JournalEntry> getAllJournalEntries(GetAllJournalEntrysCommand command) {
         try {
             log.debug("Starting Get All Journal Entries");
-            List<JournalEntry> results = journalEntryRepository.findAll();
+            List<JournalEntry> results;
+            if(command.sort().isPresent()){
+                Sort sort = Sort.by(command.sort().get().direction() == SortDirection.ascending? Sort.Direction.ASC : Sort.Direction.DESC, command.sort().get().type().toString());
+                results = journalEntryRepository.findAll(sort);
+            } else {
+                results = journalEntryRepository.findAll();
+            }
             log.debug("Ending Get All Journal Entries results:[{}]",results.size());
             return results;
         } catch (RuntimeException ex) {

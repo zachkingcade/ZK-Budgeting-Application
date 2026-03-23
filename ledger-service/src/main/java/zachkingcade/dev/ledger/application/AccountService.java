@@ -2,7 +2,9 @@ package zachkingcade.dev.ledger.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import zachkingcade.dev.ledger.application.commands.account.GetAllAccountCommand;
 import zachkingcade.dev.ledger.application.port.in.account.CreateAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetByIdAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetAllAccountsUseCase;
@@ -11,6 +13,7 @@ import zachkingcade.dev.ledger.application.commands.account.CreateAccountCommand
 import zachkingcade.dev.ledger.application.commands.account.UpdateAccountCommand;
 import zachkingcade.dev.ledger.application.exception.ApplicationException;
 import zachkingcade.dev.ledger.application.port.out.account.AccountRepositoryPort;
+import zachkingcade.dev.ledger.application.validation.SortDirection;
 import zachkingcade.dev.ledger.domain.account.Account;
 
 import java.util.List;
@@ -25,10 +28,16 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
         this.accountRepository = accountRepository;
     }
 
-    public List<Account> getAllAccounts(){
+    public List<Account> getAllAccounts(GetAllAccountCommand command){
         try {
             log.debug("Starting Get All Accounts");
-            List<Account> results = accountRepository.findAll();
+            List<Account> results;
+            if(command.sort().isPresent()){
+                Sort sort = Sort.by(command.sort().get().direction() == SortDirection.ascending? Sort.Direction.ASC : Sort.Direction.DESC, command.sort().get().type().toString());
+                results = accountRepository.findAll(sort);
+            } else {
+                results = accountRepository.findAll();
+            }
             log.debug("Ending Get All Accounts results:[{}]", results.size());
             return results;
         } catch (RuntimeException ex) {

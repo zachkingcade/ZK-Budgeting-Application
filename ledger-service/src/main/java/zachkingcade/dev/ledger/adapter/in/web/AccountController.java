@@ -9,16 +9,22 @@ import zachkingcade.dev.ledger.adapter.in.web.dto.ApiResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
 import zachkingcade.dev.ledger.adapter.in.web.dto.account.*;
 import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.GetAllAccountClassificationResponse;
+import zachkingcade.dev.ledger.adapter.in.web.dto.shared.SortObject;
 import zachkingcade.dev.ledger.application.commands.account.CreateAccountCommand;
+import zachkingcade.dev.ledger.application.commands.account.GetAllAccountCommand;
 import zachkingcade.dev.ledger.application.commands.account.UpdateAccountCommand;
+import zachkingcade.dev.ledger.application.commands.shared.SortObjectCommandObject;
 import zachkingcade.dev.ledger.application.port.in.account.CreateAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetByIdAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetAllAccountsUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.UpdateAccountUseCase;
+import zachkingcade.dev.ledger.application.validation.AccountSortType;
+import zachkingcade.dev.ledger.application.validation.SortDirection;
 import zachkingcade.dev.ledger.domain.account.Account;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/accounts")
@@ -39,10 +45,20 @@ public class AccountController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAll(){
+    public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAll(@RequestBody(required = false) GetAllAccountsRequest request){
         try {
-            log.debug("Starting Rest Controller /accounts endpoint /all");
-            List<Account> domainList = getallAccountsUseCase.getAllAccounts();
+            log.debug("Starting Rest Controller /accounts endpoint /all request[{}]", request);
+            // Sanitize Request
+            SortObjectCommandObject<AccountSortType> sort = null;
+            if(request != null && request.sort().isPresent()){
+                sort = new SortObjectCommandObject<>(request.sort().get().type(), request.sort().get().direction() != null? request.sort().get().direction() : SortDirection.ascending );
+            } else {
+                //default
+                sort = new SortObjectCommandObject<>(AccountSortType.id, SortDirection.ascending);
+            }
+
+            GetAllAccountCommand command = new GetAllAccountCommand(Optional.of(sort));
+            List<Account> domainList = getallAccountsUseCase.getAllAccounts(command);
             List<AccountObject> resultingList = new ArrayList<>();
             for(Account account: domainList){
                 resultingList.add(new AccountObject(account.id(), account.typeId(), account.description(),account.active(),account.notes()));

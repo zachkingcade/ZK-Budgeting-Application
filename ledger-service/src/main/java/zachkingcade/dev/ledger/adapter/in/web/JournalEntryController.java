@@ -7,15 +7,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import zachkingcade.dev.ledger.adapter.in.web.dto.ApiResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
-import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.GetAllAccountClassificationResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.journal.*;
-import zachkingcade.dev.ledger.application.AccountService;
 import zachkingcade.dev.ledger.application.commands.journal.*;
+import zachkingcade.dev.ledger.application.commands.shared.SortObjectCommandObject;
 import zachkingcade.dev.ledger.application.port.in.journal.*;
+import zachkingcade.dev.ledger.application.validation.JournalEntrySortType;
+import zachkingcade.dev.ledger.application.validation.SortDirection;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/journalentry")
@@ -37,10 +39,20 @@ public class JournalEntryController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> getAll(){
+    public ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> getAll(@RequestBody(required = false) GetAllJournalEntryRequest request){
         try {
             log.debug("Starting Rest Controller /journalentry endpoint /all");
-            List<JournalEntry> entryList = getAllJournalEntryUsecase.getAllJournalEntries();
+            // Sanitize Request
+            SortObjectCommandObject<JournalEntrySortType> sort = null;
+            if(request != null && request.sort().isPresent()){
+                sort = new SortObjectCommandObject<>(request.sort().get().type(), request.sort().get().direction() != null? request.sort().get().direction() : SortDirection.ascending );
+            } else {
+                //default
+                sort = new SortObjectCommandObject<>(JournalEntrySortType.entryDate, SortDirection.ascending);
+            }
+
+            GetAllJournalEntrysCommand command = new GetAllJournalEntrysCommand(Optional.of(sort));
+            List<JournalEntry> entryList = getAllJournalEntryUsecase.getAllJournalEntries(command);
             List<JournalEntryDTOResponse> resultingEntryList = new ArrayList<>();
             for(JournalEntry entry : entryList){
                 List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();

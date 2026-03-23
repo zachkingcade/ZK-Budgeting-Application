@@ -1,5 +1,6 @@
 package zachkingcade.dev.ledger.application.port.out.journal;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 
@@ -11,7 +12,10 @@ public interface JournalEntryRepositoryPort {
 
     List<JournalEntry> findAll();
 
+    List<JournalEntry> findAll(Sort sort);
+
     void removeJournalEntry(Long id);
 
     JournalEntry save(JournalEntry journalEntryToSave);
+
 }

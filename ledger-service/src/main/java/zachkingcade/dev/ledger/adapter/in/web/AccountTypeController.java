@@ -10,15 +10,21 @@ import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
 import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.GetAllAccountClassificationResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.accounttype.*;
 import zachkingcade.dev.ledger.application.commands.accounttype.CreateAccountTypeCommand;
+import zachkingcade.dev.ledger.application.commands.accounttype.GetAllAccountTypesCommand;
 import zachkingcade.dev.ledger.application.commands.accounttype.UpdateAccountTypeCommand;
+import zachkingcade.dev.ledger.application.commands.shared.SortObjectCommandObject;
 import zachkingcade.dev.ledger.application.port.in.accounttype.CreateAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.GetAllAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.GetByIdAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.UpdateAccountTypeUseCase;
+import zachkingcade.dev.ledger.application.validation.AccountSortType;
+import zachkingcade.dev.ledger.application.validation.AccountTypeSortType;
+import zachkingcade.dev.ledger.application.validation.SortDirection;
 import zachkingcade.dev.ledger.domain.account.AccountType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/accounttypes")
@@ -39,10 +45,20 @@ public class AccountTypeController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<GetAllAccountTypesResponse>> getAllAccountTypes(){
+    public ResponseEntity<ApiResponse<GetAllAccountTypesResponse>> getAllAccountTypes(@RequestBody(required = false) GetAllAccountTypesRequest request){
         try {
             log.debug("Starting Rest Controller /accounttypes endpoint /all");
-            List<AccountType> list = getallAccountTypeUseCase.getAllAccountTypes();
+            // Sanitize Request
+            SortObjectCommandObject<AccountTypeSortType> sort = null;
+            if(request != null && request.sort().isPresent()){
+                sort = new SortObjectCommandObject<>(request.sort().get().type(), request.sort().get().direction() != null? request.sort().get().direction() : SortDirection.ascending );
+            } else {
+                //default
+                sort = new SortObjectCommandObject<>(AccountTypeSortType.id, SortDirection.ascending);
+            }
+
+            GetAllAccountTypesCommand command = new GetAllAccountTypesCommand(Optional.of(sort));
+            List<AccountType> list = getallAccountTypeUseCase.getAllAccountTypes(command);
 
             List<AccountTypeObject> resultingList = new ArrayList<>();
             for(AccountType accountType: list){

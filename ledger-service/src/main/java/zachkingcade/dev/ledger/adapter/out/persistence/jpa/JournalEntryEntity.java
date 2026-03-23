@@ -19,7 +19,7 @@ public class JournalEntryEntity {
     @Setter
     private Long id;
 
-    @Column(name = "entry_date", nullable = false)
+    @Column(name = "entryDate", nullable = false)
     @Getter
     @Setter
     private Date entryDate;
