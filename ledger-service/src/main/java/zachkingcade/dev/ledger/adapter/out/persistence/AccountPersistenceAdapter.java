@@ -1,6 +1,7 @@
 package zachkingcade.dev.ledger.adapter.out.persistence;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountTypeEntity;
@@ -29,21 +30,30 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
     @Override
     public List<Account> findAll() {
         List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll();
-        // Convert to domain objects
-        List<Account> results = new ArrayList<>();
-        for(AccountEntity entity : accountEntitiesList){
-            Account newResultItem = Account.rehydrate(entity.getId(), entity.getType().getId(), entity.getDescription(),entity.isActive(), entity.getNotes());
-            results.add(newResultItem);
-        }
-        return results;
+        return convertListOfAccountToDomain(accountEntitiesList);
     }
 
     @Override
     public List<Account> findAll(Sort sort) {
         List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll(sort);
-        // Convert to domain objects
+        return convertListOfAccountToDomain(accountEntitiesList);
+    }
+
+    @Override
+    public List<Account> findAll(Specification<AccountEntity> spec) {
+        List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll(spec);
+        return convertListOfAccountToDomain(accountEntitiesList);
+    }
+
+    @Override
+    public List<Account> findAll(Specification<AccountEntity> spec, Sort sort) {
+        List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll(spec,sort);
+        return convertListOfAccountToDomain(accountEntitiesList);
+    }
+
+    private List<Account> convertListOfAccountToDomain(List<AccountEntity> accountEntityList){
         List<Account> results = new ArrayList<>();
-        for(AccountEntity entity : accountEntitiesList){
+        for(AccountEntity entity : accountEntityList){
             Account newResultItem = Account.rehydrate(entity.getId(), entity.getType().getId(), entity.getDescription(),entity.isActive(), entity.getNotes());
             results.add(newResultItem);
         }

@@ -6,6 +6,7 @@ import zachkingcade.dev.ledger.application.validation.JournalEntrySortType;
 import java.util.Optional;
 
 public record GetAllJournalEntryRequest(
-        Optional<SortObject<JournalEntrySortType>> sort
+        Optional<SortObject<JournalEntrySortType>> sort,
+        Optional<JournalEntryFilters> filters
 ) {
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import zachkingcade.dev.ledger.adapter.in.web.dto.ApiResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
 import zachkingcade.dev.ledger.adapter.in.web.dto.journal.*;
+import zachkingcade.dev.ledger.application.commands.accounttype.AccountTypeFilterCommandObject;
 import zachkingcade.dev.ledger.application.commands.journal.*;
 import zachkingcade.dev.ledger.application.commands.shared.SortObjectCommandObject;
 import zachkingcade.dev.ledger.application.port.in.journal.*;
@@ -51,7 +52,23 @@ public class JournalEntryController {
                 sort = new SortObjectCommandObject<>(JournalEntrySortType.entryDate, SortDirection.ascending);
             }
 
-            GetAllJournalEntrysCommand command = new GetAllJournalEntrysCommand(Optional.of(sort));
+            // Sanitize Request Filters
+            JournalEntryFilterCommandObject filters = null;
+            if(request != null && request.filters().isPresent()){
+                filters = new JournalEntryFilterCommandObject(
+                        request.filters().get().dateAfter(),
+                        request.filters().get().dateBefore(),
+                        request.filters().get().descriptionContains(),
+                        request.filters().get().notesContains(),
+                        request.filters().get().accountTypes(),
+                        request.filters().get().accounts()
+                );
+            } else {
+                //default
+                filters = new JournalEntryFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty());
+            }
+
+            GetAllJournalEntrysCommand command = new GetAllJournalEntrysCommand(Optional.of(sort), Optional.of(filters));
             List<JournalEntry> entryList = getAllJournalEntryUsecase.getAllJournalEntries(command);
             List<JournalEntryDTOResponse> resultingEntryList = new ArrayList<>();
             for(JournalEntry entry : entryList){

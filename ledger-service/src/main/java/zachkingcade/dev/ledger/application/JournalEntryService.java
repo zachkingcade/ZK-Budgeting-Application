@@ -3,11 +3,15 @@ package zachkingcade.dev.ledger.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
+import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalEntryEntity;
 import zachkingcade.dev.ledger.application.commands.journal.*;
 import zachkingcade.dev.ledger.application.port.in.journal.*;
 import zachkingcade.dev.ledger.application.port.out.journal.JournalEntryRepositoryPort;
 import zachkingcade.dev.ledger.application.validation.SortDirection;
+import zachkingcade.dev.ledger.domain.account.Account;
 import zachkingcade.dev.ledger.domain.account.AccountType;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
@@ -16,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static zachkingcade.dev.ledger.adapter.out.persistence.specification.JournalEntrySpecifications.*;
 
 @Service
 public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJournalEntryUsecase, GetByIdJournalEntryUseCase, UpdateJournalEntryUsecase, RemoveByIdJournalEntryUseCase {
@@ -49,13 +55,35 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
     public List<JournalEntry> getAllJournalEntries(GetAllJournalEntrysCommand command) {
         try {
             log.debug("Starting Get All Journal Entries");
+
             List<JournalEntry> results;
+            Sort sort = null;
+            Specification<JournalEntryEntity> spec = null;
+
             if(command.sort().isPresent()){
-                Sort sort = Sort.by(command.sort().get().direction() == SortDirection.ascending? Sort.Direction.ASC : Sort.Direction.DESC, command.sort().get().type().toString());
+                sort = Sort.by(command.sort().get().direction() == SortDirection.ascending? Sort.Direction.ASC : Sort.Direction.DESC, command.sort().get().type().toString());
+            }
+
+            if(command.filters().isPresent()){
+                spec = Specification
+                        .where(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
+                        .and(dateAfter(command.filters().get().dateAfter().orElse(null)))
+                        .and(dateBefore(command.filters().get().dateBefore().orElse(null)))
+                        .and(accountIdsWithin(command.filters().get().accounts().orElse(null)))
+                        .and(accountTypeIdsWithin(command.filters().get().accountTypes().orElse(null)))
+                        .and(notesContains(command.filters().get().notesContains().orElse(null)));
+            }
+
+            if(sort != null && spec == null){
                 results = journalEntryRepository.findAll(sort);
+            } else if (sort == null && spec != null){
+                results = journalEntryRepository.findAll(spec);
+            } else if (sort != null && spec != null){
+                results = journalEntryRepository.findAll(spec, sort);
             } else {
                 results = journalEntryRepository.findAll();
             }
+
             log.debug("Ending Get All Journal Entries results:[{}]",results.size());
             return results;
         } catch (RuntimeException ex) {

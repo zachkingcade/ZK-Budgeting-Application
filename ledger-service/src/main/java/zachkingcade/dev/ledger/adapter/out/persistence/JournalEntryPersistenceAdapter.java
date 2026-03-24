@@ -1,6 +1,7 @@
 package zachkingcade.dev.ledger.adapter.out.persistence;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalEntryEntity;
@@ -43,21 +44,33 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
     @Override
     public List<JournalEntry> findAll() {
         List<JournalEntryEntity> list = journalEntryJpaRepository.findAll();
-        List<JournalEntry> resultingEntriesList = new ArrayList<>();
-        for(JournalEntryEntity entry: list){
-            resultingEntriesList.add(mapToDomain(entry));
-        }
-        return resultingEntriesList;
+        return convertListOfJournalEntrysToDomain(list);
     }
 
     @Override
     public List<JournalEntry> findAll(Sort sort) {
         List<JournalEntryEntity> list = journalEntryJpaRepository.findAll(sort);
+        return convertListOfJournalEntrysToDomain(list);
+    }
+
+    @Override
+    public List<JournalEntry> findAll(Specification<JournalEntryEntity> spec) {
+        List<JournalEntryEntity> list = journalEntryJpaRepository.findAll(spec);
+        return convertListOfJournalEntrysToDomain(list);
+    }
+
+    @Override
+    public List<JournalEntry> findAll(Specification<JournalEntryEntity> spec, Sort sort) {
+        List<JournalEntryEntity> list = journalEntryJpaRepository.findAll(spec,sort);
+        return convertListOfJournalEntrysToDomain(list);
+    }
+
+    private List<JournalEntry> convertListOfJournalEntrysToDomain(List<JournalEntryEntity> journalEntryEntityList){
         List<JournalEntry> resultingEntriesList = new ArrayList<>();
-        for(JournalEntryEntity entry: list){
+        for(JournalEntryEntity entry: journalEntryEntityList){
             resultingEntriesList.add(mapToDomain(entry));
         }
-        return resultingEntriesList;
+        return  resultingEntriesList;
     }
 
     @Override

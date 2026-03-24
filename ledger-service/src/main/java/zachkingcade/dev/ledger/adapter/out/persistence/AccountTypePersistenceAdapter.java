@@ -1,6 +1,7 @@
 package zachkingcade.dev.ledger.adapter.out.persistence;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountClassificationEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountTypeEntity;
@@ -29,24 +30,32 @@ public class AccountTypePersistenceAdapter implements AccountTypeRepositoryPort 
     @Override
     public List<AccountType> findAll() {
         List<AccountTypeEntity> AccountTypeList = accountTypeJpaRepository.findAll();
-
-        List<AccountType> resultingList = new ArrayList<>();
-        for(AccountTypeEntity entity: AccountTypeList){
-            resultingList.add(AccountType.rehydrate(entity.getId(), entity.getDescription(),entity.getClassification().getId(),entity.getNotes(),entity.isActive()));
-        }
-
-        return resultingList;
+        return convertListOfAccountTypesToDomain(AccountTypeList);
     }
 
     @Override
     public List<AccountType> findAll(Sort sort) {
         List<AccountTypeEntity> AccountTypeList = accountTypeJpaRepository.findAll(sort);
+        return convertListOfAccountTypesToDomain(AccountTypeList);
+    }
 
+    @Override
+    public List<AccountType> findAll(Specification<AccountTypeEntity> spec) {
+        List<AccountTypeEntity> AccountTypeList = accountTypeJpaRepository.findAll(spec);
+        return convertListOfAccountTypesToDomain(AccountTypeList);
+    }
+
+    @Override
+    public List<AccountType> findAll(Specification<AccountTypeEntity> spec, Sort sort) {
+        List<AccountTypeEntity> AccountTypeList = accountTypeJpaRepository.findAll(spec, sort);
+        return convertListOfAccountTypesToDomain(AccountTypeList);
+    }
+
+    private List<AccountType> convertListOfAccountTypesToDomain(List<AccountTypeEntity> accountTypeEntityList){
         List<AccountType> resultingList = new ArrayList<>();
-        for(AccountTypeEntity entity: AccountTypeList){
+        for(AccountTypeEntity entity: accountTypeEntityList){
             resultingList.add(AccountType.rehydrate(entity.getId(), entity.getDescription(),entity.getClassification().getId(),entity.getNotes(),entity.isActive()));
         }
-
         return resultingList;
     }
 

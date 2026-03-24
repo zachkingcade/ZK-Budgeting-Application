@@ -3,7 +3,10 @@ package zachkingcade.dev.ledger.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
+import zachkingcade.dev.ledger.adapter.out.persistence.specification.AccountSpecifications;
 import zachkingcade.dev.ledger.application.commands.account.GetAllAccountCommand;
 import zachkingcade.dev.ledger.application.port.in.account.CreateAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetByIdAccountUseCase;
@@ -17,6 +20,8 @@ import zachkingcade.dev.ledger.application.validation.SortDirection;
 import zachkingcade.dev.ledger.domain.account.Account;
 
 import java.util.List;
+
+import static zachkingcade.dev.ledger.adapter.out.persistence.specification.AccountSpecifications.*;
 
 @Service
 public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseCase, CreateAccountUseCase, UpdateAccountUseCase {
@@ -32,12 +37,32 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
         try {
             log.debug("Starting Get All Accounts");
             List<Account> results;
+            Sort sort = null;
+            Specification<AccountEntity> spec = null;
+
             if(command.sort().isPresent()){
-                Sort sort = Sort.by(command.sort().get().direction() == SortDirection.ascending? Sort.Direction.ASC : Sort.Direction.DESC, command.sort().get().type().toString());
+                sort = Sort.by(command.sort().get().direction() == SortDirection.ascending? Sort.Direction.ASC : Sort.Direction.DESC, command.sort().get().type().toString());
+            }
+
+            if(command.filters().isPresent()){
+                spec = Specification
+                        .where(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
+                        .and(notesContains(command.filters().get().notesContains().orElse(null)))
+                        .and(typeIdWithin(command.filters().get().accountTypes().orElse(null)))
+                        .and(hideInactive(command.filters().get().hideInactive().orElse(null)))
+                        .and(hideActive(command.filters().get().hideActive().orElse(null)));
+            }
+
+            if(sort != null && spec == null){
                 results = accountRepository.findAll(sort);
+            } else if (sort == null && spec != null){
+                results = accountRepository.findAll(spec);
+            } else if (sort != null && spec != null){
+                results = accountRepository.findAll(spec, sort);
             } else {
                 results = accountRepository.findAll();
             }
+
             log.debug("Ending Get All Accounts results:[{}]", results.size());
             return results;
         } catch (RuntimeException ex) {

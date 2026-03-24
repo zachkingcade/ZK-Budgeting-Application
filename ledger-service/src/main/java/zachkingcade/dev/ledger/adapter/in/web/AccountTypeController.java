@@ -9,6 +9,8 @@ import zachkingcade.dev.ledger.adapter.in.web.dto.ApiResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
 import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.GetAllAccountClassificationResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.accounttype.*;
+import zachkingcade.dev.ledger.application.commands.account.AccountFilterCommandObject;
+import zachkingcade.dev.ledger.application.commands.accounttype.AccountTypeFilterCommandObject;
 import zachkingcade.dev.ledger.application.commands.accounttype.CreateAccountTypeCommand;
 import zachkingcade.dev.ledger.application.commands.accounttype.GetAllAccountTypesCommand;
 import zachkingcade.dev.ledger.application.commands.accounttype.UpdateAccountTypeCommand;
@@ -57,7 +59,22 @@ public class AccountTypeController {
                 sort = new SortObjectCommandObject<>(AccountTypeSortType.id, SortDirection.ascending);
             }
 
-            GetAllAccountTypesCommand command = new GetAllAccountTypesCommand(Optional.of(sort));
+            // Sanitize Request Filters
+            AccountTypeFilterCommandObject filters = null;
+            if(request != null && request.filters().isPresent()){
+                filters = new AccountTypeFilterCommandObject(
+                        request.filters().get().descriptionContains(),
+                        request.filters().get().notesContains(),
+                        request.filters().get().accountClass(),
+                        request.filters().get().hideInactive(),
+                        request.filters().get().hideActive()
+                );
+            } else {
+                //default
+                filters = new AccountTypeFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(), Optional.of(false), Optional.of(false));
+            }
+
+            GetAllAccountTypesCommand command = new GetAllAccountTypesCommand(Optional.of(sort), Optional.of(filters));
             List<AccountType> list = getallAccountTypeUseCase.getAllAccountTypes(command);
 
             List<AccountTypeObject> resultingList = new ArrayList<>();

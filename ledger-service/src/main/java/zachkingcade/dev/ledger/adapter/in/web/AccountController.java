@@ -10,6 +10,7 @@ import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
 import zachkingcade.dev.ledger.adapter.in.web.dto.account.*;
 import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.GetAllAccountClassificationResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.shared.SortObject;
+import zachkingcade.dev.ledger.application.commands.account.AccountFilterCommandObject;
 import zachkingcade.dev.ledger.application.commands.account.CreateAccountCommand;
 import zachkingcade.dev.ledger.application.commands.account.GetAllAccountCommand;
 import zachkingcade.dev.ledger.application.commands.account.UpdateAccountCommand;
@@ -48,7 +49,7 @@ public class AccountController {
     public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAll(@RequestBody(required = false) GetAllAccountsRequest request){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /all request[{}]", request);
-            // Sanitize Request
+            // Sanitize Request sort
             SortObjectCommandObject<AccountSortType> sort = null;
             if(request != null && request.sort().isPresent()){
                 sort = new SortObjectCommandObject<>(request.sort().get().type(), request.sort().get().direction() != null? request.sort().get().direction() : SortDirection.ascending );
@@ -57,7 +58,22 @@ public class AccountController {
                 sort = new SortObjectCommandObject<>(AccountSortType.id, SortDirection.ascending);
             }
 
-            GetAllAccountCommand command = new GetAllAccountCommand(Optional.of(sort));
+            // Sanitize Request Filters
+            AccountFilterCommandObject filters = null;
+            if(request != null && request.filters().isPresent()){
+                filters = new AccountFilterCommandObject(
+                        request.filters().get().descriptionContains(),
+                        request.filters().get().notesContains(),
+                        request.filters().get().accountTypes(),
+                        request.filters().get().hideInactive(),
+                        request.filters().get().hideActive()
+                );
+            } else {
+                //default
+                filters = new AccountFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(), Optional.of(false), Optional.of(false));
+            }
+
+            GetAllAccountCommand command = new GetAllAccountCommand(Optional.of(sort), Optional.of(filters));
             List<Account> domainList = getallAccountsUseCase.getAllAccounts(command);
             List<AccountObject> resultingList = new ArrayList<>();
             for(Account account: domainList){
