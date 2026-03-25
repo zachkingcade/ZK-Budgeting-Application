@@ -4,4 +4,6 @@ import zachkingcade.dev.ledger.domain.account.Account;
 
 import java.util.List;
 
-public record GetAllAccountsResponse(List<AccountObject> accountsList) { }
+public record GetAllAccountsResponse(
+        List<AccountEnrichedObject> accountsList
+) { }

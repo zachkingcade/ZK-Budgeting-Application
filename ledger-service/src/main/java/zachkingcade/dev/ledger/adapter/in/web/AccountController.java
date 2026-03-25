@@ -8,24 +8,32 @@ import org.springframework.web.bind.annotation.*;
 import zachkingcade.dev.ledger.adapter.in.web.dto.ApiResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
 import zachkingcade.dev.ledger.adapter.in.web.dto.account.*;
-import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.GetAllAccountClassificationResponse;
-import zachkingcade.dev.ledger.adapter.in.web.dto.shared.SortObject;
 import zachkingcade.dev.ledger.application.commands.account.AccountFilterCommandObject;
 import zachkingcade.dev.ledger.application.commands.account.CreateAccountCommand;
 import zachkingcade.dev.ledger.application.commands.account.GetAllAccountCommand;
 import zachkingcade.dev.ledger.application.commands.account.UpdateAccountCommand;
+import zachkingcade.dev.ledger.application.commands.accounttype.GetAllAccountTypesCommand;
 import zachkingcade.dev.ledger.application.commands.shared.SortObjectCommandObject;
 import zachkingcade.dev.ledger.application.port.in.account.CreateAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetByIdAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetAllAccountsUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.UpdateAccountUseCase;
+import zachkingcade.dev.ledger.application.port.in.accountclassification.GetAllAccountClassifcationsUseCase;
+import zachkingcade.dev.ledger.application.port.in.accountclassification.GetByIdAccountClassificaitonUseCase;
+import zachkingcade.dev.ledger.application.port.in.accounttype.GetAllAccountTypeUseCase;
+import zachkingcade.dev.ledger.application.port.in.accounttype.GetByIdAccountTypeUseCase;
+import zachkingcade.dev.ledger.application.port.in.journal.GetBalanceForAccountUseCase;
 import zachkingcade.dev.ledger.application.validation.AccountSortType;
 import zachkingcade.dev.ledger.application.validation.SortDirection;
 import zachkingcade.dev.ledger.domain.account.Account;
+import zachkingcade.dev.ledger.domain.account.AccountClassification;
+import zachkingcade.dev.ledger.domain.account.AccountType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/accounts")
@@ -37,13 +45,37 @@ public class AccountController {
     private final GetByIdAccountUseCase getByIdAccountUseCase;
     private final CreateAccountUseCase createAccountUseCase;
     private final UpdateAccountUseCase updateAccountUseCase;
+    private final GetBalanceForAccountUseCase getBalanceForAccountUseCase;
+    private final GetAllAccountTypeUseCase getallAccountTypeUseCase;
+    private final GetByIdAccountTypeUseCase getbyidAccountTypeUseCase;
+    private final GetAllAccountClassifcationsUseCase getAllAccountClassifcationsUseCase;
+    private final GetByIdAccountClassificaitonUseCase getByIdAccountClassificaitonUseCase;
 
-    public AccountController(GetAllAccountsUseCase getallAccountsUseCase, GetByIdAccountUseCase getByIdAccountUseCase, CreateAccountUseCase createAccountUseCase, UpdateAccountUseCase updateAccountUseCase) {
+    public AccountController
+            (GetAllAccountsUseCase getallAccountsUseCase,
+             GetByIdAccountUseCase getByIdAccountUseCase,
+             CreateAccountUseCase createAccountUseCase,
+             UpdateAccountUseCase updateAccountUseCase,
+             GetBalanceForAccountUseCase getBalanceForAccountUseCase,
+             GetAllAccountTypeUseCase getallAccountTypeUseCase,
+             GetByIdAccountTypeUseCase getbyidAccountTypeUseCase,
+             GetAllAccountClassifcationsUseCase getAllAccountClassifcationsUseCase,
+             GetByIdAccountClassificaitonUseCase getByIdAccountClassificaitonUseCase)
+    {
         this.getallAccountsUseCase = getallAccountsUseCase;
         this.getByIdAccountUseCase = getByIdAccountUseCase;
         this.createAccountUseCase = createAccountUseCase;
         this.updateAccountUseCase = updateAccountUseCase;
+        this.getBalanceForAccountUseCase = getBalanceForAccountUseCase;
+        this.getallAccountTypeUseCase = getallAccountTypeUseCase;
+        this.getbyidAccountTypeUseCase = getbyidAccountTypeUseCase;
+        this.getAllAccountClassifcationsUseCase = getAllAccountClassifcationsUseCase;
+        this.getByIdAccountClassificaitonUseCase = getByIdAccountClassificaitonUseCase;
     }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // Endpoints
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAll(@RequestBody(required = false) GetAllAccountsRequest request){
@@ -75,10 +107,7 @@ public class AccountController {
 
             GetAllAccountCommand command = new GetAllAccountCommand(Optional.of(sort), Optional.of(filters));
             List<Account> domainList = getallAccountsUseCase.getAllAccounts(command);
-            List<AccountObject> resultingList = new ArrayList<>();
-            for(Account account: domainList){
-                resultingList.add(new AccountObject(account.id(), account.typeId(), account.description(),account.active(),account.notes()));
-            }
+            List<AccountEnrichedObject> resultingList = convertDomainListToResponseAndEnrich(domainList);
             GetAllAccountsResponse response = new GetAllAccountsResponse(resultingList);
             ApiResponse<GetAllAccountsResponse> apiResponse = new ApiResponse<>(String.format("Returned [%s] Accounts", resultingList.size()),new MetaData((long) resultingList.size()),response);
             log.debug("Ending Rest Controller /accounts endpoint /all with [{}] results",resultingList.size());
@@ -94,7 +123,8 @@ public class AccountController {
         try {
             log.debug("Starting Rest Controller /accounts endpoint /byid id:[{}]",id);
             Account foundAccount = getByIdAccountUseCase.getAccountById(id);
-            GetAccountByIdResponse response = new GetAccountByIdResponse(foundAccount.id(), foundAccount.typeId(), foundAccount.description(), foundAccount.active(), foundAccount.notes());
+            AccountEnrichedObject enrichedObject = convertDomainObjectToResponseAndEnrich(foundAccount);
+            GetAccountByIdResponse response = new GetAccountByIdResponse(enrichedObject.accountId(), enrichedObject.typeId(), enrichedObject.description(), enrichedObject.accountTypeName(), enrichedObject.accountDisplayName(), enrichedObject.accountBalance(), enrichedObject.active(), enrichedObject.notes());
             ApiResponse<GetAccountByIdResponse> apiResponse = new ApiResponse<>(String.format("Returned Account of ID:[%s]", id),new MetaData(1L),response);
             log.debug("Ending Rest Controller /accounts endpoint /byid id:[{}]",response.accountId());
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
@@ -134,5 +164,44 @@ public class AccountController {
             log.error("AccountController.updateAccount failed for request:[{}]", request, ex);
             throw ex;
         }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // Utility
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    private List<AccountEnrichedObject> convertDomainListToResponseAndEnrich(List<Account> accountList){
+        //Collect needed data
+        GetAllAccountTypesCommand typesCommand = new GetAllAccountTypesCommand(Optional.empty(), Optional.empty());
+        List<AccountType> typeList = getallAccountTypeUseCase.getAllAccountTypes(typesCommand);
+        Map<Long,AccountType> typeMap = typeList.stream().collect(Collectors.toMap(AccountType::id, accountType -> accountType));
+
+        List<AccountClassification> classList = getAllAccountClassifcationsUseCase.getAllAccountClassifications();
+        Map<Long,AccountClassification> classMap = classList.stream().collect(Collectors.toMap(AccountClassification::id, classification -> classification));
+
+        //Convert and Enrich
+        List<AccountEnrichedObject> resultingList = new ArrayList<>();
+        for(Account account: accountList){
+            AccountType type = typeMap.get(account.typeId());
+
+            String accountTypeName = type.description();
+            String accountDisplayName = String.format("%s [%s]", account.description(), type.description());
+            Long accountBalance = getBalanceForAccountUseCase.getBalanceForAccount(account.id(), classMap.get(type.classificationId()));
+
+            resultingList.add(new AccountEnrichedObject(account.id(), account.typeId(), account.description(), accountTypeName, accountDisplayName, accountBalance, account.active(), account.notes()));
+        }
+        return resultingList;
+    }
+
+    private AccountEnrichedObject convertDomainObjectToResponseAndEnrich(Account account){
+        //Collect needed data
+        AccountType type = getbyidAccountTypeUseCase.getAccountTypeById(account.typeId());
+        AccountClassification classification = getByIdAccountClassificaitonUseCase.getByIdAccountClassifcation(type.id());
+
+        String accountTypeName = type.description();
+        String accountDisplayName = String.format("%s [%s]", account.description(), type.description());
+        Long accountBalance = getBalanceForAccountUseCase.getBalanceForAccount(account.id(), classification);
+
+        return new AccountEnrichedObject(account.id(), account.typeId(), account.description(), accountTypeName, accountDisplayName, accountBalance, account.active(), account.notes());
     }
 }

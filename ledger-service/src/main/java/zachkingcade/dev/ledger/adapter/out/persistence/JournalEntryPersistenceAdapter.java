@@ -110,11 +110,20 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
         return mapToDomain(savedEntity);
     }
 
-    JournalEntry mapToDomain(JournalEntryEntity entity){
+    @Override
+    public List<JournalLine> findLinesByAccountId(Long accountId) {
+        return mapToDomain(journalLinesJpaRepository.findByAccountId(accountId));
+    }
+
+    private JournalEntry mapToDomain(JournalEntryEntity entity){
+        return JournalEntry.rehydrate(entity.getId(), entity.getEntryDate().toLocalDate(),entity.getDescription(), entity.getNotes(), mapToDomain(entity.getJournalLines()));
+    }
+
+    private List<JournalLine> mapToDomain(List<JournalLineEntity> lineList){
         List<JournalLine> resultingLinesList = new ArrayList<>();
-        for(JournalLineEntity line : entity.getJournalLines()){
+        for(JournalLineEntity line : lineList){
             resultingLinesList.add(JournalLine.rehydrate(line.getId(), line.getAmount(), line.getAccount().getId(),line.getDirection(), line.getNotes()));
         }
-        return JournalEntry.rehydrate(entity.getId(), entity.getEntryDate().toLocalDate(),entity.getDescription(), entity.getNotes(), resultingLinesList);
+        return resultingLinesList;
     }
 }

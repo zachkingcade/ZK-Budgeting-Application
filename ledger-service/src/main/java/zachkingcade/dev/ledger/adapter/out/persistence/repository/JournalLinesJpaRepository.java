@@ -9,4 +9,6 @@ import java.util.Optional;
 
 public interface JournalLinesJpaRepository extends JpaRepository<JournalLineEntity, Long> {
     List<JournalLineEntity> findByJournalEntry(JournalEntryEntity entity);
+
+    List<JournalLineEntity> findByAccountId(Long accountId);
 }

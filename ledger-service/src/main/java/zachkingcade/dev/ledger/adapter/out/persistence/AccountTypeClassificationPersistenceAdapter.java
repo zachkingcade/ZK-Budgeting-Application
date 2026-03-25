@@ -35,7 +35,7 @@ public class AccountTypeClassificationPersistenceAdapter implements AccountClass
 
         List<AccountClassification> resultingList = new ArrayList<>();
         for(AccountClassificationEntity entity : accountClassificationList){
-            resultingList.add(AccountClassification.rehydrate(entity.getId(), entity.getDescription(), entity.getCreditEffect(), entity.getCreditEffect()));
+            resultingList.add(AccountClassification.rehydrate(entity.getId(), entity.getDescription(), entity.getCreditEffect(), entity.getDebitEffect()));
         }
 
         return resultingList;

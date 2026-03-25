@@ -3,7 +3,7 @@ package zachkingcade.dev.ledger.adapter.in.web.dto.journal;
 import java.time.LocalDate;
 import java.util.List;
 
-public record GetByIdJournalEntryResponse(
+public record JournalEntryDTOEnrichedResponse(
         Long id,
         LocalDate entryDate,
         String description,

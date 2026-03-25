@@ -1,6 +1,6 @@
 package zachkingcade.dev.ledger.adapter.in.web.dto.account;
 
-public record GetAccountByIdResponse(
+public record AccountEnrichedObject(
         Long accountId,
         Long typeId,
         String description,

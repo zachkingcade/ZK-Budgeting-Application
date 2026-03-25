@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalEntryEntity;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
+import zachkingcade.dev.ledger.domain.journal.JournalLine;
 
 import java.util.List;
 
@@ -23,4 +24,6 @@ public interface JournalEntryRepositoryPort {
     void removeJournalEntry(Long id);
 
     JournalEntry save(JournalEntry journalEntryToSave);
+
+    List<JournalLine> findLinesByAccountId(Long accountId);
 }

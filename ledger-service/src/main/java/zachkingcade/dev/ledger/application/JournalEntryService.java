@@ -12,6 +12,7 @@ import zachkingcade.dev.ledger.application.port.in.journal.*;
 import zachkingcade.dev.ledger.application.port.out.journal.JournalEntryRepositoryPort;
 import zachkingcade.dev.ledger.application.validation.SortDirection;
 import zachkingcade.dev.ledger.domain.account.Account;
+import zachkingcade.dev.ledger.domain.account.AccountClassification;
 import zachkingcade.dev.ledger.domain.account.AccountType;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
@@ -24,7 +25,7 @@ import java.util.Set;
 import static zachkingcade.dev.ledger.adapter.out.persistence.specification.JournalEntrySpecifications.*;
 
 @Service
-public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJournalEntryUsecase, GetByIdJournalEntryUseCase, UpdateJournalEntryUsecase, RemoveByIdJournalEntryUseCase {
+public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJournalEntryUsecase, GetByIdJournalEntryUseCase, UpdateJournalEntryUsecase, RemoveByIdJournalEntryUseCase, GetBalanceForAccountUseCase {
 
     private final JournalEntryRepositoryPort journalEntryRepository;
     private static final Logger log = LoggerFactory.getLogger(JournalEntryService.class);
@@ -172,5 +173,35 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
             log.error("JournalEntryService.removeJournalEntryById failed for command:[{}]", command, ex);
             throw new RuntimeException(ex);
         }
+    }
+
+    @Override
+    public Long getBalanceForAccount(Long accountId, AccountClassification classification){
+        List<JournalLine> lineList = journalEntryRepository.findLinesByAccountId(accountId);
+        Long credit = 0L;
+        Long debit = 0L;
+        for(JournalLine line : lineList){
+            if(line.direction() == 'C'){
+                credit += line.amount();
+            } else {
+                debit += line.amount();
+            }
+        }
+
+        long resultingTotal = 0L;
+
+        if(classification.creditEffect() == '+'){
+            resultingTotal += credit;
+        } else {
+            resultingTotal -= credit;
+        }
+
+        if(classification.debitEffect() == '+'){
+            resultingTotal += debit;
+        } else {
+            resultingTotal -= debit;
+        }
+
+        return resultingTotal;
     }
 }
