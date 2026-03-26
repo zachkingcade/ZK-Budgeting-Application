@@ -1,0 +1,2 @@
+## Domain
+if there is any domain/business rules about the the user interface then that will be stored here. Otherwise pleaes note that most business logic is handled by the various micro services called in the adapter layer prior to sending us information. If we were change any of the micro service solutions the expectation is that they do the same.
