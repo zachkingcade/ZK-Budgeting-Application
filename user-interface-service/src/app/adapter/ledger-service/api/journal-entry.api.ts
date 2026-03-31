@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, catchError, tap, throwError } from 'rxjs';
+import { Observable, catchError, map, tap, throwError } from 'rxjs';
 import { LedgerHttpClientService } from '../client/ledger-http-client.service';
 import { LedgerAdapterLoggerService } from '../logging/ledger-adapter-logger.service';
 import { ApiResponse } from '../dto/ApiResponse';
@@ -102,18 +102,28 @@ export class JournalEntryApi {
     const startTime = Date.now();
     const context = { id };
     this.logger.debug(`Starting ${operation}`, context);
-    return this.ledgerClient.delete<ApiResponse<REMOVEJournalEntryResponse>>(`/journalentry/remove/${id}`).pipe(
+    return this.ledgerClient.delete<ApiResponse<REMOVEJournalEntryResponse> | null>(`/journalentry/remove/${id}`).pipe(
+      map((body) => {
+        if (body != null) {
+          return body;
+        }
+        return {
+          statusMessage: 'Removed',
+          metaData: { requestDate: '', requestTime: '' },
+          data: { removedRecordId: id },
+        };
+      }),
       tap((response) => {
         this.logger.debug(`Ending ${operation} (${Date.now() - startTime}ms)`, {
           id,
           statusMessage: response.statusMessage,
-          metaData: response.metaData
+          metaData: response.metaData,
         });
       }),
       catchError((error) => {
         this.logger.error(`Failed ${operation} (${Date.now() - startTime}ms)`, error, context);
         return throwError(() => error);
-      })
+      }),
     );
   }
 }

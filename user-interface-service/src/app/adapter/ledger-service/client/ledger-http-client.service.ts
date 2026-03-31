@@ -23,8 +23,8 @@ export class LedgerHttpClientService {
     return this.httpClient.post<T>(this.buildUrl(path), body);
   }
 
-  delete<T>(path: string): Observable<T> {
-    return this.httpClient.delete<T>(this.buildUrl(path));
+  delete<T>(path: string): Observable<T | null> {
+    return this.httpClient.delete<T | null>(this.buildUrl(path));
   }
 
   private buildUrl(path: string): string {

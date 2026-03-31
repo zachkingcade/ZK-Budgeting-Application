@@ -1,0 +1,48 @@
+<div class="filterAndSortBar">
+    <mat-form-field appearance="outline" id="searchBar">
+        <mat-icon matPrefix>search</mat-icon>
+
+        <input matInput placeholder="Search..." [(ngModel)]="searchTerm" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="selectInputs">
+        <mat-label>Date Range</mat-label>
+
+        <mtx-select [items]="dateOptions" bindLabel="label" bindValue="id" [(ngModel)]="selectedDate" [multiple]="false"
+            [searchable]="false" [clearable]="false" placeholder="Select account types">
+        </mtx-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="mtxSelectInputs" subscriptSizing="dynamic">
+        <mat-label>Account Types</mat-label>
+
+        <mtx-select [items]="accountTypeOptions()" bindLabel="label" bindValue="id" [(ngModel)]="selectedAccountTypes"
+            [multiple]="true" placeholder="Select account types">
+            <ng-template ng-multi-label-tmp let-items="items">
+                {{ items.length }} selected
+            </ng-template>
+        </mtx-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="mtxSelectInputs" subscriptSizing="dynamic">
+        <mat-label>Accounts</mat-label>
+
+        <mtx-select [items]="accountOptions()" bindLabel="label" bindValue="id" [(ngModel)]="selectedAccounts"
+            [multiple]="true" placeholder="Select account types">
+            <ng-template ng-multi-label-tmp let-items="items">
+                {{ items.length }} selected
+            </ng-template>
+        </mtx-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="selectInputs">
+        <mat-label>Sort By</mat-label>
+
+        <mtx-select [items]="sortByOptions" bindLabel="label" bindValue="id" [(ngModel)]="selectedSortBy"
+            [multiple]="false" [searchable]="false" [clearable]="false" placeholder="Select account types">
+        </mtx-select>
+    </mat-form-field>
+
+    <button class="actionButton redButton">Clear</button>
+    <button class="actionButton blueButton">Apply</button>
+</div>

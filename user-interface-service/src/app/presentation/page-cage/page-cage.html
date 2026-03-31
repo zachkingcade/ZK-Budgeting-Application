@@ -1,0 +1,48 @@
+<div class="app-shell">
+  <header class="topbar">
+    <button class="hamburger-btn" type="button" (click)="toggleSidebar()" aria-label="Open navigation">
+      ☰
+    </button>
+
+    <div id="titleDiv">
+      <h1 class="app-title">{{pageName}}</h1>
+      <h5 class="subtext">{{subText}}</h5>
+    </div>
+  </header>
+
+  @if (sidebarOpen) {
+  <div class="backdrop" (click)="closeSidebar()"></div>
+  }
+
+  <aside class="sidebar" [class.sidebar-open]="sidebarOpen">
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-link active">Ledger</a>
+      <a href="#" class="nav-link">Accounts</a>
+      <a href="#" class="nav-link">Account Types</a>
+    </nav>
+  </aside>
+
+  <main class="page-content">
+    <ng-content></ng-content>
+  </main>
+
+  <footer id="footer">
+    <div id="footerLeft">
+      Release Version v.1.0.0
+    </div>
+    <div id="footerRight">
+
+      Made by zachary Kingcade
+
+      <a href="https://github.com/zachkingcade/ZK-Budgeting-Application" target="_blank" rel="noopener noreferrer" class="socialIcon">
+        <fa-icon [icon]="faGithub"></fa-icon>
+      </a>
+
+      <a href="https://www.linkedin.com/in/zach-kingcade/" class="socialIcon">
+        <fa-icon [icon]="faLinkedin"></fa-icon>
+      </a>
+    </div>
+  </footer>
+  
+</div>

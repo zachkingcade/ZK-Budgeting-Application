@@ -23,3 +23,8 @@ spring.autoconfigure.exclude:
 
 server:
   port: 8081
+
+# Browser clients (e.g. Angular ng serve on :4200) need explicit CORS when calling this API directly.
+ledger:
+  cors:
+    allowed-origins: "http://localhost:4200,http://127.0.0.1:4200"
