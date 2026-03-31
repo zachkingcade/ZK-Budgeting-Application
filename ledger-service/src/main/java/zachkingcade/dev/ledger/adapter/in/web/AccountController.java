@@ -18,8 +18,8 @@ import zachkingcade.dev.ledger.application.port.in.account.CreateAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetByIdAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetAllAccountsUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.UpdateAccountUseCase;
-import zachkingcade.dev.ledger.application.port.in.accountclassification.GetAllAccountClassifcationsUseCase;
-import zachkingcade.dev.ledger.application.port.in.accountclassification.GetByIdAccountClassificaitonUseCase;
+import zachkingcade.dev.ledger.application.port.in.accountclassification.GetAllAccountClassificationsUseCase;
+import zachkingcade.dev.ledger.application.port.in.accountclassification.GetByIdAccountClassificationUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.GetAllAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.GetByIdAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.journal.GetBalanceForAccountUseCase;
@@ -41,36 +41,36 @@ public class AccountController {
 
     private static final Logger log = LoggerFactory.getLogger(AccountController.class);
 
-    private final GetAllAccountsUseCase getallAccountsUseCase;
+    private final GetAllAccountsUseCase getAllAccountsUseCase;
     private final GetByIdAccountUseCase getByIdAccountUseCase;
     private final CreateAccountUseCase createAccountUseCase;
     private final UpdateAccountUseCase updateAccountUseCase;
     private final GetBalanceForAccountUseCase getBalanceForAccountUseCase;
-    private final GetAllAccountTypeUseCase getallAccountTypeUseCase;
-    private final GetByIdAccountTypeUseCase getbyidAccountTypeUseCase;
-    private final GetAllAccountClassifcationsUseCase getAllAccountClassifcationsUseCase;
-    private final GetByIdAccountClassificaitonUseCase getByIdAccountClassificaitonUseCase;
+    private final GetAllAccountTypeUseCase getAllAccountTypeUseCase;
+    private final GetByIdAccountTypeUseCase getByIdAccountTypeUseCase;
+    private final GetAllAccountClassificationsUseCase getAllAccountClassificationsUseCase;
+    private final GetByIdAccountClassificationUseCase getByIdAccountClassificationUseCase;
 
     public AccountController
-            (GetAllAccountsUseCase getallAccountsUseCase,
+            (GetAllAccountsUseCase getAllAccountsUseCase,
              GetByIdAccountUseCase getByIdAccountUseCase,
              CreateAccountUseCase createAccountUseCase,
              UpdateAccountUseCase updateAccountUseCase,
              GetBalanceForAccountUseCase getBalanceForAccountUseCase,
-             GetAllAccountTypeUseCase getallAccountTypeUseCase,
-             GetByIdAccountTypeUseCase getbyidAccountTypeUseCase,
-             GetAllAccountClassifcationsUseCase getAllAccountClassifcationsUseCase,
-             GetByIdAccountClassificaitonUseCase getByIdAccountClassificaitonUseCase)
+             GetAllAccountTypeUseCase getAllAccountTypeUseCase,
+             GetByIdAccountTypeUseCase getByIdAccountTypeUseCase,
+             GetAllAccountClassificationsUseCase getAllAccountClassificationsUseCase,
+             GetByIdAccountClassificationUseCase getByIdAccountClassificationUseCase)
     {
-        this.getallAccountsUseCase = getallAccountsUseCase;
+        this.getAllAccountsUseCase = getAllAccountsUseCase;
         this.getByIdAccountUseCase = getByIdAccountUseCase;
         this.createAccountUseCase = createAccountUseCase;
         this.updateAccountUseCase = updateAccountUseCase;
         this.getBalanceForAccountUseCase = getBalanceForAccountUseCase;
-        this.getallAccountTypeUseCase = getallAccountTypeUseCase;
-        this.getbyidAccountTypeUseCase = getbyidAccountTypeUseCase;
-        this.getAllAccountClassifcationsUseCase = getAllAccountClassifcationsUseCase;
-        this.getByIdAccountClassificaitonUseCase = getByIdAccountClassificaitonUseCase;
+        this.getAllAccountTypeUseCase = getAllAccountTypeUseCase;
+        this.getByIdAccountTypeUseCase = getByIdAccountTypeUseCase;
+        this.getAllAccountClassificationsUseCase = getAllAccountClassificationsUseCase;
+        this.getByIdAccountClassificationUseCase = getByIdAccountClassificationUseCase;
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ public class AccountController {
             }
 
             GetAllAccountCommand command = new GetAllAccountCommand(Optional.of(sort), Optional.of(filters));
-            List<Account> domainList = getallAccountsUseCase.getAllAccounts(command);
+            List<Account> domainList = getAllAccountsUseCase.getAllAccounts(command);
             List<AccountEnrichedObject> resultingList = convertDomainListToResponseAndEnrich(domainList);
             GetAllAccountsResponse response = new GetAllAccountsResponse(resultingList);
             ApiResponse<GetAllAccountsResponse> apiResponse = new ApiResponse<>(String.format("Returned [%s] Accounts", resultingList.size()),new MetaData((long) resultingList.size()),response);
@@ -173,10 +173,10 @@ public class AccountController {
     private List<AccountEnrichedObject> convertDomainListToResponseAndEnrich(List<Account> accountList){
         //Collect needed data
         GetAllAccountTypesCommand typesCommand = new GetAllAccountTypesCommand(Optional.empty(), Optional.empty());
-        List<AccountType> typeList = getallAccountTypeUseCase.getAllAccountTypes(typesCommand);
+        List<AccountType> typeList = getAllAccountTypeUseCase.getAllAccountTypes(typesCommand);
         Map<Long,AccountType> typeMap = typeList.stream().collect(Collectors.toMap(AccountType::id, accountType -> accountType));
 
-        List<AccountClassification> classList = getAllAccountClassifcationsUseCase.getAllAccountClassifications();
+        List<AccountClassification> classList = getAllAccountClassificationsUseCase.getAllAccountClassifications();
         Map<Long,AccountClassification> classMap = classList.stream().collect(Collectors.toMap(AccountClassification::id, classification -> classification));
 
         //Convert and Enrich
@@ -195,8 +195,8 @@ public class AccountController {
 
     private AccountEnrichedObject convertDomainObjectToResponseAndEnrich(Account account){
         //Collect needed data
-        AccountType type = getbyidAccountTypeUseCase.getAccountTypeById(account.typeId());
-        AccountClassification classification = getByIdAccountClassificaitonUseCase.getByIdAccountClassifcation(type.id());
+        AccountType type = getByIdAccountTypeUseCase.getAccountTypeById(account.typeId());
+        AccountClassification classification = getByIdAccountClassificationUseCase.getByIdAccountClassification(type.id());
 
         String accountTypeName = type.description();
         String accountDisplayName = String.format("%s [%s]", account.description(), type.description());

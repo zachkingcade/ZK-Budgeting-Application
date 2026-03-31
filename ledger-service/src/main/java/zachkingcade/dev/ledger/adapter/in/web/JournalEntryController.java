@@ -15,8 +15,8 @@ import zachkingcade.dev.ledger.application.commands.journal.*;
 import zachkingcade.dev.ledger.application.commands.shared.SortObjectCommandObject;
 import zachkingcade.dev.ledger.application.port.in.account.GetAllAccountsUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetByIdAccountUseCase;
-import zachkingcade.dev.ledger.application.port.in.accountclassification.GetAllAccountClassifcationsUseCase;
-import zachkingcade.dev.ledger.application.port.in.accountclassification.GetByIdAccountClassificaitonUseCase;
+import zachkingcade.dev.ledger.application.port.in.accountclassification.GetAllAccountClassificationsUseCase;
+import zachkingcade.dev.ledger.application.port.in.accountclassification.GetByIdAccountClassificationUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.GetAllAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.accounttype.GetByIdAccountTypeUseCase;
 import zachkingcade.dev.ledger.application.port.in.journal.*;
@@ -37,43 +37,43 @@ import java.util.stream.Collectors;
 @RequestMapping("/journalentry")
 public class JournalEntryController {
 
-    private final GetAllJournalEntryUsecase getAllJournalEntryUsecase;
+    private final GetAllJournalEntryUseCase getAllJournalEntryUseCase;
     private final GetByIdJournalEntryUseCase getByIdJournalEntryUseCase;
     private final CreateJournalEntryUseCase createJournalEntryUseCase;
-    private final UpdateJournalEntryUsecase updateJournalEntryUsecase;
+    private final UpdateJournalEntryUseCase updateJournalEntryUseCase;
     private final RemoveByIdJournalEntryUseCase removeByIdJournalEntryUseCase;
-    private final GetAllAccountClassifcationsUseCase getAllAccountClassifcationsUseCase;
-    private final GetAllAccountTypeUseCase getallAccountTypeUseCase;
-    private final GetAllAccountsUseCase getallAccountsUseCase;
-    private final GetByIdAccountClassificaitonUseCase getByIdAccountClassificaitonUseCase;
+    private final GetAllAccountClassificationsUseCase getAllAccountClassificationsUseCase;
+    private final GetAllAccountTypeUseCase getAllAccountTypeUseCase;
+    private final GetAllAccountsUseCase getAllAccountsUseCase;
+    private final GetByIdAccountClassificationUseCase getByIdAccountClassificationUseCase;
     private final GetByIdAccountUseCase getByIdAccountUseCase;
-    private final GetByIdAccountTypeUseCase getbyidAccountTypeUseCase;
+    private final GetByIdAccountTypeUseCase getByIdAccountTypeUseCase;
     private static final Logger log = LoggerFactory.getLogger(JournalEntryController.class);
 
     public JournalEntryController
-            (GetAllJournalEntryUsecase getAllJournalEntryUsecase,
+            (GetAllJournalEntryUseCase getAllJournalEntryUseCase,
              GetByIdJournalEntryUseCase getByIdJournalEntryUseCase,
              CreateJournalEntryUseCase createJournalEntryUseCase,
-             UpdateJournalEntryUsecase updateJournalEntryUsecase,
+             UpdateJournalEntryUseCase updateJournalEntryUseCase,
              RemoveByIdJournalEntryUseCase removeByIdJournalEntryUseCase,
-             GetAllAccountClassifcationsUseCase getAllAccountClassifcationsUseCase,
-             GetAllAccountTypeUseCase getallAccountTypeUseCase,
-             GetAllAccountsUseCase getallAccountsUseCase,
-             GetByIdAccountClassificaitonUseCase getByIdAccountClassificaitonUseCase,
+             GetAllAccountClassificationsUseCase getAllAccountClassificationsUseCase,
+             GetAllAccountTypeUseCase getAllAccountTypeUseCase,
+             GetAllAccountsUseCase getAllAccountsUseCase,
+             GetByIdAccountClassificationUseCase getByIdAccountClassificationUseCase,
              GetByIdAccountUseCase getByIdAccountUseCase,
-             GetByIdAccountTypeUseCase getbyidAccountTypeUseCase)
+             GetByIdAccountTypeUseCase getByIdAccountTypeUseCase)
     {
-        this.getAllJournalEntryUsecase = getAllJournalEntryUsecase;
+        this.getAllJournalEntryUseCase = getAllJournalEntryUseCase;
         this.getByIdJournalEntryUseCase = getByIdJournalEntryUseCase;
         this.createJournalEntryUseCase = createJournalEntryUseCase;
-        this.updateJournalEntryUsecase = updateJournalEntryUsecase;
+        this.updateJournalEntryUseCase = updateJournalEntryUseCase;
         this.removeByIdJournalEntryUseCase = removeByIdJournalEntryUseCase;
-        this.getAllAccountClassifcationsUseCase = getAllAccountClassifcationsUseCase;
-        this.getallAccountTypeUseCase = getallAccountTypeUseCase;
-        this.getallAccountsUseCase = getallAccountsUseCase;
-        this.getByIdAccountClassificaitonUseCase = getByIdAccountClassificaitonUseCase;
+        this.getAllAccountClassificationsUseCase = getAllAccountClassificationsUseCase;
+        this.getAllAccountTypeUseCase = getAllAccountTypeUseCase;
+        this.getAllAccountsUseCase = getAllAccountsUseCase;
+        this.getByIdAccountClassificationUseCase = getByIdAccountClassificationUseCase;
         this.getByIdAccountUseCase = getByIdAccountUseCase;
-        this.getbyidAccountTypeUseCase = getbyidAccountTypeUseCase;
+        this.getByIdAccountTypeUseCase = getByIdAccountTypeUseCase;
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -109,8 +109,8 @@ public class JournalEntryController {
                 filters = new JournalEntryFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty());
             }
 
-            GetAllJournalEntrysCommand command = new GetAllJournalEntrysCommand(Optional.of(sort), Optional.of(filters));
-            List<JournalEntry> entryList = getAllJournalEntryUsecase.getAllJournalEntries(command);
+            GetAllJournalEntriesCommand command = new GetAllJournalEntriesCommand(Optional.of(sort), Optional.of(filters));
+            List<JournalEntry> entryList = getAllJournalEntryUseCase.getAllJournalEntries(command);
             List<JournalEntryDTOEnrichedResponse> resultingEntryList = convertDomainListToResponseAndEnrich(entryList);
             GetAllJournalEntryResponse response = new GetAllJournalEntryResponse(resultingEntryList);
             ApiResponse<GetAllJournalEntryResponse> apiResponse = new ApiResponse<>(String.format("Returned [%s] Journal Entries", resultingEntryList.size()),new MetaData((long) resultingEntryList.size()),response);
@@ -177,7 +177,7 @@ public class JournalEntryController {
                     request.notes(),
                     resultingCommandLineList
             );
-            JournalEntry entry = updateJournalEntryUsecase.updateJournalEntry(command);
+            JournalEntry entry = updateJournalEntryUseCase.updateJournalEntry(command);
             List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
             for(JournalLine line: entry.journalLines()){
                 currentEntryLineList.add(new JournalLineDTOResponse(line.id(), line.amount(), line.accountId(), line.direction(), line.notes()));
@@ -201,10 +201,10 @@ public class JournalEntryController {
             RemoveJournalEntryDTOResponse response = new RemoveJournalEntryDTOResponse(id);
             ApiResponse<RemoveJournalEntryDTOResponse> apiResponse = new ApiResponse<>(String.format("Removed Journal Entry of ID:[%s]", id),new MetaData(0L),response);
             log.debug("Ending Rest Controller /journalentry endpoint /remove/{id} id:[{}]",id);
-            return new ResponseEntity<>(apiResponse, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         } catch (RuntimeException ex) {
             log.error("JournalEntryController.removeJournalEntry failed for id:[{}]", id, ex);
-            throw new RuntimeException(ex);
+            throw ex;
         }
     }
 
@@ -215,14 +215,14 @@ public class JournalEntryController {
     private List<JournalEntryDTOEnrichedResponse> convertDomainListToResponseAndEnrich(List<JournalEntry> journalEntryList ){
         //Collect needed data
         GetAllAccountCommand accountCommand = new GetAllAccountCommand(Optional.empty(), Optional.empty());
-        List<Account> accountList = getallAccountsUseCase.getAllAccounts(accountCommand);
+        List<Account> accountList = getAllAccountsUseCase.getAllAccounts(accountCommand);
         Map<Long,Account> accountMap = accountList.stream().collect(Collectors.toMap(Account::id, account -> account));
 
         GetAllAccountTypesCommand typesCommand = new GetAllAccountTypesCommand(Optional.empty(), Optional.empty());
-        List<AccountType> typeList = getallAccountTypeUseCase.getAllAccountTypes(typesCommand);
+        List<AccountType> typeList = getAllAccountTypeUseCase.getAllAccountTypes(typesCommand);
         Map<Long,AccountType> typeMap = typeList.stream().collect(Collectors.toMap(AccountType::id, accountType -> accountType));
 
-        List<AccountClassification> classList = getAllAccountClassifcationsUseCase.getAllAccountClassifications();
+        List<AccountClassification> classList = getAllAccountClassificationsUseCase.getAllAccountClassifications();
         Map<Long,AccountClassification> classMap = classList.stream().collect(Collectors.toMap(AccountClassification::id, classification -> classification));
 
 
@@ -252,8 +252,8 @@ public class JournalEntryController {
         List<JournalLineDTOEnrichedResponse> lineList = new ArrayList<>();
         for(JournalLine line : entry.journalLines()){
             Account account = getByIdAccountUseCase.getAccountById(line.accountId());
-            AccountType type = getbyidAccountTypeUseCase.getAccountTypeById(account.typeId());
-            AccountClassification classification = getByIdAccountClassificaitonUseCase.getByIdAccountClassifcation(type.classificationId());
+            AccountType type = getByIdAccountTypeUseCase.getAccountTypeById(account.typeId());
+            AccountClassification classification = getByIdAccountClassificationUseCase.getByIdAccountClassification(type.classificationId());
 
             String accountName = account.description();
             String accountTypeName = type.description();

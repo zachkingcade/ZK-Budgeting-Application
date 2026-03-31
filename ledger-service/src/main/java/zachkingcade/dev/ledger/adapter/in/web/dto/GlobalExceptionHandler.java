@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import zachkingcade.dev.ledger.adapter.in.web.dto.ApiErrorResponse;
 import zachkingcade.dev.ledger.application.exception.ApplicationException;
+import zachkingcade.dev.ledger.application.exception.NotFoundException;
 import zachkingcade.dev.ledger.domain.exception.DomainException;
 
 @RestControllerAdvice
@@ -36,8 +37,17 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception", ex);
 
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(new ApiErrorResponse("APPLICATION_ERROR", ex.getMessage()));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNotFound(NotFoundException ex) {
+        log.error("Unhandled exception", ex);
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ApiErrorResponse("NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

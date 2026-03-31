@@ -25,7 +25,7 @@ import java.util.Set;
 import static zachkingcade.dev.ledger.adapter.out.persistence.specification.JournalEntrySpecifications.*;
 
 @Service
-public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJournalEntryUsecase, GetByIdJournalEntryUseCase, UpdateJournalEntryUsecase, RemoveByIdJournalEntryUseCase, GetBalanceForAccountUseCase {
+public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJournalEntryUseCase, GetByIdJournalEntryUseCase, UpdateJournalEntryUseCase, RemoveByIdJournalEntryUseCase, GetBalanceForAccountUseCase {
 
     private final JournalEntryRepositoryPort journalEntryRepository;
     private static final Logger log = LoggerFactory.getLogger(JournalEntryService.class);
@@ -53,7 +53,7 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
     }
 
     @Override
-    public List<JournalEntry> getAllJournalEntries(GetAllJournalEntrysCommand command) {
+    public List<JournalEntry> getAllJournalEntries(GetAllJournalEntriesCommand command) {
         try {
             log.debug("Starting Get All Journal Entries");
 
@@ -171,7 +171,7 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
             log.debug("Ending remove Journal Entry jeId:[{}]",command.id());
         } catch (RuntimeException ex) {
             log.error("JournalEntryService.removeJournalEntryById failed for command:[{}]", command, ex);
-            throw new RuntimeException(ex);
+            throw ex;
         }
     }
 

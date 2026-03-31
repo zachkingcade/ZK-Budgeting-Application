@@ -3,6 +3,7 @@ package zachkingcade.dev.ledger.adapter.out.persistence;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountClassificationEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountClassificationJpaRepository;
+import zachkingcade.dev.ledger.application.exception.NotFoundException;
 import zachkingcade.dev.ledger.application.port.out.accounttype.AccountClassificationRepositoryPort;
 import zachkingcade.dev.ledger.domain.account.AccountClassification;
 
@@ -25,7 +26,7 @@ public class AccountTypeClassificationPersistenceAdapter implements AccountClass
         if(entity.isPresent()){
             return AccountClassification.rehydrate(entity.get().getId(), entity.get().getDescription(), entity.get().getCreditEffect(), entity.get().getDebitEffect());
         } else {
-            throw new RuntimeException(String.format("Error: Account Type Classification not found for id [%s]", id));
+            throw new NotFoundException(String.format("Account Classification not found for id [%s]", id));
         }
     }
 

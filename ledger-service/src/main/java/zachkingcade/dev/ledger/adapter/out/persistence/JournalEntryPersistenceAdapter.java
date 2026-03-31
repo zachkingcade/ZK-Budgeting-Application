@@ -9,6 +9,7 @@ import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalLineEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountJpaRepository;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.JournalEntryJpaRepository;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.JournalLinesJpaRepository;
+import zachkingcade.dev.ledger.application.exception.NotFoundException;
 import zachkingcade.dev.ledger.application.port.out.journal.JournalEntryRepositoryPort;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
@@ -37,7 +38,7 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
         if(entity.isPresent()){
             return mapToDomain(entity.get());
         } else {
-            throw new RuntimeException(String.format("Error: Journal Entry not found for Journal Entry id [%s]", id));
+            throw new NotFoundException(String.format("Journal Entry not found for id [%s]", id));
         }
     }
 
@@ -92,7 +93,8 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
         // Save journal lines
         List<JournalLineEntity> lineEntityList = new ArrayList<>();
         for(JournalLine line: journalEntryToSave.journalLines()){
-            AccountEntity account = this.accountJpaRepository.findById(line.accountId()).orElseThrow(() -> new RuntimeException(String.format("Error: Record not found for Account id [%s]", line.accountId())));
+            AccountEntity account = this.accountJpaRepository.findById(line.accountId())
+                    .orElseThrow(() -> new NotFoundException(String.format("Account not found for id [%s]", line.accountId())));
             JournalLineEntity newLine = new JournalLineEntity();
             if(line.id() != null){
                 newLine.setId(line.id());

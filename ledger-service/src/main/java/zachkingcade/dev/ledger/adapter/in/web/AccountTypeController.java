@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import zachkingcade.dev.ledger.adapter.in.web.dto.ApiResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
-import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.GetAllAccountClassificationResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.accounttype.*;
 import zachkingcade.dev.ledger.application.commands.account.AccountFilterCommandObject;
 import zachkingcade.dev.ledger.application.commands.accounttype.AccountTypeFilterCommandObject;
@@ -35,14 +34,14 @@ public class AccountTypeController {
     private static final Logger log = LoggerFactory.getLogger(AccountTypeController.class);
 
     private final CreateAccountTypeUseCase createAccountTypeUseCase;
-    private final GetAllAccountTypeUseCase getallAccountTypeUseCase;
-    private final GetByIdAccountTypeUseCase getbyidAccountTypeUseCase;
+    private final GetAllAccountTypeUseCase getAllAccountTypeUseCase;
+    private final GetByIdAccountTypeUseCase getByIdAccountTypeUseCase;
     private final UpdateAccountTypeUseCase updateAccountTypeUseCase;
 
-    public AccountTypeController(CreateAccountTypeUseCase createAccountTypeUseCase, GetAllAccountTypeUseCase getallAccountTypeUseCase, GetByIdAccountTypeUseCase getbyidAccountTypeUseCase, UpdateAccountTypeUseCase updateAccountTypeUseCase) {
+    public AccountTypeController(CreateAccountTypeUseCase createAccountTypeUseCase, GetAllAccountTypeUseCase getAllAccountTypeUseCase, GetByIdAccountTypeUseCase getByIdAccountTypeUseCase, UpdateAccountTypeUseCase updateAccountTypeUseCase) {
         this.createAccountTypeUseCase = createAccountTypeUseCase;
-        this.getallAccountTypeUseCase = getallAccountTypeUseCase;
-        this.getbyidAccountTypeUseCase = getbyidAccountTypeUseCase;
+        this.getAllAccountTypeUseCase = getAllAccountTypeUseCase;
+        this.getByIdAccountTypeUseCase = getByIdAccountTypeUseCase;
         this.updateAccountTypeUseCase = updateAccountTypeUseCase;
     }
 
@@ -75,7 +74,7 @@ public class AccountTypeController {
             }
 
             GetAllAccountTypesCommand command = new GetAllAccountTypesCommand(Optional.of(sort), Optional.of(filters));
-            List<AccountType> list = getallAccountTypeUseCase.getAllAccountTypes(command);
+            List<AccountType> list = getAllAccountTypeUseCase.getAllAccountTypes(command);
 
             List<AccountTypeObject> resultingList = new ArrayList<>();
             for(AccountType accountType: list){
@@ -96,7 +95,7 @@ public class AccountTypeController {
     public ResponseEntity<ApiResponse<GetAccountTypeByIdResponse>> getAccountTypeById(@PathVariable Long id){
         try {
             log.debug("Starting Rest Controller /accounttypes endpoint /byid id:[{}]",id);
-            AccountType accountType = getbyidAccountTypeUseCase.getAccountTypeById(id);
+            AccountType accountType = getByIdAccountTypeUseCase.getAccountTypeById(id);
             GetAccountTypeByIdResponse response = new GetAccountTypeByIdResponse(accountType.id(), accountType.classificationId(), accountType.description(), accountType.active(), accountType.notes());
             ApiResponse<GetAccountTypeByIdResponse> apiResponse = new ApiResponse<>(String.format("Returned Account Type of ID:[%s]", id),new MetaData(1L),response);
             log.debug("Ending Rest Controller /accounttypes endpoint /byid id:[{}]",response.id());

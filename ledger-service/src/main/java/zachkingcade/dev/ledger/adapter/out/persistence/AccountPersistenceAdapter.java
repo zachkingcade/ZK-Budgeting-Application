@@ -8,6 +8,7 @@ import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountTypeEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountJpaRepository;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountTypeJpaRepository;
 import zachkingcade.dev.ledger.application.exception.ApplicationException;
+import zachkingcade.dev.ledger.application.exception.NotFoundException;
 import zachkingcade.dev.ledger.application.port.out.account.AccountRepositoryPort;
 import zachkingcade.dev.ledger.domain.account.Account;
 
@@ -66,7 +67,7 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
         if(entity.isPresent()){
             return Account.rehydrate(entity.get().getId(), entity.get().getType().getId(),entity.get().getDescription(),entity.get().isActive(),entity.get().getNotes());
         } else {
-            throw new RuntimeException(String.format("Error: Record not found for Account id [%s]", id));
+            throw new NotFoundException(String.format("Account not found for id [%s]", id));
         }
     }
 
@@ -76,7 +77,7 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
         if(entity.isPresent()){
             return Account.rehydrate(entity.get().getId(), entity.get().getType().getId(),entity.get().getDescription(),entity.get().isActive(),entity.get().getNotes());
         } else {
-            throw new RuntimeException(String.format("Error: Record not found for description [%s]", description));
+            throw new NotFoundException(String.format("Account not found for description [%s]", description));
         }
     }
 

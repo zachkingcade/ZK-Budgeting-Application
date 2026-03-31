@@ -8,6 +8,7 @@ import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountTypeEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountClassificationJpaRepository;
 import zachkingcade.dev.ledger.adapter.out.persistence.repository.AccountTypeJpaRepository;
 import zachkingcade.dev.ledger.application.exception.ApplicationException;
+import zachkingcade.dev.ledger.application.exception.NotFoundException;
 import zachkingcade.dev.ledger.application.port.out.accounttype.AccountTypeRepositoryPort;
 import zachkingcade.dev.ledger.domain.account.AccountType;
 
@@ -66,7 +67,7 @@ public class AccountTypePersistenceAdapter implements AccountTypeRepositoryPort 
         if(entity.isPresent()){
             return AccountType.rehydrate(entity.get().getId(), entity.get().getDescription(), entity.get().getClassification().getId(), entity.get().getNotes(), entity.get().isActive());
         } else {
-            throw new RuntimeException(String.format("Error: Account Type not found for Account Type id [%s]", id));
+            throw new NotFoundException(String.format("Account Type not found for id [%s]", id));
         }
     }
 
@@ -77,7 +78,7 @@ public class AccountTypePersistenceAdapter implements AccountTypeRepositoryPort 
         if(entity.isPresent()){
             return AccountType.rehydrate(entity.get().getId(), entity.get().getDescription(), entity.get().getClassification().getId(), entity.get().getNotes(), entity.get().isActive());
         } else {
-            throw new RuntimeException(String.format("Error: Account Type not found for Account description [%s]", description));
+            throw new NotFoundException(String.format("Account Type not found for description [%s]", description));
         }
     }
 
@@ -89,7 +90,7 @@ public class AccountTypePersistenceAdapter implements AccountTypeRepositoryPort 
     @Override
     public AccountType save(AccountType accountTypeToSave) {
         AccountClassificationEntity accountClassification = accountClassificationJpaRepository.findById(accountTypeToSave.classificationId()).orElseThrow( () ->
-                new ApplicationException(String.format("Unable to find Account Type Classificaiton [%s]",accountTypeToSave.classificationId()))
+                new ApplicationException(String.format("Unable to find Account Type Classification [%s]",accountTypeToSave.classificationId()))
         );
 
         AccountTypeEntity entity = new AccountTypeEntity();

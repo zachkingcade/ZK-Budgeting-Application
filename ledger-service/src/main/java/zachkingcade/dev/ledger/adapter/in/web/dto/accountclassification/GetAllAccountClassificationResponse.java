@@ -1,4 +1,4 @@
-package zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation;
+package zachkingcade.dev.ledger.adapter.in.web.dto.accountclassification;
 
 import java.util.List;
 

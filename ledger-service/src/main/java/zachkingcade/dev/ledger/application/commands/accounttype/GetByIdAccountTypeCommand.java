@@ -1,6 +1,6 @@
 package zachkingcade.dev.ledger.application.commands.accounttype;
 
-public record GetbyidAccountTypeCommand(
+public record GetByIdAccountTypeCommand(
         Long id
 ) {
 }

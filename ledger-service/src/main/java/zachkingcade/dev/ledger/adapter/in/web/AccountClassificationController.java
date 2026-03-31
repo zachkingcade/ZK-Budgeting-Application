@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zachkingcade.dev.ledger.adapter.in.web.dto.ApiResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
-import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.AccountClassificationObject;
-import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.GetAllAccountClassificationResponse;
-import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassifcation.GetByIdAccountClassificationResponse;
-import zachkingcade.dev.ledger.application.port.in.accountclassification.GetAllAccountClassifcationsUseCase;
-import zachkingcade.dev.ledger.application.port.in.accountclassification.GetByIdAccountClassificaitonUseCase;
+import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassification.AccountClassificationObject;
+import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassification.GetAllAccountClassificationResponse;
+import zachkingcade.dev.ledger.adapter.in.web.dto.accountclassification.GetByIdAccountClassificationResponse;
+import zachkingcade.dev.ledger.application.port.in.accountclassification.GetAllAccountClassificationsUseCase;
+import zachkingcade.dev.ledger.application.port.in.accountclassification.GetByIdAccountClassificationUseCase;
 import zachkingcade.dev.ledger.domain.account.AccountClassification;
 
 import java.util.ArrayList;
@@ -26,19 +26,19 @@ public class AccountClassificationController {
 
     private static final Logger log = LoggerFactory.getLogger(AccountClassificationController.class);
 
-    private final GetAllAccountClassifcationsUseCase getAllAccountClassifcationsUseCase;
-    private final GetByIdAccountClassificaitonUseCase getByIdAccountClassificaitonUseCase;
+    private final GetAllAccountClassificationsUseCase getAllAccountClassificationsUseCase;
+    private final GetByIdAccountClassificationUseCase getByIdAccountClassificationUseCase;
 
-    public AccountClassificationController(GetAllAccountClassifcationsUseCase getAllAccountClassifcationsUseCase, GetByIdAccountClassificaitonUseCase getByIdAccountClassificaitonUseCase) {
-        this.getAllAccountClassifcationsUseCase = getAllAccountClassifcationsUseCase;
-        this.getByIdAccountClassificaitonUseCase = getByIdAccountClassificaitonUseCase;
+    public AccountClassificationController(GetAllAccountClassificationsUseCase getAllAccountClassificationsUseCase, GetByIdAccountClassificationUseCase getByIdAccountClassificationUseCase) {
+        this.getAllAccountClassificationsUseCase = getAllAccountClassificationsUseCase;
+        this.getByIdAccountClassificationUseCase = getByIdAccountClassificationUseCase;
     }
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<GetAllAccountClassificationResponse>> getAll(){
         try {
             log.debug("Starting Rest Controller /accountclassifications endpoint /all");
-            List<AccountClassification> domainList = getAllAccountClassifcationsUseCase.getAllAccountClassifications();
+            List<AccountClassification> domainList = getAllAccountClassificationsUseCase.getAllAccountClassifications();
             List<AccountClassificationObject> resultingList = new ArrayList<>();
             for(AccountClassification accountClass: domainList){
                 resultingList.add(new AccountClassificationObject(accountClass.id(), accountClass.description(),accountClass.creditEffect(),accountClass.debitEffect()));
@@ -57,7 +57,7 @@ public class AccountClassificationController {
     public ResponseEntity<ApiResponse<GetByIdAccountClassificationResponse>> getById(@PathVariable Long id){
         try {
             log.debug("Starting Rest Controller /accountclassifications endpoint /byid id:[{}]",id);
-            AccountClassification accountClass = getByIdAccountClassificaitonUseCase.getByIdAccountClassifcation(id);
+            AccountClassification accountClass = getByIdAccountClassificationUseCase.getByIdAccountClassification(id);
             GetByIdAccountClassificationResponse response = new GetByIdAccountClassificationResponse(accountClass.id(), accountClass.description(),accountClass.creditEffect(),accountClass.debitEffect());
             ApiResponse<GetByIdAccountClassificationResponse> apiResponse = new ApiResponse<>(String.format("Returned Account Classifications of ID:[%s]", id),new MetaData(1L),response);
             log.debug("Ending Rest Controller /accountclassifications endpoint /byid id:[{}]",response.id());
