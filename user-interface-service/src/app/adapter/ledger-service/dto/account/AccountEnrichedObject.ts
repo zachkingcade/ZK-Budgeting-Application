@@ -1,4 +1,4 @@
-export interface AccountEnrichedObject {
+export interface IAccountEnrichedObject {
   accountId: number;
   typeId: number;
   description: string;
@@ -8,3 +8,6 @@ export interface AccountEnrichedObject {
   active: boolean;
   notes: string;
 }
+
+
+export type AccountEnrichedObject = IAccountEnrichedObject;

@@ -3,14 +3,14 @@ import { Observable, catchError, map, tap, throwError } from 'rxjs';
 import { LedgerHttpClientService } from '../client/ledger-http-client.service';
 import { LedgerAdapterLoggerService } from '../logging/ledger-adapter-logger.service';
 import { ApiResponse } from '../dto/ApiResponse';
-import { GETAllJournalEntrysRequest } from '../dto/Journal-entry/GETAllJournalEntrysRequest';
-import { GETAllJournalEntrysResponse } from '../dto/Journal-entry/GETAllJournalEntrysResponse';
-import { GETJournalEntryByIdResponse } from '../dto/Journal-entry/GETJournalEntryByIdResponse';
-import { POSTCreateJournalEntryRequest } from '../dto/Journal-entry/POSTCreateJournalEntryRequest';
-import { POSTCreateJournalEntryResponse } from '../dto/Journal-entry/POSTCreateJournalEntryResponse';
-import { POSTUpdateJournalEntryRequest } from '../dto/Journal-entry/POSTUpdateJournalEntryRequest';
-import { POSTUpdateJournalEntryResponse } from '../dto/Journal-entry/POSTUpdateJournalEntryResponse';
-import { REMOVEJournalEntryResponse } from '../dto/Journal-entry/REMOVEJournalEntryResponse';
+import { GETAllJournalEntrysRequest } from '../dto/journal-entry/GETAllJournalEntrysRequest';
+import { GETAllJournalEntrysResponse } from '../dto/journal-entry/GETAllJournalEntrysResponse';
+import { GETJournalEntryByIdResponse } from '../dto/journal-entry/GETJournalEntryByIdResponse';
+import { POSTCreateJournalEntryRequest } from '../dto/journal-entry/POSTCreateJournalEntryRequest';
+import { POSTCreateJournalEntryResponse } from '../dto/journal-entry/POSTCreateJournalEntryResponse';
+import { POSTUpdateJournalEntryRequest } from '../dto/journal-entry/POSTUpdateJournalEntryRequest';
+import { POSTUpdateJournalEntryResponse } from '../dto/journal-entry/POSTUpdateJournalEntryResponse';
+import { REMOVEJournalEntryResponse } from '../dto/journal-entry/REMOVEJournalEntryResponse';
 
 @Injectable({
   providedIn: 'root'

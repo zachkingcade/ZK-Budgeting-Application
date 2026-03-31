@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, tap, throwError } from 'rxjs';
 import { JournalEntryApi } from '../../adapter/ledger-service/api/journal-entry.api';
 import { ApiResponse } from '../../adapter/ledger-service/dto/ApiResponse';
-import { GETAllJournalEntrysRequest } from '../../adapter/ledger-service/dto/Journal-entry/GETAllJournalEntrysRequest';
-import { GETAllJournalEntrysResponse } from '../../adapter/ledger-service/dto/Journal-entry/GETAllJournalEntrysResponse';
-import { GETJournalEntryByIdResponse } from '../../adapter/ledger-service/dto/Journal-entry/GETJournalEntryByIdResponse';
-import { POSTCreateJournalEntryRequest } from '../../adapter/ledger-service/dto/Journal-entry/POSTCreateJournalEntryRequest';
-import { POSTCreateJournalEntryResponse } from '../../adapter/ledger-service/dto/Journal-entry/POSTCreateJournalEntryResponse';
-import { POSTUpdateJournalEntryRequest } from '../../adapter/ledger-service/dto/Journal-entry/POSTUpdateJournalEntryRequest';
-import { POSTUpdateJournalEntryResponse } from '../../adapter/ledger-service/dto/Journal-entry/POSTUpdateJournalEntryResponse';
-import { REMOVEJournalEntryResponse } from '../../adapter/ledger-service/dto/Journal-entry/REMOVEJournalEntryResponse';
+import { GETAllJournalEntrysRequest } from '../../adapter/ledger-service/dto/journal-entry/GETAllJournalEntrysRequest';
+import { GETAllJournalEntrysResponse } from '../../adapter/ledger-service/dto/journal-entry/GETAllJournalEntrysResponse';
+import { GETJournalEntryByIdResponse } from '../../adapter/ledger-service/dto/journal-entry/GETJournalEntryByIdResponse';
+import { POSTCreateJournalEntryRequest } from '../../adapter/ledger-service/dto/journal-entry/POSTCreateJournalEntryRequest';
+import { POSTCreateJournalEntryResponse } from '../../adapter/ledger-service/dto/journal-entry/POSTCreateJournalEntryResponse';
+import { POSTUpdateJournalEntryRequest } from '../../adapter/ledger-service/dto/journal-entry/POSTUpdateJournalEntryRequest';
+import { POSTUpdateJournalEntryResponse } from '../../adapter/ledger-service/dto/journal-entry/POSTUpdateJournalEntryResponse';
+import { REMOVEJournalEntryResponse } from '../../adapter/ledger-service/dto/journal-entry/REMOVEJournalEntryResponse';
 import { LedgerApplicationLoggerService } from './ledger-application-logger.service';
 
 @Injectable({

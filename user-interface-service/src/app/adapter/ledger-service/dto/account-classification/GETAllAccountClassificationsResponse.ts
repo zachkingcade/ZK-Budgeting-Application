@@ -1,5 +1,7 @@
 import { AccountClassificationObject } from "./AccountClassificationObject";
 
-export interface GETAllAccountClassificationsResponse {
+export interface IGETAllAccountClassificationsResponse {
   accountClassificationList: AccountClassificationObject[];
 }
+
+export type GETAllAccountClassificationsResponse = IGETAllAccountClassificationsResponse;

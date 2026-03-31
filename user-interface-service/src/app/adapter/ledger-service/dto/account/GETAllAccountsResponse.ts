@@ -1,5 +1,7 @@
 import { AccountEnrichedObject } from "./AccountEnrichedObject";
 
-export interface GETAllAccountsResponse {
+export interface IGETAllAccountsResponse {
   accountsList: AccountEnrichedObject[];
 }
+
+export type GETAllAccountsResponse = IGETAllAccountsResponse;

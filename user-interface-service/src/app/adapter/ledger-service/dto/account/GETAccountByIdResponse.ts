@@ -1,4 +1,4 @@
-export interface GETAccountByIdResponse {
+export interface IGETAccountByIdResponse {
   accountId: number;
   typeId: number;
   description: string;
@@ -8,3 +8,5 @@ export interface GETAccountByIdResponse {
   active: boolean;
   notes: string;
 }
+
+export type GETAccountByIdResponse = IGETAccountByIdResponse;

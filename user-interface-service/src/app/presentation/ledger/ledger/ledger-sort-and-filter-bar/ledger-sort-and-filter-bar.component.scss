@@ -1,0 +1,48 @@
+.filterAndSortBar {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    background-color: white;
+    border-radius: 15px;
+    gap: 1em;
+    flex-shrink: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1.5em 1.5em 1.5em 1.5em;
+}
+
+#searchBar {
+    min-width: 25rem;
+    height: 3rem;
+    font-size: 1.5rem;
+}
+
+.selectInputs {
+    height: 3rem;
+    min-width: 10rem;
+}
+
+.mtxSelectInputs {
+    min-width: 15rem;
+}
+
+.actionButton {
+    height: 3rem;
+    font-size: 1.5rem;
+    min-width: 10rem;
+    align-self: center;
+}
+
+.redButton {
+    background-color: lightcoral;
+}
+
+.blueButton {
+    background-color: lightblue;
+}
+
+mat-icon {
+  color: #9ca3af; // subtle gray
+  margin-right: 6px;
+}

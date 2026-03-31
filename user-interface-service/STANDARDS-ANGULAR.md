@@ -92,7 +92,7 @@ DEFAULT_SORT_DIRECTION
 
 ## Files
 
-Use **kebab-case** for file names
+Use angular standard **dot** and **kebab-case** for file names.
 
 ```txt
 ledger-page.component.ts
@@ -213,6 +213,18 @@ in a micro service to figure out the shape of data coming in from it.
 - Avoid deep nesting
 - Avoid overly clever chains when a simpler approach is more readable
 
+## Dependency Injection
+- Perfer constructor based DI over inject()
+
+## Typing
+-Always put a type on new varibles even when typescript would not require it. If we do not know the type mark this by typing it as an any object. If we know that it can be more then one type (some librarys designed for javascript do this) then make it a composite type. Examples of both below.
+
+```typescript
+varibleNormal: String,
+varibleUnknownType: any,
+varibleCompositeType: (String | Number),
+```
+
 
 # Anti-Patterns
 
@@ -243,19 +255,6 @@ Avoid:
 - Do not silently swallow errors
 - Surface meaningful error states in the UI
 - Keep user-facing error messages clear and simple
-
-# AI / Cursor Guidelines
-
-When generating code:
-
-- Follow naming conventions exactly
-- Place files in the correct feature and layer
-- Do not mix responsibilities across layers
-- Do not introduce unnecessary abstractions
-- Prefer simple, readable implementations
-- Do not place business logic in components
-- Do not place HTTP calls directly in components
-- Match existing Angular patterns already used in the project
 
 # Something not covered?
 
