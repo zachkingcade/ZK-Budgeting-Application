@@ -68,6 +68,27 @@
   gap: 0.5rem;
 }
 
+.ledger-table__entry-notes {
+  margin: 0.5rem 0 0 1.5rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--mat-sys-outline-variant);
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: baseline;
+  font: var(--mat-sys-body-medium);
+}
+
+.ledger-table__entry-notes-label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ledger-table__entry-notes-value {
+  color: var(--mat-sys-on-surface-variant);
+  word-break: break-word;
+}
+
 .ledger-table__line {
   display: grid;
   grid-template-columns: minmax(5rem, 8rem) minmax(8rem, 1.4fr) minmax(7rem, 10rem) 1fr auto;

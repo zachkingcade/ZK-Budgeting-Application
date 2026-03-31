@@ -78,9 +78,39 @@ public class AccountController {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAll(@RequestBody(required = false) GetAllAccountsRequest request){
+    public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAll(){
         try {
-            log.debug("Starting Rest Controller /accounts endpoint /all request[{}]", request);
+            log.debug("Starting Rest Controller /accounts endpoint /all");
+            return handleGetAll(null);
+        } catch (RuntimeException ex) {
+            log.error("AccountController.getAll failed", ex);
+            throw ex;
+        }
+    }
+
+    @PostMapping("/all/filtered")
+    public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAllFiltered(@RequestBody(required = false) GetAllAccountsRequest request){
+        try {
+            log.debug("Starting Rest Controller /accounts endpoint /all/filtered sortPresent:[{}] filtersPresent:[{}]",
+                    request != null && request.sort().isPresent(),
+                    request != null && request.filters().isPresent()
+            );
+            ResponseEntity<ApiResponse<GetAllAccountsResponse>> result = handleGetAll(request);
+            Long count = null;
+            if (result.getBody() != null && result.getBody().getMetaData() != null) {
+                count = result.getBody().getMetaData().getDataResponseCount();
+            }
+            log.debug("Ending Rest Controller /accounts endpoint /all/filtered count:[{}]", count);
+            return result;
+        } catch (RuntimeException ex) {
+            log.error("AccountController.getAllFiltered failed", ex);
+            throw ex;
+        }
+    }
+
+    private ResponseEntity<ApiResponse<GetAllAccountsResponse>> handleGetAll(GetAllAccountsRequest request){
+        try {
+            log.debug("Starting Rest Controller /accounts endpoint /all requestPresent:[{}]", request != null);
             // Sanitize Request sort
             SortObjectCommandObject<AccountSortType> sort = null;
             if(request != null && request.sort().isPresent()){
@@ -113,7 +143,7 @@ public class AccountController {
             log.debug("Ending Rest Controller /accounts endpoint /all with [{}] results",resultingList.size());
             return new ResponseEntity< >(apiResponse,HttpStatus.OK);
         } catch (RuntimeException ex) {
-            log.error("AccountController.getAll failed", ex);
+            log.error("AccountController.handleGetAll failed", ex);
             throw ex;
         }
     }

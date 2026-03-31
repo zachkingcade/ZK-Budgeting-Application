@@ -1,0 +1,31 @@
+@if (open) {
+  <div class="modalBackdrop" (click)="onBackdropClick()"></div>
+  <div class="modalHost" role="dialog" aria-modal="true" [attr.aria-label]="header">
+    <div class="modalCard" (click)="$event.stopPropagation()">
+      <div class="modalHeader">
+        <div class="modalHeaderText">
+          <h2 class="modalTitle">{{ header }}</h2>
+        </div>
+        <button mat-icon-button type="button" aria-label="Close" (click)="onCancel()" [disabled]="confirmDisabled">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      @if (errorMessage) {
+        <div class="modalError" role="alert">{{ errorMessage }}</div>
+      }
+
+      <div class="modalBody">
+        <p class="modalMessage">{{ message }}</p>
+      </div>
+
+      <div class="modalFooter">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="confirmDisabled">{{ cancelLabel }}</button>
+        <button mat-raised-button type="button" class="confirmButton" (click)="onConfirm()" [disabled]="confirmDisabled">
+          {{ confirmLabel }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+

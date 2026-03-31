@@ -46,9 +46,39 @@ public class AccountTypeController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<GetAllAccountTypesResponse>> getAllAccountTypes(@RequestBody(required = false) GetAllAccountTypesRequest request){
+    public ResponseEntity<ApiResponse<GetAllAccountTypesResponse>> getAllAccountTypes(){
         try {
             log.debug("Starting Rest Controller /accounttypes endpoint /all");
+            return handleGetAll(null);
+        } catch (RuntimeException ex) {
+            log.error("AccountTypeController.getAllAccountTypes failed", ex);
+            throw ex;
+        }
+    }
+
+    @PostMapping("/all/filtered")
+    public ResponseEntity<ApiResponse<GetAllAccountTypesResponse>> getAllAccountTypesFiltered(@RequestBody(required = false) GetAllAccountTypesRequest request){
+        try {
+            log.debug("Starting Rest Controller /accounttypes endpoint /all/filtered sortPresent:[{}] filtersPresent:[{}]",
+                    request != null && request.sort().isPresent(),
+                    request != null && request.filters().isPresent()
+            );
+            ResponseEntity<ApiResponse<GetAllAccountTypesResponse>> result = handleGetAll(request);
+            Long count = null;
+            if (result.getBody() != null && result.getBody().getMetaData() != null) {
+                count = result.getBody().getMetaData().getDataResponseCount();
+            }
+            log.debug("Ending Rest Controller /accounttypes endpoint /all/filtered count:[{}]", count);
+            return result;
+        } catch (RuntimeException ex) {
+            log.error("AccountTypeController.getAllAccountTypesFiltered failed", ex);
+            throw ex;
+        }
+    }
+
+    private ResponseEntity<ApiResponse<GetAllAccountTypesResponse>> handleGetAll(GetAllAccountTypesRequest request){
+        try {
+            log.debug("Starting Rest Controller /accounttypes endpoint /all requestPresent:[{}]", request != null);
             // Sanitize Request
             SortObjectCommandObject<AccountTypeSortType> sort = null;
             if(request != null && request.sort().isPresent()){
@@ -86,7 +116,7 @@ public class AccountTypeController {
             log.debug("Ending Rest Controller /accounttypes endpoint /all with [{}] results",resultingList.size());
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         } catch (RuntimeException ex) {
-            log.error("AccountTypeController.getAllAccountTypes failed", ex);
+            log.error("AccountTypeController.handleGetAll failed", ex);
             throw ex;
         }
     }

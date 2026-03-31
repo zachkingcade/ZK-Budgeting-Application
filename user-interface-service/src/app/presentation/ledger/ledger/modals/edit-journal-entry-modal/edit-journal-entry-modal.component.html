@@ -1,0 +1,84 @@
+@if (open) {
+  <div class="modalBackdrop" (click)="onBackdropClick()"></div>
+  <div class="modalHost" role="dialog" aria-modal="true" aria-label="Edit journal entry">
+    <div class="modalCard" (click)="$event.stopPropagation()">
+      <div class="modalHeader">
+        <h2 class="modalTitle">Edit Journal Entry</h2>
+        <button mat-icon-button type="button" aria-label="Close" (click)="onCancel()" [disabled]="submitting()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="modalError" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <div class="modalBody">
+        <div class="metaRow">
+          <div class="metaItem">
+            <div class="metaLabel">Entry date</div>
+            <div class="metaValue">{{ entry ? formatDate(entry.entryDate) : '' }}</div>
+          </div>
+          <div class="metaItem">
+            <div class="metaLabel">Debit total</div>
+            <div class="metaValue mono">{{ formatMoney(debitTotal()) }}</div>
+          </div>
+          <div class="metaItem">
+            <div class="metaLabel">Credit total</div>
+            <div class="metaValue mono">{{ formatMoney(creditTotal()) }}</div>
+          </div>
+        </div>
+
+        <div class="entryFields">
+          <mat-form-field appearance="outline" class="field fieldWide">
+            <mat-label>Description</mat-label>
+            <input matInput [(ngModel)]="description" placeholder="Description" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field fieldWide">
+            <mat-label>Notes</mat-label>
+            <input matInput [(ngModel)]="notes" placeholder="Notes (optional)" />
+          </mat-form-field>
+        </div>
+
+        <h3 class="sectionTitle">Journal Lines (notes only)</h3>
+
+        <div class="linesTableWrap">
+          <table class="linesTable">
+            <thead>
+              <tr>
+                <th>Amount</th>
+                <th>Account</th>
+                <th>Direction</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of lineDrafts(); track line.id) {
+                <tr>
+                  <td class="mono">{{ formatMoney(line.amount) }}</td>
+                  <td>{{ line.display }}</td>
+                  <td>{{ line.direction === 'C' ? 'Credit' : 'Debit' }}</td>
+                  <td>
+                    <mat-form-field appearance="outline" class="cellField">
+                      <mat-label>Notes</mat-label>
+                      <input matInput [(ngModel)]="line.notes" placeholder="Notes" />
+                    </mat-form-field>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modalFooter">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="submitting()">Cancel</button>
+        <button mat-raised-button type="button" class="submitButton" (click)="submit()" [disabled]="submitting()">
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+}
+

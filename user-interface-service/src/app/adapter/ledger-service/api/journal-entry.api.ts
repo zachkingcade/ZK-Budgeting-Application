@@ -25,7 +25,12 @@ export class JournalEntryApi {
     const operation = 'JournalEntryApi.getAll /journalentry/all';
     const startTime = Date.now();
     this.logger.debug(`Starting ${operation}`, request);
-    return this.ledgerClient.get<ApiResponse<GETAllJournalEntrysResponse>>('/journalentry/all', request).pipe(
+    const path: string = request ? '/journalentry/all/filtered' : '/journalentry/all';
+    const source$ = request
+      ? this.ledgerClient.post<ApiResponse<GETAllJournalEntrysResponse>>(path, request)
+      : this.ledgerClient.get<ApiResponse<GETAllJournalEntrysResponse>>(path);
+
+    return source$.pipe(
       tap((response) => {
         this.logger.debug(`Ending ${operation} (${Date.now() - startTime}ms)`, {
           statusMessage: response.statusMessage,

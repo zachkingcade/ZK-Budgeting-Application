@@ -1,0 +1,124 @@
+@if (open) {
+  <div class="modalBackdrop" (click)="onBackdropClick()"></div>
+  <div class="modalHost" role="dialog" aria-modal="true" aria-label="Add journal entry">
+    <div class="modalCard" (click)="$event.stopPropagation()">
+      <div class="modalHeader">
+        <h2 class="modalTitle">Add Journal Entry</h2>
+        <button mat-icon-button type="button" aria-label="Close" (click)="onCancel()" [disabled]="submitting()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="modalError" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <div class="modalBody">
+        <div class="entryFields">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Date</mat-label>
+            <input matInput type="date" [(ngModel)]="entryDate" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field fieldWide">
+            <mat-label>Description</mat-label>
+            <input matInput [(ngModel)]="description" placeholder="Description" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field fieldWide">
+            <mat-label>Notes</mat-label>
+            <input matInput [(ngModel)]="notes" placeholder="Notes (optional)" />
+          </mat-form-field>
+        </div>
+
+        <div class="linesHeader">
+          <h3 class="sectionTitle">Journal Lines</h3>
+          <button mat-button type="button" (click)="addRow()" [disabled]="submitting()">
+            <mat-icon>add</mat-icon>
+            Add row
+          </button>
+        </div>
+
+        <div class="linesTableWrap">
+          <table class="linesTable">
+            <thead>
+              <tr>
+                <th>Amount</th>
+                <th>Account</th>
+                <th>Direction</th>
+                <th>Notes</th>
+                <th class="colActions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of lines(); track $index) {
+                <tr>
+                  <td>
+                    <mat-form-field appearance="outline" class="cellField">
+                      <mat-label>Dollars</mat-label>
+                      <input matInput inputmode="decimal" placeholder="0.00" [(ngModel)]="line.amountDollars" />
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="outline" class="cellField">
+                      <mat-label>Account</mat-label>
+                      <mtx-select
+                        [items]="accountOptions()"
+                        bindLabel="label"
+                        bindValue="id"
+                        [(ngModel)]="line.accountId"
+                        [multiple]="false"
+                        placeholder="Select account"
+                      >
+                      </mtx-select>
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="outline" class="cellField">
+                      <mat-label>Direction</mat-label>
+                      <mtx-select
+                        [items]="directionOptions"
+                        bindLabel="label"
+                        bindValue="id"
+                        [(ngModel)]="line.direction"
+                        [multiple]="false"
+                        [searchable]="false"
+                        placeholder="Select"
+                      >
+                      </mtx-select>
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="outline" class="cellField">
+                      <mat-label>Notes</mat-label>
+                      <input matInput [(ngModel)]="line.notes" placeholder="Notes (optional)" />
+                    </mat-form-field>
+                  </td>
+                  <td class="colActions">
+                    <button
+                      mat-icon-button
+                      type="button"
+                      aria-label="Remove row"
+                      (click)="removeRow($index)"
+                      [disabled]="submitting() || lines().length <= 2"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modalFooter">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="submitting()">Cancel</button>
+        <button mat-raised-button type="button" class="submitButton" (click)="submit()" [disabled]="submitting()">
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+}
+

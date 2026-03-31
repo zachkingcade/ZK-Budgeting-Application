@@ -24,7 +24,12 @@ export class AccountsApi {
     const operation = 'AccountsApi.getAll /accounts/all';
     const startTime = Date.now();
     this.logger.debug(`Starting ${operation}`, request);
-    return this.ledgerClient.get<ApiResponse<GETAllAccountsResponse>>('/accounts/all', request).pipe(
+    const path: string = request ? '/accounts/all/filtered' : '/accounts/all';
+    const source$ = request
+      ? this.ledgerClient.post<ApiResponse<GETAllAccountsResponse>>(path, request)
+      : this.ledgerClient.get<ApiResponse<GETAllAccountsResponse>>(path);
+
+    return source$.pipe(
       tap((response) => {
         this.logger.debug(`Ending ${operation} (${Date.now() - startTime}ms)`, {
           statusMessage: response.statusMessage,

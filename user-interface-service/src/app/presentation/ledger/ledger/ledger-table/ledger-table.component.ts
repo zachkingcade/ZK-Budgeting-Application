@@ -1,11 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, output, signal, ViewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, input, output, signal, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTable, MatTableModule } from '@angular/material/table';
-import { JournalEntryApplicationService } from '../../../../application/ledger/journal-entry.application-service';
 import { JournalEntryDTOEnrichedResponse } from '../../../../adapter/ledger-service/dto/journal-entry/JournalEntryDTOEnrichedResponse';
 import { JournalLineDTOEnrichedResponse } from '../../../../adapter/ledger-service/dto/journal-entry/JournalLineDTOEnrichedResponse';
 
@@ -22,57 +20,22 @@ import { JournalLineDTOEnrichedResponse } from '../../../../adapter/ledger-servi
   templateUrl: './ledger-table.component.html',
   styleUrl: './ledger-table.component.scss',
 })
-export class LedgerTable implements OnInit {
-  constructor(
-    private readonly journalEntries: JournalEntryApplicationService,
-    private readonly destroyRef: DestroyRef,
-  ) {}
-
+export class LedgerTable {
   @ViewChild(MatTable) private readonly table?: MatTable<JournalEntryDTOEnrichedResponse>;
 
-  readonly journalEntryEdit = output<JournalEntryDTOEnrichedResponse>();
-  readonly journalEntryRemove = output<JournalEntryDTOEnrichedResponse>();
-  readonly journalLineEdit = output<{
-    entry: JournalEntryDTOEnrichedResponse;
-    line: JournalLineDTOEnrichedResponse;
-  }>();
-  readonly journalLineRemove = output<{
-    entry: JournalEntryDTOEnrichedResponse;
-    line: JournalLineDTOEnrichedResponse;
-  }>();
+  readonly entries = input.required<JournalEntryDTOEnrichedResponse[]>();
+  readonly loading = input.required<boolean>();
+  readonly loadError = input.required<string | null>();
+  readonly removingEntryId = input.required<number | null>();
 
-  readonly entries = signal<JournalEntryDTOEnrichedResponse[]>([]);
-  readonly loading = signal(false);
-  readonly loadError = signal<string | null>(null);
-  readonly removingEntryId = signal<number | null>(null);
+  readonly editRequested = output<JournalEntryDTOEnrichedResponse>();
+  readonly deleteRequested = output<JournalEntryDTOEnrichedResponse>();
 
   readonly displayedColumns = ['entryDate', 'description', 'amount', 'actions'] as const;
   readonly expandedEntryIds = signal<Set<number>>(new Set<number>());
 
   readonly isExpansionDetailRow = (_index: number, row: JournalEntryDTOEnrichedResponse): boolean =>
     this.expandedEntryIds().has(row.id);
-
-  ngOnInit(): void {
-    this.loadEntries();
-  }
-
-  loadEntries(): void {
-    this.loading.set(true);
-    this.loadError.set(null);
-    this.journalEntries
-      .getAll()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.entries.set(res.data?.journalEntryList ?? []);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loadError.set('Could not load journal entries.');
-          this.loading.set(false);
-        },
-      });
-  }
 
   toggleDetails(entry: JournalEntryDTOEnrichedResponse): void {
     this.expandedEntryIds.update((prev) => {
@@ -125,40 +88,22 @@ export class LedgerTable implements OnInit {
   }
 
   onEditEntry(entry: JournalEntryDTOEnrichedResponse): void {
-    this.journalEntryEdit.emit(entry);
+    this.editRequested.emit(entry);
   }
 
   onRemoveEntry(entry: JournalEntryDTOEnrichedResponse): void {
-    if (!confirm(`Remove journal entry "${entry.description}"?`)) {
-      return;
-    }
-    this.removingEntryId.set(entry.id);
-    this.journalEntries
-      .removeById(entry.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.removingEntryId.set(null);
-          this.expandedEntryIds.update((prev) => {
-            const next = new Set(prev);
-            next.delete(entry.id);
-            return next;
-          });
-          this.journalEntryRemove.emit(entry);
-          this.loadEntries();
-        },
-        error: () => {
-          this.removingEntryId.set(null);
-          this.loadError.set('Could not remove that journal entry.');
-        },
-      });
+    this.deleteRequested.emit(entry);
   }
 
   onEditLine(entry: JournalEntryDTOEnrichedResponse, line: JournalLineDTOEnrichedResponse): void {
-    this.journalLineEdit.emit({ entry, line });
+    // Not implemented in this feature scope (entry-level edit modal covers line notes).
+    void entry;
+    void line;
   }
 
   onRemoveLine(entry: JournalEntryDTOEnrichedResponse, line: JournalLineDTOEnrichedResponse): void {
-    this.journalLineRemove.emit({ entry, line });
+    // Not implemented in this feature scope.
+    void entry;
+    void line;
   }
 }

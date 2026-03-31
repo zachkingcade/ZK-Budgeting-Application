@@ -1,6 +1,58 @@
 <app-page-cage [pageName]="'Ledger Page'" [subText]="'View, Edit and Delete Journal Entries'">
     <div class="cageContents">
-        <app-ledger-sort-and-filter-bar></app-ledger-sort-and-filter-bar>
-        <app-ledger-table class="table"></app-ledger-table>
+        <app-ledger-sort-and-filter-bar
+          [state]="currentState()"
+          [showRefresh]="!isDirtySinceLastApply"
+          (stateChanged)="onStateChanged($event)"
+          (clearClicked)="clearClicked()"
+          (applyOrRefreshClicked)="applyButtonClicked()"
+        ></app-ledger-sort-and-filter-bar>
+
+        <div class="ledgerActionsRow">
+          <button
+            mat-raised-button
+            type="button"
+            class="addButton"
+            (click)="openAddModal()"
+            aria-label="Add journal entry"
+          >
+            <mat-icon>add</mat-icon>
+            Add
+          </button>
+        </div>
+
+        <app-ledger-table
+          class="table"
+          [entries]="entries()"
+          [loading]="loading()"
+          [loadError]="loadError()"
+          [removingEntryId]="removingEntryId()"
+          (editRequested)="openEditModal($event)"
+          (deleteRequested)="openDeleteConfirm($event)"
+        ></app-ledger-table>
     </div>
 </app-page-cage>
+
+<app-confirmation-modal
+  [open]="deleteConfirmOpen()"
+  [header]="'Confirm Delete'"
+  [message]="deleteConfirmMessage()"
+  [errorMessage]="modalError()"
+  [confirmLabel]="'Delete'"
+  [confirmDisabled]="removingEntryId() !== null"
+  (cancelled)="closeDeleteConfirm()"
+  (confirmed)="onDeleteConfirmed()"
+></app-confirmation-modal>
+
+<app-add-journal-entry-modal
+  [open]="addModalOpen()"
+  (cancelled)="onAddCancelled()"
+  (created)="onAddCreatedSuccessfully($event)"
+></app-add-journal-entry-modal>
+
+<app-edit-journal-entry-modal
+  [open]="editModalOpen()"
+  [entry]="entryBeingEdited()"
+  (cancelled)="onEditCancelled()"
+  (updated)="onEditUpdatedSuccessfully($event)"
+></app-edit-journal-entry-modal>

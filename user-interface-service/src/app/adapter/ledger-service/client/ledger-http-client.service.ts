@@ -10,13 +10,8 @@ export class LedgerHttpClientService {
 
   constructor(private readonly httpClient: HttpClient) {}
 
-  get<T>(path: string, body?: unknown): Observable<T> {
-    const url = this.buildUrl(path);
-    if (body === undefined) {
-      return this.httpClient.get<T>(url);
-    }
-
-    return this.httpClient.request<T>('GET', url, { body });
+  get<T>(path: string): Observable<T> {
+    return this.httpClient.get<T>(this.buildUrl(path));
   }
 
   post<T>(path: string, body: unknown): Observable<T> {

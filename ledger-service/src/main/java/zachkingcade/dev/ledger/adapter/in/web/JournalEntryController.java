@@ -81,45 +81,69 @@ public class JournalEntryController {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> getAll(@RequestBody(required = false) GetAllJournalEntryRequest request){
+    public ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> getAll(){
         try {
             log.debug("Starting Rest Controller /journalentry endpoint /all");
-            // Sanitize Request
-            SortObjectCommandObject<JournalEntrySortType> sort = null;
-            if(request != null && request.sort().isPresent()){
-                sort = new SortObjectCommandObject<>(request.sort().get().type(), request.sort().get().direction() != null? request.sort().get().direction() : SortDirection.ascending );
-            } else {
-                //default
-                sort = new SortObjectCommandObject<>(JournalEntrySortType.entryDate, SortDirection.ascending);
-            }
-
-            // Sanitize Request Filters
-            JournalEntryFilterCommandObject filters = null;
-            if(request != null && request.filters().isPresent()){
-                filters = new JournalEntryFilterCommandObject(
-                        request.filters().get().dateAfter(),
-                        request.filters().get().dateBefore(),
-                        request.filters().get().descriptionContains(),
-                        request.filters().get().notesContains(),
-                        request.filters().get().accountTypes(),
-                        request.filters().get().accounts()
-                );
-            } else {
-                //default
-                filters = new JournalEntryFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty());
-            }
-
-            GetAllJournalEntriesCommand command = new GetAllJournalEntriesCommand(Optional.of(sort), Optional.of(filters));
-            List<JournalEntry> entryList = getAllJournalEntryUseCase.getAllJournalEntries(command);
-            List<JournalEntryDTOEnrichedResponse> resultingEntryList = convertDomainListToResponseAndEnrich(entryList);
-            GetAllJournalEntryResponse response = new GetAllJournalEntryResponse(resultingEntryList);
-            ApiResponse<GetAllJournalEntryResponse> apiResponse = new ApiResponse<>(String.format("Returned [%s] Journal Entries", resultingEntryList.size()),new MetaData((long) resultingEntryList.size()),response);
-            log.debug("Ending Rest Controller /journalentry endpoint /all with [{}] results",resultingEntryList.size());
-            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+            return handleGetAll(null);
         } catch (RuntimeException ex) {
             log.error("JournalEntryController.getAll failed", ex);
             throw ex;
         }
+    }
+
+    @PostMapping("/all/filtered")
+    public ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> getAllFiltered(@RequestBody(required = false) GetAllJournalEntryRequest request){
+        try {
+            log.debug("Starting Rest Controller /journalentry endpoint /all/filtered sortPresent:[{}] filtersPresent:[{}]",
+                    request != null && request.sort().isPresent(),
+                    request != null && request.filters().isPresent()
+            );
+            ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> result = handleGetAll(request);
+            Long count = null;
+            if (result.getBody() != null && result.getBody().getMetaData() != null) {
+                count = result.getBody().getMetaData().getDataResponseCount();
+            }
+            log.debug("Ending Rest Controller /journalentry endpoint /all/filtered count:[{}]", count);
+            return result;
+        } catch (RuntimeException ex) {
+            log.error("JournalEntryController.getAllFiltered failed", ex);
+            throw ex;
+        }
+    }
+
+    private ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> handleGetAll(GetAllJournalEntryRequest request){
+        // Sanitize Request
+        SortObjectCommandObject<JournalEntrySortType> sort = null;
+        if(request != null && request.sort().isPresent()){
+            sort = new SortObjectCommandObject<>(request.sort().get().type(), request.sort().get().direction() != null? request.sort().get().direction() : SortDirection.ascending );
+        } else {
+            //default
+            sort = new SortObjectCommandObject<>(JournalEntrySortType.entryDate, SortDirection.ascending);
+        }
+
+        // Sanitize Request Filters
+        JournalEntryFilterCommandObject filters = null;
+        if(request != null && request.filters().isPresent()){
+            filters = new JournalEntryFilterCommandObject(
+                    request.filters().get().dateAfter(),
+                    request.filters().get().dateBefore(),
+                    request.filters().get().descriptionContains(),
+                    request.filters().get().notesContains(),
+                    request.filters().get().accountTypes(),
+                    request.filters().get().accounts()
+            );
+        } else {
+            //default
+            filters = new JournalEntryFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty());
+        }
+
+        GetAllJournalEntriesCommand command = new GetAllJournalEntriesCommand(Optional.of(sort), Optional.of(filters));
+        List<JournalEntry> entryList = getAllJournalEntryUseCase.getAllJournalEntries(command);
+        List<JournalEntryDTOEnrichedResponse> resultingEntryList = convertDomainListToResponseAndEnrich(entryList);
+        GetAllJournalEntryResponse response = new GetAllJournalEntryResponse(resultingEntryList);
+        ApiResponse<GetAllJournalEntryResponse> apiResponse = new ApiResponse<>(String.format("Returned [%s] Journal Entries", resultingEntryList.size()),new MetaData((long) resultingEntryList.size()),response);
+        log.debug("Ending Rest Controller /journalentry endpoint /all with [{}] results",resultingEntryList.size());
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @GetMapping("/byid/{id}")
