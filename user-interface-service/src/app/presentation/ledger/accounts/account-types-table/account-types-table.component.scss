@@ -5,25 +5,25 @@
   min-height: 0;
 }
 
-.accounts-table {
+.account-types-table {
   margin-top: 0;
   height: 100%;
   min-height: 0;
   margin-bottom: 0;
 }
 
-.accounts-table__error {
+.account-types-table__error {
   color: var(--mat-sys-error);
   margin: 0 0 1rem;
 }
 
-.accounts-table__loading {
+.account-types-table__loading {
   display: flex;
   justify-content: center;
   padding: 2rem;
 }
 
-.accounts-table__frame {
+.account-types-table__frame {
   border-radius: 12px;
   border: 1px solid var(--mat-sys-outline-variant);
   height: 100%;
@@ -32,19 +32,19 @@
   background: var(--mat-sys-surface);
 }
 
-.accounts-table__scroll {
+.account-types-table__scroll {
   height: 100%;
   overflow: auto;
   box-sizing: border-box;
   padding-bottom: 0.75rem;
 }
 
-.accounts-table__mat {
+.account-types-table__mat {
   width: 100%;
   background: transparent;
 }
 
-.accounts-table__row:hover {
+.account-types-table__row:hover {
   background-color: color-mix(in srgb, var(--mat-sys-on-surface) 4%, transparent);
 }
 
@@ -53,7 +53,6 @@
   white-space: nowrap;
 }
 
-/* Enable/disable control: green when account is active, red when inactive. */
 .account-active-toggle--on mat-icon {
   color: #16a34a;
 }

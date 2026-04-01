@@ -1,0 +1,61 @@
+<div class="filterAndSortBar">
+  <mat-form-field appearance="outline" id="searchBar">
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      placeholder="Search by description..."
+      [(ngModel)]="state.searchTerm"
+      (ngModelChange)="onSearchChange()"
+    />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="mtxSelectInputs" subscriptSizing="dynamic">
+    <mat-label>Account types</mat-label>
+    <mtx-select
+      [items]="accountTypeOptions()"
+      bindLabel="label"
+      bindValue="id"
+      [(ngModel)]="state.selectedAccountTypeIds"
+      (ngModelChange)="onAccountTypesChange()"
+      [multiple]="true"
+      placeholder="All types"
+    >
+      <ng-template ng-multi-label-tmp let-items="items">
+        {{ items.length }} selected
+      </ng-template>
+    </mtx-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="selectInputs">
+    <mat-label>Sort by</mat-label>
+    <mtx-select
+      [items]="sortByOptions"
+      bindLabel="label"
+      bindValue="id"
+      [(ngModel)]="state.selectedSortBy"
+      (ngModelChange)="onSortByChange()"
+      [multiple]="false"
+      [searchable]="false"
+      [clearable]="false"
+      placeholder="Sort by"
+    >
+    </mtx-select>
+  </mat-form-field>
+
+  <div class="toggleGroup">
+    <mat-slide-toggle [(ngModel)]="state.showInactive" (ngModelChange)="onShowInactiveChange()">
+      Show inactive
+    </mat-slide-toggle>
+    <mat-slide-toggle
+      [(ngModel)]="state.hideActiveOnly"
+      (ngModelChange)="onHideActiveOnlyChange($event)"
+    >
+      Hide active (inactive only)
+    </mat-slide-toggle>
+  </div>
+
+  <button class="actionButton redButton" type="button" (click)="onClear()">Clear</button>
+  <button class="actionButton blueButton" type="button" (click)="onApplyOrRefresh()">
+    {{ showRefresh ? 'Refresh' : 'Apply' }}
+  </button>
+</div>

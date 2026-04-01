@@ -1,0 +1,73 @@
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+}
+
+.modalHost {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  padding: 1rem;
+  overflow: auto;
+}
+
+.modalCard {
+  width: min(520px, 100%);
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1rem 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.modalError {
+  padding: 0.75rem 1rem 0 1rem;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.modalBody {
+  padding: 1rem;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field,
+.fieldWide {
+  width: 100%;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 1rem 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.primaryButton {
+  background-color: lightblue;
+}

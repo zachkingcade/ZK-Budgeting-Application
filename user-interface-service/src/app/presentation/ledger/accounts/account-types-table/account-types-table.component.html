@@ -1,18 +1,18 @@
-<div class="accounts-table">
+<div class="account-types-table">
   @if (loadError()) {
-    <p class="accounts-table__error" role="alert">{{ loadError() }}</p>
+    <p class="account-types-table__error" role="alert">{{ loadError() }}</p>
   }
 
-  @if (loading() && accounts().length === 0) {
-    <div class="accounts-table__loading">
+  @if (loading() && accountTypes().length === 0) {
+    <div class="account-types-table__loading">
       <mat-progress-spinner mode="indeterminate" diameter="40" />
     </div>
   }
 
-  @if (!loading() || accounts().length > 0) {
-    <div class="accounts-table__frame">
-      <div class="accounts-table__scroll">
-        <table mat-table [dataSource]="accounts()" class="accounts-table__mat">
+  @if (!loading() || accountTypes().length > 0) {
+    <div class="account-types-table__frame">
+      <div class="account-types-table__scroll">
+        <table mat-table [dataSource]="accountTypes()" class="account-types-table__mat">
           <ng-container matColumnDef="description">
             <th mat-header-cell *matHeaderCellDef>Description</th>
             <td mat-cell *matCellDef="let row">
@@ -23,14 +23,9 @@
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="accountTypeName">
-            <th mat-header-cell *matHeaderCellDef>Account type</th>
-            <td mat-cell *matCellDef="let row">{{ row.accountTypeName }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="accountBalance">
-            <th mat-header-cell *matHeaderCellDef>Balance</th>
-            <td mat-cell *matCellDef="let row">{{ formatMoney(row.accountBalance) }}</td>
+          <ng-container matColumnDef="classification">
+            <th mat-header-cell *matHeaderCellDef>Account classification</th>
+            <td mat-cell *matCellDef="let row">{{ row.classificationLabel }}</td>
           </ng-container>
 
           <ng-container matColumnDef="notes">
@@ -44,8 +39,8 @@
               <button
                 mat-icon-button
                 type="button"
-                aria-label="Edit account"
-                [disabled]="togglingAccountId() === row.accountId"
+                aria-label="Edit account type"
+                [disabled]="togglingTypeId() === row.id"
                 (click)="onEdit(row)"
               >
                 <mat-icon>edit</mat-icon>
@@ -56,8 +51,8 @@
                 class="account-active-toggle"
                 [class.account-active-toggle--on]="row.active"
                 [class.account-active-toggle--off]="!row.active"
-                [attr.aria-label]="row.active ? 'Disable account' : 'Enable account'"
-                [disabled]="togglingAccountId() === row.accountId"
+                [attr.aria-label]="row.active ? 'Disable account type' : 'Enable account type'"
+                [disabled]="togglingTypeId() === row.id"
                 (click)="onToggleActive(row)"
               >
                 <mat-icon>{{ row.active ? 'toggle_on' : 'toggle_off' }}</mat-icon>
@@ -66,7 +61,7 @@
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="accounts-table__row"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="account-types-table__row"></tr>
         </table>
       </div>
     </div>

@@ -1,0 +1,52 @@
+<app-page-cage [pageName]="'Accounts'" [subText]="'Manage ledger accounts'">
+  <div class="cageContents">
+    <app-accounts-sort-and-filter-bar
+      [state]="currentState()"
+      [showRefresh]="!isDirtySinceLastApply"
+      (stateChanged)="onStateChanged($event)"
+      (clearClicked)="clearClicked()"
+      (applyOrRefreshClicked)="applyButtonClicked()"
+    />
+
+    <div class="accountsActionsRow">
+      <button mat-raised-button type="button" class="addButton" (click)="openAddModal()" aria-label="Add account">
+        <mat-icon>add</mat-icon>
+        Add
+      </button>
+    </div>
+
+    <app-accounts-table
+      class="table"
+      [accounts]="accounts()"
+      [loading]="loading()"
+      [loadError]="loadError()"
+      [togglingAccountId]="togglingAccountId()"
+      (editRequested)="openEditModal($event)"
+      (toggleActiveRequested)="openToggleActiveConfirm($event)"
+    />
+  </div>
+</app-page-cage>
+
+<app-confirmation-modal
+  [open]="toggleActiveConfirmOpen()"
+  [header]="toggleActiveConfirmHeader()"
+  [message]="toggleActiveConfirmMessage()"
+  [errorMessage]="modalError()"
+  [confirmLabel]="toggleActiveConfirmLabel()"
+  [confirmDisabled]="togglingAccountId() !== null"
+  (cancelled)="closeToggleActiveConfirm()"
+  (confirmed)="onToggleActiveConfirmed()"
+/>
+
+<app-add-account-modal
+  [open]="addModalOpen()"
+  (cancelled)="onAddCancelled()"
+  (created)="onAddCreated()"
+/>
+
+<app-edit-account-modal
+  [open]="editModalOpen()"
+  [account]="accountBeingEdited()"
+  (cancelled)="onEditCancelled()"
+  (updated)="onEditUpdated()"
+/>

@@ -1,0 +1,51 @@
+@if (open) {
+  <div class="modalBackdrop" (click)="onBackdropClick()"></div>
+  <div class="modalHost" role="dialog" aria-modal="true" aria-label="Add account">
+    <div class="modalCard" (click)="$event.stopPropagation()">
+      <div class="modalHeader">
+        <h2 class="modalTitle">Add account</h2>
+        <button mat-icon-button type="button" aria-label="Close" (click)="onCancel()" [disabled]="submitting()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="modalError" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <div class="modalBody">
+        <div class="fields">
+          <mat-form-field appearance="outline" class="field fieldWide">
+            <mat-label>Account type</mat-label>
+            <mtx-select
+              [items]="accountTypeOptions()"
+              bindLabel="label"
+              bindValue="id"
+              [(ngModel)]="typeId"
+              [searchable]="true"
+              [clearable]="true"
+              placeholder="Select type"
+            ></mtx-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field fieldWide">
+            <mat-label>Description</mat-label>
+            <input matInput [(ngModel)]="description" placeholder="Description" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field fieldWide">
+            <mat-label>Notes</mat-label>
+            <input matInput [(ngModel)]="notes" placeholder="Notes (optional)" />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="modalFooter">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="submitting()">Cancel</button>
+        <button mat-raised-button type="button" class="primaryButton" (click)="submit()" [disabled]="submitting()">
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+}

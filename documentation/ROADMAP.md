@@ -1,8 +1,6 @@
 ## Roadmap to Interview Minimal Viable Product (IMVP) to show
 
 ## Next 10 steps
-1. Build Account Types management page
-2. Build Accounts management page
 3. Add protected system account types
 4. Implement user authentication (register/login)
 5. Build login/register endpoints + UI
@@ -16,8 +14,6 @@
 - Implement user authentication (register/login)
 - Build login/register endpoints + UI
 - Enforce user-based data ownership (accounts, account types, journal entries)
-- Build Account Types management (create, update, disable, filter/sort)
-- Build Accounts management (create, update, disable, filter/sort)
 - Add protected system account types (non-deletable/non-disableable)
 - Create account detail view (transaction history per account)
 - Build Account Balance report

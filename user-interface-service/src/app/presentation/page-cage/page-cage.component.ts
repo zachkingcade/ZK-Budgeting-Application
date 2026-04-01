@@ -1,4 +1,5 @@
 import { Component, HostListener, Input } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
@@ -6,7 +7,7 @@ import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 @Component({
   selector: 'app-page-cage',
   standalone: true,
-  imports: [FontAwesomeModule],
+  imports: [FontAwesomeModule, RouterLink, RouterLinkActive],
   templateUrl: './page-cage.component.html',
   styleUrl: './page-cage.component.scss',
 })
