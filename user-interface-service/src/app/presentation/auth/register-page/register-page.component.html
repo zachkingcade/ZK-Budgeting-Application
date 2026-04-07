@@ -1,0 +1,68 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2>Create account</h2>
+    <p class="subtext">
+      Already have an account?
+      <a routerLink="/login">Return to login</a>.
+    </p>
+
+    <form class="register-form" [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput type="text" formControlName="username" autocomplete="username" />
+      </mat-form-field>
+
+      <ul class="requirements">
+        <li class="requirement" [class.met]="isUsernameRequiredMet">
+          <span class="mark">{{ isUsernameRequiredMet ? '✓' : '✗' }}</span>
+          <span>Username is required</span>
+        </li>
+        <li class="requirement" [class.met]="isUsernameMinLengthMet">
+          <span class="mark">{{ isUsernameMinLengthMet ? '✓' : '✗' }}</span>
+          <span>Username must be more than 6 characters</span>
+        </li>
+        <li class="requirement" [class.met]="isUsernameNoAtSymbolMet">
+          <span class="mark">{{ isUsernameNoAtSymbolMet ? '✓' : '✗' }}</span>
+          <span>Username cannot contain '@'</span>
+        </li>
+      </ul>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password" autocomplete="new-password" />
+      </mat-form-field>
+
+      <ul class="requirements">
+        <li class="requirement" [class.met]="isPasswordRequiredMet">
+          <span class="mark">{{ isPasswordRequiredMet ? '✓' : '✗' }}</span>
+          <span>Password is required</span>
+        </li>
+        <li class="requirement" [class.met]="isPasswordMinLengthMet">
+          <span class="mark">{{ isPasswordMinLengthMet ? '✓' : '✗' }}</span>
+          <span>Password must be more than 6 characters</span>
+        </li>
+        <li class="requirement" [class.met]="isPasswordHasNumberMet">
+          <span class="mark">{{ isPasswordHasNumberMet ? '✓' : '✗' }}</span>
+          <span>Password must contain at least 1 number</span>
+        </li>
+        <li class="requirement" [class.met]="isPasswordHasUppercaseMet">
+          <span class="mark">{{ isPasswordHasUppercaseMet ? '✓' : '✗' }}</span>
+          <span>Password must contain at least 1 uppercase character</span>
+        </li>
+        <li class="requirement" [class.met]="isPasswordHasSpecialSymbolMet">
+          <span class="mark">{{ isPasswordHasSpecialSymbolMet ? '✓' : '✗' }}</span>
+          <span>Password must contain at least 1 special symbol</span>
+        </li>
+      </ul>
+
+      @if (errorMessage()) {
+        <div class="error">{{ errorMessage() }}</div>
+      }
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="submitting()">
+        Register
+      </button>
+    </form>
+  </div>
+</div>
+

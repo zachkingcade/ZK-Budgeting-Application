@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import zachkingcade.dev.ledger.adapter.in.web.dto.ApiResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
@@ -78,7 +80,8 @@ public class AccountController {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAll(){
+    public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAll(@AuthenticationPrincipal Jwt jwt){
+        log.debug(String.format("Here we go: [%s][%s]", jwt.getSubject(), jwt.getClaims()));
         try {
             log.debug("Starting Rest Controller /accounts endpoint /all");
             return handleGetAll(null);

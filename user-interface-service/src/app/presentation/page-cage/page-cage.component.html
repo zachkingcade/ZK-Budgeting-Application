@@ -21,6 +21,17 @@
       <a routerLink="/accounts" routerLinkActive="active" class="nav-link">Accounts</a>
       <a routerLink="/account-types" routerLinkActive="active" class="nav-link">Account Types</a>
     </nav>
+
+    <div class="sidebar-footer">
+      @if (username) {
+        <div class="sidebar-username">{{ username }}</div>
+      }
+
+      <button type="button" class="logout-btn" (click)="logoutClicked()">
+        <fa-icon [icon]="faLogout"></fa-icon>
+        <span>Logout</span>
+      </button>
+    </div>
   </aside>
 
   <main class="page-content">

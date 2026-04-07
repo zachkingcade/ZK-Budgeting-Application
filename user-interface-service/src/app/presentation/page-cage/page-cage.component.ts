@@ -1,8 +1,12 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, DestroyRef, HostListener, Input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { AuthManagerService } from '../../application/auth/auth-manager.service';
 
 @Component({
   selector: 'app-page-cage',
@@ -17,6 +21,17 @@ export class PageCage {
   sidebarOpen: boolean = false;
   faGithub: IconDefinition = faGithub;
   faLinkedin: IconDefinition = faLinkedin;
+  faLogout: IconDefinition = faRightFromBracket;
+
+  constructor(
+    private readonly authManager: AuthManagerService,
+    private readonly router: Router,
+    private readonly destroyRef: DestroyRef,
+  ) {}
+
+  get username(): string | null {
+    return this.authManager.getAuthSnapshot().username;
+  }
 
   openSidebar(): void {
     this.sidebarOpen = true;
@@ -35,5 +50,17 @@ export class PageCage {
     if (this.sidebarOpen) {
       this.closeSidebar();
     }
+  }
+
+  logoutClicked(): void {
+    this.authManager
+      .logout()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.closeSidebar();
+          void this.router.navigateByUrl('/login');
+        },
+      });
   }
 }

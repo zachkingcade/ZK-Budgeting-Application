@@ -2,8 +2,6 @@
 
 ## Next 10 steps
 3. Add protected system account types
-4. Implement user authentication (register/login)
-5. Build login/register endpoints + UI
 6. Enforce user-based data ownership
 7. Implement Account Balance report
 8. Implement Transaction Summary report
@@ -11,8 +9,6 @@
 10. Set up CI pipeline (build + test + lint)
 
 ## Features List
-- Implement user authentication (register/login)
-- Build login/register endpoints + UI
 - Enforce user-based data ownership (accounts, account types, journal entries)
 - Add protected system account types (non-deletable/non-disableable)
 - Create account detail view (transaction history per account)
@@ -20,6 +16,10 @@
 - Build Transaction Summary report (by date range + account type)
 - Add form validation + user-friendly error messaging
 - Add loading, empty, and error states
+
+## Active Minor Fixes and Domain Rules to enforce later on
+- Account should be at a balance of 0 before being allowed to close
+- Searches should have an option to include "General Search" that includes items that have the included text in either description, notes or both.
 
 ## Stack List
 - Implement Spring Security with JWT authentication

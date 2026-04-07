@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: ledger-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/budgeting?currentSchema=auth
+    username: auth_owner
+    password: auth_owner
+  jpa:
+    properties:
+      hibernate:
+        default_schema: auth
+    hibernate:
+      ddl-auto: validate
+    flyway:
+      schemas: auth
+      default-schema: auth
+      create-schemas: false
+
+spring.autoconfigure.exclude:
+  - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+
+server:
+  port: 8082
+
+# Browser clients (e.g. Angular ng serve on :4200) need explicit CORS when calling this API directly.
+ledger:
+  cors:
+    allowed-origins: "http://localhost:4200,http://127.0.0.1:4200"
+
+app:
+  security:
+    private-key: ${PRIVATE_KEY}
