@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ledger-service
+    name: user-service
   datasource:
     url: jdbc:postgresql://localhost:5432/budgeting?currentSchema=auth
     username: auth_owner
@@ -25,7 +25,7 @@ server:
   port: 8082
 
 # Browser clients (e.g. Angular ng serve on :4200) need explicit CORS when calling this API directly.
-ledger:
+user:
   cors:
     allowed-origins: "http://localhost:4200,http://127.0.0.1:4200"
 
