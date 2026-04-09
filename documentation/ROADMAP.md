@@ -1,16 +1,12 @@
 ## Roadmap to Interview Minimal Viable Product (IMVP) to show
 
 ## Next 10 steps
-3. Add protected system account types
-6. Enforce user-based data ownership
 7. Implement Account Balance report
 8. Implement Transaction Summary report
 9. Add Docker + Docker Compose setup
 10. Set up CI pipeline (build + test + lint)
 
 ## Features List
-- Enforce user-based data ownership (accounts, account types, journal entries)
-- Add protected system account types (non-deletable/non-disableable)
 - Create account detail view (transaction history per account)
 - Build Account Balance report
 - Build Transaction Summary report (by date range + account type)
