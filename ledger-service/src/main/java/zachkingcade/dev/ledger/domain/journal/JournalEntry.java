@@ -10,15 +10,19 @@ public class JournalEntry {
     private final LocalDate entryDate;
     private final String description;
     private final String notes;
+    private final Long userId;
 
     private final List<JournalLine> journalLines;
 
-    private JournalEntry(Long id, LocalDate entryDate, String description, String notes, List<JournalLine> journalLines) {
+    private JournalEntry(Long id, LocalDate entryDate, String description, String notes, Long userId, List<JournalLine> journalLines) {
         if(entryDate == null){
             throw new DomainException("JournalEntry requires a entryDate");
         }
         if(description == null || description.isEmpty()){
             throw new DomainException("JournalEntry requires a non-null, non-empty description");
+        }
+        if(userId == null || userId < 0){
+            throw new DomainException("Journal Entries require a non negative user id number");
         }
         if(journalLines.size() < 2){
             throw new DomainException("JournalEntry requires at least two Journal Lines");
@@ -41,20 +45,21 @@ public class JournalEntry {
         this.entryDate = entryDate;
         this.description = description;
         this.notes = notes;
+        this.userId = userId;
         this.journalLines = journalLines;
     }
 
-    public static JournalEntry createNew(LocalDate entryDate, String description, String notes, List<JournalLine> journalLines){
-        return new JournalEntry(null, entryDate, description,  notes, journalLines);
+    public static JournalEntry createNew(LocalDate entryDate, String description, String notes, Long userId, List<JournalLine> journalLines){
+        return new JournalEntry(null, entryDate, description,  notes, userId, journalLines);
     }
 
-    public static JournalEntry rehydrate(Long id,LocalDate entryDate, String description, String notes, List<JournalLine> journalLines) {
+    public static JournalEntry rehydrate(Long id,LocalDate entryDate, String description, String notes, Long userId, List<JournalLine> journalLines) {
         if (id == null) throw new DomainException("id is required for rehydration");
-        return new JournalEntry(id, entryDate, description, notes, journalLines);
+        return new JournalEntry(id, entryDate, description, notes, userId, journalLines);
     }
 
     public JournalEntry withId(Long id){
-        return new JournalEntry(id, this.entryDate, this.description, this.notes, this.journalLines);
+        return new JournalEntry(id, this.entryDate, this.description, this.notes, this.userId, this.journalLines);
     }
 
     public Long id() {
@@ -72,6 +77,8 @@ public class JournalEntry {
     public String notes() {
         return notes;
     }
+
+    public Long getUserId() {return userId;}
 
     public List<JournalLine> journalLines() {
         return journalLines;

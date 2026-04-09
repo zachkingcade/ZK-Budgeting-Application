@@ -8,7 +8,9 @@ import java.util.Optional;
 
 public interface AccountJpaRepository extends JpaRepository<AccountEntity, Long>, JpaSpecificationExecutor<AccountEntity> {
 
-    Boolean existsByDescription(String description);
+    Optional<AccountEntity> findByIdAndUserId(Long id, Long userId);
 
-    Optional<AccountEntity> findByDescription(String description);
+    Boolean existsByDescriptionAndUserId(String description, Long userId);
+
+    Optional<AccountEntity> findByDescriptionAndUserId(String description, Long userId);
 }

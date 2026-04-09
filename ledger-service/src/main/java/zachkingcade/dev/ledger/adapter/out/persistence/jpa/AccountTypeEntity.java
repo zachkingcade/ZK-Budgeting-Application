@@ -36,4 +36,14 @@ public class AccountTypeEntity {
     @Getter
     private AccountClassificationEntity classification;
 
+    @Column(name = "user_id", nullable = false)
+    @Setter
+    @Getter
+    private Long userId;
+
+    @Column(name = "system_account", nullable = false)
+    @Setter
+    @Getter
+    private Boolean systemAccount;
+
 }

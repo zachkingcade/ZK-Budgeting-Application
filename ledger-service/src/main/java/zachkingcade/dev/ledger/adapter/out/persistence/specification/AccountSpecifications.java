@@ -7,6 +7,10 @@ import java.util.List;
 
 public class AccountSpecifications {
 
+    public static Specification<AccountEntity> belongsToUser(Long userId){
+        return (root, query, cb) -> userId == null ? null : cb.equal(root.get("userId"), userId);
+    }
+
     public static Specification<AccountEntity> descriptionContains(String desiredText){
         return(root, query, cb) ->
             desiredText == null? null : cb.like(root.get("description"), "%" + desiredText + "%");

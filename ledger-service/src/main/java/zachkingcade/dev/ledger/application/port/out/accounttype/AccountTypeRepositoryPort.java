@@ -9,15 +9,15 @@ import java.util.List;
 
 public interface AccountTypeRepositoryPort {
 
-    public AccountType findById(Long id);
+    AccountType findByIdVisibleToUser(Long userId, Long id);
 
-    List<AccountType> findAll();
+    List<AccountType> findAllVisibleToUser(Long userId);
 
-    List<AccountType> findAll(Sort sort);
+    List<AccountType> findAllVisibleToUser(Long userId, Sort sort);
 
-    List<AccountType> findAll(Specification<AccountTypeEntity> spec);
+    List<AccountType> findAllVisibleToUser(Long userId, Specification<AccountTypeEntity> spec);
 
-    List<AccountType> findAll(Specification<AccountTypeEntity> spec, Sort sort);
+    List<AccountType> findAllVisibleToUser(Long userId, Specification<AccountTypeEntity> spec, Sort sort);
 
     AccountType findByDescription(String description);
 

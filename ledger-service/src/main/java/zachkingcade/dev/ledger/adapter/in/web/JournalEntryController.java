@@ -4,13 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import zachkingcade.dev.ledger.adapter.in.web.dto.ApiResponse;
 import zachkingcade.dev.ledger.adapter.in.web.dto.MetaData;
 import zachkingcade.dev.ledger.adapter.in.web.dto.journal.*;
 import zachkingcade.dev.ledger.application.commands.account.GetAllAccountCommand;
+import zachkingcade.dev.ledger.application.commands.account.GetByIdAccountCommand;
 import zachkingcade.dev.ledger.application.commands.accounttype.AccountTypeFilterCommandObject;
 import zachkingcade.dev.ledger.application.commands.accounttype.GetAllAccountTypesCommand;
+import zachkingcade.dev.ledger.application.commands.accounttype.GetByIdAccountTypeCommand;
 import zachkingcade.dev.ledger.application.commands.journal.*;
 import zachkingcade.dev.ledger.application.commands.shared.SortObjectCommandObject;
 import zachkingcade.dev.ledger.application.port.in.account.GetAllAccountsUseCase;
@@ -81,10 +85,10 @@ public class JournalEntryController {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> getAll(){
+    public ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> getAll(@AuthenticationPrincipal Jwt jwt){
         try {
             log.debug("Starting Rest Controller /journalentry endpoint /all");
-            return handleGetAll(null);
+            return handleGetAll(jwt, null);
         } catch (RuntimeException ex) {
             log.error("JournalEntryController.getAll failed", ex);
             throw ex;
@@ -92,13 +96,13 @@ public class JournalEntryController {
     }
 
     @PostMapping("/all/filtered")
-    public ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> getAllFiltered(@RequestBody(required = false) GetAllJournalEntryRequest request){
+    public ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> getAllFiltered(@AuthenticationPrincipal Jwt jwt, @RequestBody(required = false) GetAllJournalEntryRequest request){
         try {
             log.debug("Starting Rest Controller /journalentry endpoint /all/filtered sortPresent:[{}] filtersPresent:[{}]",
                     request != null && request.sort().isPresent(),
                     request != null && request.filters().isPresent()
             );
-            ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> result = handleGetAll(request);
+            ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> result = handleGetAll(jwt, request);
             Long count = null;
             if (result.getBody() != null && result.getBody().getMetaData() != null) {
                 count = result.getBody().getMetaData().getDataResponseCount();
@@ -111,7 +115,8 @@ public class JournalEntryController {
         }
     }
 
-    private ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> handleGetAll(GetAllJournalEntryRequest request){
+    private ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> handleGetAll(Jwt jwt, GetAllJournalEntryRequest request){
+        Long userId = extractUserId(jwt);
         // Sanitize Request
         SortObjectCommandObject<JournalEntrySortType> sort = null;
         if(request != null && request.sort().isPresent()){
@@ -137,9 +142,9 @@ public class JournalEntryController {
             filters = new JournalEntryFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty());
         }
 
-        GetAllJournalEntriesCommand command = new GetAllJournalEntriesCommand(Optional.of(sort), Optional.of(filters));
+        GetAllJournalEntriesCommand command = new GetAllJournalEntriesCommand(userId, Optional.of(sort), Optional.of(filters));
         List<JournalEntry> entryList = getAllJournalEntryUseCase.getAllJournalEntries(command);
-        List<JournalEntryDTOEnrichedResponse> resultingEntryList = convertDomainListToResponseAndEnrich(entryList);
+        List<JournalEntryDTOEnrichedResponse> resultingEntryList = convertDomainListToResponseAndEnrich(userId, entryList);
         GetAllJournalEntryResponse response = new GetAllJournalEntryResponse(resultingEntryList);
         ApiResponse<GetAllJournalEntryResponse> apiResponse = new ApiResponse<>(String.format("Returned [%s] Journal Entries", resultingEntryList.size()),new MetaData((long) resultingEntryList.size()),response);
         log.debug("Ending Rest Controller /journalentry endpoint /all with [{}] results",resultingEntryList.size());
@@ -147,12 +152,13 @@ public class JournalEntryController {
     }
 
     @GetMapping("/byid/{id}")
-    public ResponseEntity<ApiResponse<GetByIdJournalEntryResponse>> getById(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<GetByIdJournalEntryResponse>> getById(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id){
         try {
             log.debug("Starting Rest Controller /journalentry endpoint /byid id:[{}]",id);
-            GetByIdJournalEntryCommand command = new GetByIdJournalEntryCommand(id);
+            Long userId = extractUserId(jwt);
+            GetByIdJournalEntryCommand command = new GetByIdJournalEntryCommand(userId, id);
             JournalEntry entry = getByIdJournalEntryUseCase.getByIdJournalEntry(command);
-            JournalEntryDTOEnrichedResponse enrichedEntry = convertDomainObjectToResponseAndEnrich(entry);
+            JournalEntryDTOEnrichedResponse enrichedEntry = convertDomainObjectToResponseAndEnrich(userId, entry);
             GetByIdJournalEntryResponse response = new GetByIdJournalEntryResponse(enrichedEntry.id(),enrichedEntry.entryDate(),enrichedEntry.description(),enrichedEntry.notes(), enrichedEntry.journalLines());
             ApiResponse<GetByIdJournalEntryResponse> apiResponse = new ApiResponse<>(String.format("Returned Journal Entry of ID:[%s]", id),new MetaData(1L),response);
             log.debug("Ending Rest Controller /journalentry endpoint /byid id:[{}] lineCount:[{}]",response.id(),enrichedEntry.journalLines().size());
@@ -164,14 +170,15 @@ public class JournalEntryController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse<CreateJournalEntryResponse>> createJournalEntry(@RequestBody CreateJournalEntryRequest request){
+    public ResponseEntity<ApiResponse<CreateJournalEntryResponse>> createJournalEntry(@AuthenticationPrincipal Jwt jwt, @RequestBody CreateJournalEntryRequest request){
         try {
             log.debug("Starting Rest Controller /journalentry endpoint /add description:[{}] journalLinesCount:[{}]",request.description(),request.journalLines() == null ? 0 : request.journalLines().size());
+            Long userId = extractUserId(jwt);
             List<JournalLineCommandObject> resultingCommandLineList = new ArrayList<>();
             for(JournalLineDTORequest requestLine: request.journalLines()){
                 resultingCommandLineList.add(new JournalLineCommandObject(requestLine.amount(), requestLine.accountId(), requestLine.direction(), requestLine.notes()));
             }
-            CreateJournalEntryCommand command = new CreateJournalEntryCommand(request.entryDate(),request.description(),request.notes(),resultingCommandLineList);
+            CreateJournalEntryCommand command = new CreateJournalEntryCommand(userId, request.entryDate(),request.description(),request.notes(),resultingCommandLineList);
             JournalEntry entry = createJournalEntryUseCase.createJournalEntry(command);
             List<JournalLineDTOResponse> currentEntryLineList = new ArrayList<>();
             for(JournalLine line: entry.journalLines()){
@@ -188,14 +195,16 @@ public class JournalEntryController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<ApiResponse<UpdateJournalEntryResponse>> updateJournalEntry(@RequestBody UpdateJournalEntryRequest request){
+    public ResponseEntity<ApiResponse<UpdateJournalEntryResponse>> updateJournalEntry(@AuthenticationPrincipal Jwt jwt, @RequestBody UpdateJournalEntryRequest request){
         try {
             log.debug("Starting Rest Controller /journalentry endpoint /update id:[{}] description:[{}] requestedLineUpdatesCount:[{}]",request.id(),request.description(),request.journalLines() == null ? 0 : request.journalLines().size());
+            Long userId = extractUserId(jwt);
             List<JournalLineUpdateCommandObject> resultingCommandLineList = new ArrayList<>();
             for(JournalLineDTOUpdate requestLine: request.journalLines()){
                 resultingCommandLineList.add(new JournalLineUpdateCommandObject(requestLine.id(), requestLine.notes()));
             }
             UpdateJournalEntryCommand command = new UpdateJournalEntryCommand(
+                    userId,
                     request.id(),
                     request.description(),
                     request.notes(),
@@ -217,10 +226,11 @@ public class JournalEntryController {
     }
 
     @DeleteMapping("/remove/{id}")
-    public ResponseEntity<ApiResponse<RemoveJournalEntryDTOResponse>> removeJournalEntry(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<RemoveJournalEntryDTOResponse>> removeJournalEntry(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id){
         try{
             log.debug("Starting Rest Controller /journalentry endpoint /remove/{id} id:[{}]",id);
-            RemoveByIdJournalEntryCommand command = new RemoveByIdJournalEntryCommand(id);
+            Long userId = extractUserId(jwt);
+            RemoveByIdJournalEntryCommand command = new RemoveByIdJournalEntryCommand(userId, id);
             removeByIdJournalEntryUseCase.removeJournalEntryById(command);
             RemoveJournalEntryDTOResponse response = new RemoveJournalEntryDTOResponse(id);
             ApiResponse<RemoveJournalEntryDTOResponse> apiResponse = new ApiResponse<>(String.format("Removed Journal Entry of ID:[%s]", id),new MetaData(0L),response);
@@ -236,13 +246,13 @@ public class JournalEntryController {
     // Utility Functions
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    private List<JournalEntryDTOEnrichedResponse> convertDomainListToResponseAndEnrich(List<JournalEntry> journalEntryList ){
+    private List<JournalEntryDTOEnrichedResponse> convertDomainListToResponseAndEnrich(Long userId, List<JournalEntry> journalEntryList ){
         //Collect needed data
-        GetAllAccountCommand accountCommand = new GetAllAccountCommand(Optional.empty(), Optional.empty());
+        GetAllAccountCommand accountCommand = new GetAllAccountCommand(userId, Optional.empty(), Optional.empty());
         List<Account> accountList = getAllAccountsUseCase.getAllAccounts(accountCommand);
         Map<Long,Account> accountMap = accountList.stream().collect(Collectors.toMap(Account::id, account -> account));
 
-        GetAllAccountTypesCommand typesCommand = new GetAllAccountTypesCommand(Optional.empty(), Optional.empty());
+        GetAllAccountTypesCommand typesCommand = new GetAllAccountTypesCommand(userId, Optional.empty(), Optional.empty());
         List<AccountType> typeList = getAllAccountTypeUseCase.getAllAccountTypes(typesCommand);
         Map<Long,AccountType> typeMap = typeList.stream().collect(Collectors.toMap(AccountType::id, accountType -> accountType));
 
@@ -271,12 +281,12 @@ public class JournalEntryController {
         return resultingEntryList;
     }
 
-    private JournalEntryDTOEnrichedResponse convertDomainObjectToResponseAndEnrich(JournalEntry entry){
+    private JournalEntryDTOEnrichedResponse convertDomainObjectToResponseAndEnrich(Long userId, JournalEntry entry){
 
         List<JournalLineDTOEnrichedResponse> lineList = new ArrayList<>();
         for(JournalLine line : entry.journalLines()){
-            Account account = getByIdAccountUseCase.getAccountById(line.accountId());
-            AccountType type = getByIdAccountTypeUseCase.getAccountTypeById(account.typeId());
+            Account account = getByIdAccountUseCase.getAccountById(new GetByIdAccountCommand(userId, line.accountId()));
+            AccountType type = getByIdAccountTypeUseCase.getAccountTypeById(new GetByIdAccountTypeCommand(userId, account.typeId()));
             AccountClassification classification = getByIdAccountClassificationUseCase.getByIdAccountClassification(type.classificationId());
 
             String accountName = account.description();
@@ -287,5 +297,12 @@ public class JournalEntryController {
         }
 
         return new JournalEntryDTOEnrichedResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), lineList);
+    }
+
+    private Long extractUserId(Jwt jwt){
+        if(jwt == null || jwt.getSubject() == null){
+            throw new IllegalStateException("JWT subject is required");
+        }
+        return Long.valueOf(jwt.getSubject());
     }
 }

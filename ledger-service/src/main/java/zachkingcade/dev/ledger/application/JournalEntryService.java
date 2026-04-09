@@ -42,7 +42,7 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
             for(JournalLineCommandObject line : command.journalLinesList()){
                 lineList.add(JournalLine.createNew(line.amount(), line.accountId(), line.direction(), line.notes().orElse("")));
             }
-            JournalEntry entry = JournalEntry.createNew(command.entryDate(), command.description(), command.notes().orElse(""),lineList);
+            JournalEntry entry = JournalEntry.createNew(command.entryDate(), command.description(), command.notes().orElse(""), command.userId(), lineList);
             JournalEntry saved = journalEntryRepository.save(entry);
             log.debug("Ending Create Journal Entry createdId:[{}] journalLinesCount:[{}]",saved.id(),saved.journalLines().size());
             return saved;
@@ -59,15 +59,15 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
 
             List<JournalEntry> results;
             Sort sort = null;
-            Specification<JournalEntryEntity> spec = null;
+            Specification<JournalEntryEntity> spec = Specification.where(belongsToUser(command.userId()));
 
             if(command.sort().isPresent()){
                 sort = Sort.by(command.sort().get().direction() == SortDirection.ascending? Sort.Direction.ASC : Sort.Direction.DESC, command.sort().get().type().toString());
             }
 
             if(command.filters().isPresent()){
-                spec = Specification
-                        .where(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
+                spec = spec
+                        .and(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
                         .and(dateAfter(command.filters().get().dateAfter().orElse(null)))
                         .and(dateBefore(command.filters().get().dateBefore().orElse(null)))
                         .and(accountIdsWithin(command.filters().get().accounts().orElse(null)))
@@ -75,14 +75,10 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
                         .and(notesContains(command.filters().get().notesContains().orElse(null)));
             }
 
-            if(sort != null && spec == null){
-                results = journalEntryRepository.findAll(sort);
-            } else if (sort == null && spec != null){
-                results = journalEntryRepository.findAll(spec);
-            } else if (sort != null && spec != null){
-                results = journalEntryRepository.findAll(spec, sort);
+            if(sort != null){
+                results = journalEntryRepository.findAll(command.userId(), spec, sort);
             } else {
-                results = journalEntryRepository.findAll();
+                results = journalEntryRepository.findAll(command.userId(), spec);
             }
 
             log.debug("Ending Get All Journal Entries results:[{}]",results.size());
@@ -97,7 +93,7 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
     public JournalEntry getByIdJournalEntry(GetByIdJournalEntryCommand command) {
         try {
             log.debug("Starting Get Journal Entry by id:[{}]",command.id());
-            JournalEntry result = journalEntryRepository.findById(command.id());
+            JournalEntry result = journalEntryRepository.findById(command.userId(), command.id());
             log.debug("Ending Get Journal Entry by id:[{}] lineCount:[{}]",result.id(),result.journalLines().size());
             return result;
         } catch (RuntimeException ex) {
@@ -110,7 +106,7 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
     public JournalEntry updateJournalEntry(UpdateJournalEntryCommand command) {
         try {
             log.debug("Starting Update Journal Entry jeId:[{}] description:[{}]",command.id(),command.description());
-            JournalEntry entryToUpdate = journalEntryRepository.findById(command.id());
+            JournalEntry entryToUpdate = journalEntryRepository.findById(command.userId(), command.id());
             List<JournalLine> updatedLineList;
 
             if(!command.journalLinesList().isEmpty()) {
@@ -150,6 +146,7 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
                     entryToUpdate.entryDate(),
                     command.description().orElse(entryToUpdate.description()),
                     command.notes().orElse(entryToUpdate.notes()),
+                    entryToUpdate.getUserId(),
                     updatedLineList
                     );
 
@@ -167,7 +164,7 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
     public void removeJournalEntryById(RemoveByIdJournalEntryCommand command) {
         try {
             log.debug("Starting remove Journal Entry jeId:[{}]",command.id());
-            journalEntryRepository.removeJournalEntry(command.id());
+            journalEntryRepository.removeJournalEntry(command.userId(), command.id());
             log.debug("Ending remove Journal Entry jeId:[{}]",command.id());
         } catch (RuntimeException ex) {
             log.error("JournalEntryService.removeJournalEntryById failed for command:[{}]", command, ex);
@@ -176,8 +173,8 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
     }
 
     @Override
-    public Long getBalanceForAccount(Long accountId, AccountClassification classification){
-        List<JournalLine> lineList = journalEntryRepository.findLinesByAccountId(accountId);
+    public Long getBalanceForAccount(Long userId, Long accountId, AccountClassification classification){
+        List<JournalLine> lineList = journalEntryRepository.findLinesByAccountId(userId, accountId);
         Long credit = 0L;
         Long debit = 0L;
         for(JournalLine line : lineList){

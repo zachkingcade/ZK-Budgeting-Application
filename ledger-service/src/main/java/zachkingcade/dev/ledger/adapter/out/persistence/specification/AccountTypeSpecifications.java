@@ -8,6 +8,16 @@ import java.util.List;
 
 public class AccountTypeSpecifications {
 
+    public static Specification<AccountTypeEntity> visibleToUser(Long userId){
+        return (root, query, cb) -> {
+            if (userId == null) return null;
+            return cb.or(
+                    cb.equal(root.get("userId"), userId),
+                    cb.isTrue(root.get("systemAccount"))
+            );
+        };
+    }
+
     public static Specification<AccountTypeEntity> descriptionContains(String desiredText){
         return(root, query, cb) ->
                 desiredText == null? null : cb.like(root.get("description"), "%" + desiredText + "%");

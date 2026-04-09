@@ -10,19 +10,19 @@ import java.util.List;
 
 public interface JournalEntryRepositoryPort {
 
-    public JournalEntry findById(Long id);
+    JournalEntry findById(Long userId, Long id);
 
-    List<JournalEntry> findAll();
+    List<JournalEntry> findAll(Long userId);
 
-    List<JournalEntry> findAll(Sort sort);
+    List<JournalEntry> findAll(Long userId, Sort sort);
 
-    List<JournalEntry> findAll(Specification<JournalEntryEntity> spec);
+    List<JournalEntry> findAll(Long userId, Specification<JournalEntryEntity> spec);
 
-    List<JournalEntry> findAll(Specification<JournalEntryEntity> spec, Sort sort);
+    List<JournalEntry> findAll(Long userId, Specification<JournalEntryEntity> spec, Sort sort);
 
-    void removeJournalEntry(Long id);
+    void removeJournalEntry(Long userId, Long id);
 
     JournalEntry save(JournalEntry journalEntryToSave);
 
-    List<JournalLine> findLinesByAccountId(Long accountId);
+    List<JournalLine> findLinesByAccountId(Long userId, Long accountId);
 }

@@ -9,19 +9,19 @@ import java.util.List;
 
 public interface AccountRepositoryPort {
 
-    List<Account> findAll();
+    List<Account> findAll(Long userId);
 
-    List<Account> findAll(Sort sort);
+    List<Account> findAll(Long userId, Sort sort);
 
-    List<Account> findAll(Specification<AccountEntity> spec);
+    List<Account> findAll(Long userId, Specification<AccountEntity> spec);
 
-    List<Account> findAll(Specification<AccountEntity> spec, Sort sort);
+    List<Account> findAll(Long userId, Specification<AccountEntity> spec, Sort sort);
 
-    Account findById(Long id);
+    Account findById(Long userId, Long id);
 
-    Account findByDescription(String description);
+    Account findByDescription(Long userId, String description);
 
-    Boolean existsByDescription(String description);
+    Boolean existsByDescription(Long userId, String description);
 
     Account save(Account accountToSave);
 }

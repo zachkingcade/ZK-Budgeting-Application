@@ -38,4 +38,9 @@ public class JournalEntryEntity {
     @Getter
     @Setter
     private List<JournalLineEntity> journalLines = new ArrayList<>();
+
+    @Column(name = "user_id", nullable = false)
+    @Setter
+    @Getter
+    private Long userId;
 }

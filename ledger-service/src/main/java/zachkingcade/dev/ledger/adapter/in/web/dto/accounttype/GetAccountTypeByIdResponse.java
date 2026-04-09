@@ -7,6 +7,7 @@ public record GetAccountTypeByIdResponse(
         Long classificationId,
         String description,
         boolean active,
-        String notes
+        String notes,
+        boolean systemAccount
 ) {
 }

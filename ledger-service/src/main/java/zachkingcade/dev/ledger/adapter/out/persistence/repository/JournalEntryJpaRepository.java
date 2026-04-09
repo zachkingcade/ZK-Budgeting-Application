@@ -13,7 +13,13 @@ public interface JournalEntryJpaRepository extends JpaRepository<JournalEntryEnt
     @EntityGraph(attributePaths = {"journalLines", "journalLines.account"})
     Optional<JournalEntryEntity> findWithJournalLinesById(Long id);
 
+    @EntityGraph(attributePaths = {"journalLines", "journalLines.account"})
+    Optional<JournalEntryEntity> findWithJournalLinesByIdAndUserId(Long id, Long userId);
+
     @Override
     @EntityGraph(attributePaths = {"journalLines", "journalLines.account"})
     List<JournalEntryEntity> findAll();
+
+    @EntityGraph(attributePaths = {"journalLines", "journalLines.account"})
+    List<JournalEntryEntity> findAllByUserId(Long userId);
 }

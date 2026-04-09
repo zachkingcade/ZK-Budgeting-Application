@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public record CreateJournalEntryCommand(
+        Long userId,
         LocalDate entryDate,
         String description,
         Optional<String> notes,

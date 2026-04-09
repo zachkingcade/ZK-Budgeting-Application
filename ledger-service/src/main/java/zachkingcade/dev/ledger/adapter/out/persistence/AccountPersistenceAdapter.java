@@ -29,67 +29,70 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
     }
 
     @Override
-    public List<Account> findAll() {
-        List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll();
+    public List<Account> findAll(Long userId) {
+        List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll((root, query, cb) -> cb.equal(root.get("userId"), userId));
         return convertListOfAccountToDomain(accountEntitiesList);
     }
 
     @Override
-    public List<Account> findAll(Sort sort) {
-        List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll(sort);
+    public List<Account> findAll(Long userId, Sort sort) {
+        List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll((root, query, cb) -> cb.equal(root.get("userId"), userId), sort);
         return convertListOfAccountToDomain(accountEntitiesList);
     }
 
     @Override
-    public List<Account> findAll(Specification<AccountEntity> spec) {
-        List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll(spec);
+    public List<Account> findAll(Long userId, Specification<AccountEntity> spec) {
+        Specification<AccountEntity> scopedSpec = ((Specification<AccountEntity>) (root, query, cb) -> cb.equal(root.get("userId"), userId)).and(spec);
+        List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll(scopedSpec);
         return convertListOfAccountToDomain(accountEntitiesList);
     }
 
     @Override
-    public List<Account> findAll(Specification<AccountEntity> spec, Sort sort) {
-        List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll(spec,sort);
+    public List<Account> findAll(Long userId, Specification<AccountEntity> spec, Sort sort) {
+        Specification<AccountEntity> scopedSpec = ((Specification<AccountEntity>) (root, query, cb) -> cb.equal(root.get("userId"), userId)).and(spec);
+        List<AccountEntity> accountEntitiesList = accountJpaRepository.findAll(scopedSpec,sort);
         return convertListOfAccountToDomain(accountEntitiesList);
     }
 
     private List<Account> convertListOfAccountToDomain(List<AccountEntity> accountEntityList){
         List<Account> results = new ArrayList<>();
         for(AccountEntity entity : accountEntityList){
-            Account newResultItem = Account.rehydrate(entity.getId(), entity.getType().getId(), entity.getDescription(),entity.isActive(), entity.getNotes());
+            Account newResultItem = Account.rehydrate(entity.getId(), entity.getType().getId(), entity.getDescription(),entity.isActive(), entity.getNotes(), entity.getUserId());
             results.add(newResultItem);
         }
         return results;
     }
 
     @Override
-    public Account findById(Long id) {
-        Optional<AccountEntity> entity = accountJpaRepository.findById(id);
+    public Account findById(Long userId, Long id) {
+        Optional<AccountEntity> entity = accountJpaRepository.findByIdAndUserId(id, userId);
         if(entity.isPresent()){
-            return Account.rehydrate(entity.get().getId(), entity.get().getType().getId(),entity.get().getDescription(),entity.get().isActive(),entity.get().getNotes());
+            return Account.rehydrate(entity.get().getId(), entity.get().getType().getId(),entity.get().getDescription(),entity.get().isActive(),entity.get().getNotes(), entity.get().getUserId());
         } else {
             throw new NotFoundException(String.format("Account not found for id [%s]", id));
         }
     }
 
     @Override
-    public Account findByDescription(String description){
-        Optional<AccountEntity> entity  = accountJpaRepository.findByDescription(description);
+    public Account findByDescription(Long userId, String description){
+        Optional<AccountEntity> entity  = accountJpaRepository.findByDescriptionAndUserId(description, userId);
         if(entity.isPresent()){
-            return Account.rehydrate(entity.get().getId(), entity.get().getType().getId(),entity.get().getDescription(),entity.get().isActive(),entity.get().getNotes());
+            return Account.rehydrate(entity.get().getId(), entity.get().getType().getId(),entity.get().getDescription(),entity.get().isActive(),entity.get().getNotes(), entity.get().getUserId());
         } else {
             throw new NotFoundException(String.format("Account not found for description [%s]", description));
         }
     }
 
     @Override
-    public Boolean existsByDescription(String description){
-        return accountJpaRepository.existsByDescription(description);
+    public Boolean existsByDescription(Long userId, String description){
+        return accountJpaRepository.existsByDescriptionAndUserId(description, userId);
     }
 
     @Override
     public Account save(Account accountToSave) {
-        AccountTypeEntity type = accountTypeRepository.findById(accountToSave.typeId()).orElseThrow(
-                () -> new ApplicationException(String.format("Unknown typeID: [%s]", accountToSave.typeId())));
+        AccountTypeEntity type = accountTypeRepository.findByIdAndUserId(accountToSave.typeId(), accountToSave.getUserId())
+                .or(() -> accountTypeRepository.findByIdAndSystemAccountTrue(accountToSave.typeId()))
+                .orElseThrow(() -> new ApplicationException(String.format("Unknown or unauthorized typeID: [%s]", accountToSave.typeId())));
 
         AccountEntity entity = new AccountEntity();
         if(accountToSave.id() != null){
@@ -99,6 +102,7 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
         entity.setDescription(accountToSave.description());
         entity.setActive(accountToSave.active());
         entity.setNotes(accountToSave.notes());
+        entity.setUserId(accountToSave.getUserId());
 
         AccountEntity savedEntity = accountJpaRepository.save(entity);
 

@@ -11,4 +11,6 @@ public interface JournalLinesJpaRepository extends JpaRepository<JournalLineEnti
     List<JournalLineEntity> findByJournalEntry(JournalEntryEntity entity);
 
     List<JournalLineEntity> findByAccountId(Long accountId);
+
+    List<JournalLineEntity> findByAccountIdAndJournalEntryUserId(Long accountId, Long userId);
 }

@@ -29,43 +29,65 @@ public class AccountTypePersistenceAdapter implements AccountTypeRepositoryPort 
     }
 
     @Override
-    public List<AccountType> findAll() {
-        List<AccountTypeEntity> AccountTypeList = accountTypeJpaRepository.findAll();
-        return convertListOfAccountTypesToDomain(AccountTypeList);
+    public List<AccountType> findAllVisibleToUser(Long userId) {
+        List<AccountTypeEntity> accountTypeList = accountTypeJpaRepository.findAllByUserIdOrSystemAccountTrue(userId);
+        return convertListOfAccountTypesToDomain(accountTypeList);
     }
 
     @Override
-    public List<AccountType> findAll(Sort sort) {
-        List<AccountTypeEntity> AccountTypeList = accountTypeJpaRepository.findAll(sort);
-        return convertListOfAccountTypesToDomain(AccountTypeList);
+    public List<AccountType> findAllVisibleToUser(Long userId, Sort sort) {
+        Specification<AccountTypeEntity> visibleSpec = (root, query, cb) -> cb.or(
+                cb.equal(root.get("userId"), userId),
+                cb.isTrue(root.get("systemAccount"))
+        );
+        List<AccountTypeEntity> accountTypeList = accountTypeJpaRepository.findAll(visibleSpec, sort);
+        return convertListOfAccountTypesToDomain(accountTypeList);
     }
 
     @Override
-    public List<AccountType> findAll(Specification<AccountTypeEntity> spec) {
-        List<AccountTypeEntity> AccountTypeList = accountTypeJpaRepository.findAll(spec);
-        return convertListOfAccountTypesToDomain(AccountTypeList);
+    public List<AccountType> findAllVisibleToUser(Long userId, Specification<AccountTypeEntity> spec) {
+        Specification<AccountTypeEntity> visibleSpec = ((Specification<AccountTypeEntity>) (root, query, cb) -> cb.or(
+                cb.equal(root.get("userId"), userId),
+                cb.isTrue(root.get("systemAccount"))
+        )).and(spec);
+        List<AccountTypeEntity> accountTypeList = accountTypeJpaRepository.findAll(visibleSpec);
+        return convertListOfAccountTypesToDomain(accountTypeList);
     }
 
     @Override
-    public List<AccountType> findAll(Specification<AccountTypeEntity> spec, Sort sort) {
-        List<AccountTypeEntity> AccountTypeList = accountTypeJpaRepository.findAll(spec, sort);
-        return convertListOfAccountTypesToDomain(AccountTypeList);
+    public List<AccountType> findAllVisibleToUser(Long userId, Specification<AccountTypeEntity> spec, Sort sort) {
+        Specification<AccountTypeEntity> visibleSpec = ((Specification<AccountTypeEntity>) (root, query, cb) -> cb.or(
+                cb.equal(root.get("userId"), userId),
+                cb.isTrue(root.get("systemAccount"))
+        )).and(spec);
+        List<AccountTypeEntity> accountTypeList = accountTypeJpaRepository.findAll(visibleSpec, sort);
+        return convertListOfAccountTypesToDomain(accountTypeList);
     }
 
     private List<AccountType> convertListOfAccountTypesToDomain(List<AccountTypeEntity> accountTypeEntityList){
         List<AccountType> resultingList = new ArrayList<>();
         for(AccountTypeEntity entity: accountTypeEntityList){
-            resultingList.add(AccountType.rehydrate(entity.getId(), entity.getDescription(),entity.getClassification().getId(),entity.getNotes(),entity.isActive()));
+            resultingList.add(AccountType.rehydrate(
+                    entity.getId(),
+                    entity.getDescription(),
+                    entity.getClassification().getId(),
+                    entity.getNotes(),
+                    entity.isActive(),
+                    entity.getUserId(),
+                    entity.getSystemAccount() != null && entity.getSystemAccount()
+            ));
         }
         return resultingList;
     }
 
     @Override
-    public AccountType findById(Long id) {
-        Optional<AccountTypeEntity> entity = accountTypeJpaRepository.findById(id);
+    public AccountType findByIdVisibleToUser(Long userId, Long id) {
+        Optional<AccountTypeEntity> entity = accountTypeJpaRepository.findByIdAndUserId(id, userId)
+                .or(() -> accountTypeJpaRepository.findByIdAndSystemAccountTrue(id));
 
         if(entity.isPresent()){
-            return AccountType.rehydrate(entity.get().getId(), entity.get().getDescription(), entity.get().getClassification().getId(), entity.get().getNotes(), entity.get().isActive());
+            AccountTypeEntity e = entity.get();
+            return AccountType.rehydrate(e.getId(), e.getDescription(), e.getClassification().getId(), e.getNotes(), e.isActive(), e.getUserId(), e.getSystemAccount() != null && e.getSystemAccount());
         } else {
             throw new NotFoundException(String.format("Account Type not found for id [%s]", id));
         }
@@ -76,7 +98,8 @@ public class AccountTypePersistenceAdapter implements AccountTypeRepositoryPort 
         Optional<AccountTypeEntity> entity = accountTypeJpaRepository.findByDescription(description);
 
         if(entity.isPresent()){
-            return AccountType.rehydrate(entity.get().getId(), entity.get().getDescription(), entity.get().getClassification().getId(), entity.get().getNotes(), entity.get().isActive());
+            AccountTypeEntity e = entity.get();
+            return AccountType.rehydrate(e.getId(), e.getDescription(), e.getClassification().getId(), e.getNotes(), e.isActive(), e.getUserId(), e.getSystemAccount() != null && e.getSystemAccount());
         } else {
             throw new NotFoundException(String.format("Account Type not found for description [%s]", description));
         }
@@ -101,6 +124,8 @@ public class AccountTypePersistenceAdapter implements AccountTypeRepositoryPort 
         entity.setDescription(accountTypeToSave.description());
         entity.setActive(accountTypeToSave.active());
         entity.setNotes(accountTypeToSave.notes());
+        entity.setUserId(accountTypeToSave.getUserId());
+        entity.setSystemAccount(accountTypeToSave.getSystemAccount());
 
         AccountTypeEntity savedEntity = accountTypeJpaRepository.save(entity);
 

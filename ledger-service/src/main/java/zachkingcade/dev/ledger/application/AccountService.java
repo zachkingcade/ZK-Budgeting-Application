@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.specification.AccountSpecifications;
 import zachkingcade.dev.ledger.application.commands.account.GetAllAccountCommand;
+import zachkingcade.dev.ledger.application.commands.account.GetByIdAccountCommand;
 import zachkingcade.dev.ledger.application.port.in.account.CreateAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetByIdAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetAllAccountsUseCase;
@@ -38,29 +39,25 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
             log.debug("Starting Get All Accounts");
             List<Account> results;
             Sort sort = null;
-            Specification<AccountEntity> spec = null;
+            Specification<AccountEntity> spec = Specification.where(belongsToUser(command.userId()));
 
             if(command.sort().isPresent()){
                 sort = Sort.by(command.sort().get().direction() == SortDirection.ascending? Sort.Direction.ASC : Sort.Direction.DESC, command.sort().get().type().toString());
             }
 
             if(command.filters().isPresent()){
-                spec = Specification
-                        .where(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
+                spec = spec
+                        .and(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
                         .and(notesContains(command.filters().get().notesContains().orElse(null)))
                         .and(typeIdWithin(command.filters().get().accountTypes().orElse(null)))
                         .and(hideInactive(command.filters().get().hideInactive().orElse(null)))
                         .and(hideActive(command.filters().get().hideActive().orElse(null)));
             }
 
-            if(sort != null && spec == null){
-                results = accountRepository.findAll(sort);
-            } else if (sort == null && spec != null){
-                results = accountRepository.findAll(spec);
-            } else if (sort != null && spec != null){
-                results = accountRepository.findAll(spec, sort);
+            if(sort != null){
+                results = accountRepository.findAll(command.userId(), spec, sort);
             } else {
-                results = accountRepository.findAll();
+                results = accountRepository.findAll(command.userId(), spec);
             }
 
             log.debug("Ending Get All Accounts results:[{}]", results.size());
@@ -71,14 +68,15 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
         }
     }
 
-    public Account getAccountById(Long id){
+    @Override
+    public Account getAccountById(GetByIdAccountCommand command){
         try {
-            log.debug("Starting Get Account by id:[{}]", id);
-            Account result = accountRepository.findById(id);
+            log.debug("Starting Get Account by id:[{}]", command.id());
+            Account result = accountRepository.findById(command.userId(), command.id());
             log.debug("Ending Get Account by id:[{}]", result.id());
             return result;
         } catch (RuntimeException ex) {
-            log.error("AccountService.getAccountById failed for id:[{}]", id, ex);
+            log.error("AccountService.getAccountById failed for command:[{}]", command, ex);
             throw ex;
         }
     }
@@ -87,7 +85,7 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
     public Account createAccount(CreateAccountCommand command) {
         try {
             log.debug("Starting Create Account typeId:[{}] description:[{}]", command.typeId(), command.description());
-            Account account = Account.createNew(command.typeId(), command.description(), command.notes().orElse(""));
+            Account account = Account.createNew(command.typeId(), command.description(), command.notes().orElse(""), command.userId());
             Account saved = accountRepository.save(account);
             log.debug("Ending Create Account createdId:[{}]", saved.id());
             return saved;
@@ -100,19 +98,20 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
     public Account updateAccount(UpdateAccountCommand command){
         try {
             log.debug("Starting Update Account accountId:[{}] descriptionPresent:[{}] notesPresent:[{}] activePresent:[{}]", command.id(), command.description().isPresent(), command.notes().isPresent(), command.active().isPresent());
-            Account account = accountRepository.findById(command.id());
+            Account account = accountRepository.findById(command.userId(), command.id());
 
             Account newAccount = Account.rehydrate(
                     account.id(),
                     account.typeId(),
                     command.description().orElse(account.description()),
                     command.active().orElse(account.active()),
-                    command.notes().orElse(account.notes())
+                    command.notes().orElse(account.notes()),
+                    account.getUserId()
                     );
 
             // Check for unique description
-            if(command.description().isPresent() && accountRepository.existsByDescription(newAccount.description()) ){
-                Account existing = accountRepository.findByDescription(newAccount.description());
+            if(command.description().isPresent() && accountRepository.existsByDescription(command.userId(), newAccount.description()) ){
+                Account existing = accountRepository.findByDescription(command.userId(), newAccount.description());
                 if(!existing.id().equals(newAccount.id()) ){
                     log.debug("Update Account unique-description validation failed description:[{}] existingId:[{}] currentId:[{}]", newAccount.description(), existing.id(), newAccount.id());
                     throw new ApplicationException(String.format("An account already exists with the description: [%s]", newAccount.description()));

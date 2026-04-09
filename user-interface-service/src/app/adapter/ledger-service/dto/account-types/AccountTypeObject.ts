@@ -4,6 +4,7 @@ export interface IAccountTypeObject {
   description: string;
   active: boolean;
   notes: string;
+  systemAccount: boolean;
 }
 
 

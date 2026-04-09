@@ -13,8 +13,10 @@ import zachkingcade.dev.ledger.adapter.in.web.dto.account.*;
 import zachkingcade.dev.ledger.application.commands.account.AccountFilterCommandObject;
 import zachkingcade.dev.ledger.application.commands.account.CreateAccountCommand;
 import zachkingcade.dev.ledger.application.commands.account.GetAllAccountCommand;
+import zachkingcade.dev.ledger.application.commands.account.GetByIdAccountCommand;
 import zachkingcade.dev.ledger.application.commands.account.UpdateAccountCommand;
 import zachkingcade.dev.ledger.application.commands.accounttype.GetAllAccountTypesCommand;
+import zachkingcade.dev.ledger.application.commands.accounttype.GetByIdAccountTypeCommand;
 import zachkingcade.dev.ledger.application.commands.shared.SortObjectCommandObject;
 import zachkingcade.dev.ledger.application.port.in.account.CreateAccountUseCase;
 import zachkingcade.dev.ledger.application.port.in.account.GetByIdAccountUseCase;
@@ -81,10 +83,9 @@ public class AccountController {
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAll(@AuthenticationPrincipal Jwt jwt){
-        log.debug(String.format("Here we go: [%s][%s]", jwt.getSubject(), jwt.getClaims()));
         try {
             log.debug("Starting Rest Controller /accounts endpoint /all");
-            return handleGetAll(null);
+            return handleGetAll(jwt, null);
         } catch (RuntimeException ex) {
             log.error("AccountController.getAll failed", ex);
             throw ex;
@@ -92,13 +93,13 @@ public class AccountController {
     }
 
     @PostMapping("/all/filtered")
-    public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAllFiltered(@RequestBody(required = false) GetAllAccountsRequest request){
+    public ResponseEntity<ApiResponse<GetAllAccountsResponse>> getAllFiltered(@AuthenticationPrincipal Jwt jwt, @RequestBody(required = false) GetAllAccountsRequest request){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /all/filtered sortPresent:[{}] filtersPresent:[{}]",
                     request != null && request.sort().isPresent(),
                     request != null && request.filters().isPresent()
             );
-            ResponseEntity<ApiResponse<GetAllAccountsResponse>> result = handleGetAll(request);
+            ResponseEntity<ApiResponse<GetAllAccountsResponse>> result = handleGetAll(jwt, request);
             Long count = null;
             if (result.getBody() != null && result.getBody().getMetaData() != null) {
                 count = result.getBody().getMetaData().getDataResponseCount();
@@ -111,9 +112,10 @@ public class AccountController {
         }
     }
 
-    private ResponseEntity<ApiResponse<GetAllAccountsResponse>> handleGetAll(GetAllAccountsRequest request){
+    private ResponseEntity<ApiResponse<GetAllAccountsResponse>> handleGetAll(Jwt jwt, GetAllAccountsRequest request){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /all requestPresent:[{}]", request != null);
+            Long userId = extractUserId(jwt);
             // Sanitize Request sort
             SortObjectCommandObject<AccountSortType> sort = null;
             if(request != null && request.sort().isPresent()){
@@ -138,9 +140,9 @@ public class AccountController {
                 filters = new AccountFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(), Optional.of(false), Optional.of(false));
             }
 
-            GetAllAccountCommand command = new GetAllAccountCommand(Optional.of(sort), Optional.of(filters));
+            GetAllAccountCommand command = new GetAllAccountCommand(userId, Optional.of(sort), Optional.of(filters));
             List<Account> domainList = getAllAccountsUseCase.getAllAccounts(command);
-            List<AccountEnrichedObject> resultingList = convertDomainListToResponseAndEnrich(domainList);
+            List<AccountEnrichedObject> resultingList = convertDomainListToResponseAndEnrich(userId, domainList);
             GetAllAccountsResponse response = new GetAllAccountsResponse(resultingList);
             ApiResponse<GetAllAccountsResponse> apiResponse = new ApiResponse<>(String.format("Returned [%s] Accounts", resultingList.size()),new MetaData((long) resultingList.size()),response);
             log.debug("Ending Rest Controller /accounts endpoint /all with [{}] results",resultingList.size());
@@ -152,11 +154,12 @@ public class AccountController {
     }
 
     @GetMapping("/byid/{id}")
-    public ResponseEntity<ApiResponse<GetAccountByIdResponse>> getById(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<GetAccountByIdResponse>> getById(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /byid id:[{}]",id);
-            Account foundAccount = getByIdAccountUseCase.getAccountById(id);
-            AccountEnrichedObject enrichedObject = convertDomainObjectToResponseAndEnrich(foundAccount);
+            Long userId = extractUserId(jwt);
+            Account foundAccount = getByIdAccountUseCase.getAccountById(new GetByIdAccountCommand(userId, id));
+            AccountEnrichedObject enrichedObject = convertDomainObjectToResponseAndEnrich(userId, foundAccount);
             GetAccountByIdResponse response = new GetAccountByIdResponse(enrichedObject.accountId(), enrichedObject.typeId(), enrichedObject.description(), enrichedObject.accountTypeName(), enrichedObject.accountDisplayName(), enrichedObject.accountBalance(), enrichedObject.active(), enrichedObject.notes());
             ApiResponse<GetAccountByIdResponse> apiResponse = new ApiResponse<>(String.format("Returned Account of ID:[%s]", id),new MetaData(1L),response);
             log.debug("Ending Rest Controller /accounts endpoint /byid id:[{}]",response.accountId());
@@ -168,10 +171,11 @@ public class AccountController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse<CreateAccountResponse>> create(@RequestBody CreateAccountRequest request) {
+    public ResponseEntity<ApiResponse<CreateAccountResponse>> create(@AuthenticationPrincipal Jwt jwt, @RequestBody CreateAccountRequest request) {
         try {
             log.debug("Starting Rest Controller /accounts endpoint /add typeId:[{}] description:[{}]",request.typeId(),request.description());
-            CreateAccountCommand command = new CreateAccountCommand(request.typeId(), request.description(), request.notes());
+            Long userId = extractUserId(jwt);
+            CreateAccountCommand command = new CreateAccountCommand(userId, request.typeId(), request.description(), request.notes());
             Account result = createAccountUseCase.createAccount(command);
             CreateAccountResponse response = new CreateAccountResponse(result.id(), result.typeId(), result.description(), result.active(), result.notes());
             ApiResponse<CreateAccountResponse> apiResponse = new ApiResponse<>(String.format("Created Account [%s]", request.description()),new MetaData(1L),response);
@@ -184,10 +188,11 @@ public class AccountController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<ApiResponse<UpdateAccountResponse>> updateAccount(@RequestBody UpdateAccountRequest request){
+    public ResponseEntity<ApiResponse<UpdateAccountResponse>> updateAccount(@AuthenticationPrincipal Jwt jwt, @RequestBody UpdateAccountRequest request){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /update id:[{}] description:[{}]",request.id(),request.description());
-            UpdateAccountCommand command = new UpdateAccountCommand(request.id(), request.description(), request.notes(), request.active());
+            Long userId = extractUserId(jwt);
+            UpdateAccountCommand command = new UpdateAccountCommand(userId, request.id(), request.description(), request.notes(), request.active());
             Account result = updateAccountUseCase.updateAccount(command);
             UpdateAccountResponse response = new UpdateAccountResponse(request.id(), result.typeId(), result.description(), result.active(), result.notes());
             ApiResponse<UpdateAccountResponse> apiResponse = new ApiResponse<>(String.format("Updated Account of ID:[%s]", request.id()),new MetaData(1L),response);
@@ -203,9 +208,9 @@ public class AccountController {
     // Utility
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    private List<AccountEnrichedObject> convertDomainListToResponseAndEnrich(List<Account> accountList){
+    private List<AccountEnrichedObject> convertDomainListToResponseAndEnrich(Long userId, List<Account> accountList){
         //Collect needed data
-        GetAllAccountTypesCommand typesCommand = new GetAllAccountTypesCommand(Optional.empty(), Optional.empty());
+        GetAllAccountTypesCommand typesCommand = new GetAllAccountTypesCommand(userId, Optional.empty(), Optional.empty());
         List<AccountType> typeList = getAllAccountTypeUseCase.getAllAccountTypes(typesCommand);
         Map<Long,AccountType> typeMap = typeList.stream().collect(Collectors.toMap(AccountType::id, accountType -> accountType));
 
@@ -219,22 +224,29 @@ public class AccountController {
 
             String accountTypeName = type.description();
             String accountDisplayName = String.format("%s [%s]", account.description(), type.description());
-            Long accountBalance = getBalanceForAccountUseCase.getBalanceForAccount(account.id(), classMap.get(type.classificationId()));
+            Long accountBalance = getBalanceForAccountUseCase.getBalanceForAccount(userId, account.id(), classMap.get(type.classificationId()));
 
             resultingList.add(new AccountEnrichedObject(account.id(), account.typeId(), account.description(), accountTypeName, accountDisplayName, accountBalance, account.active(), account.notes()));
         }
         return resultingList;
     }
 
-    private AccountEnrichedObject convertDomainObjectToResponseAndEnrich(Account account){
+    private AccountEnrichedObject convertDomainObjectToResponseAndEnrich(Long userId, Account account){
         //Collect needed data
-        AccountType type = getByIdAccountTypeUseCase.getAccountTypeById(account.typeId());
-        AccountClassification classification = getByIdAccountClassificationUseCase.getByIdAccountClassification(type.id());
+        AccountType type = getByIdAccountTypeUseCase.getAccountTypeById(new GetByIdAccountTypeCommand(userId, account.typeId()));
+        AccountClassification classification = getByIdAccountClassificationUseCase.getByIdAccountClassification(type.classificationId());
 
         String accountTypeName = type.description();
         String accountDisplayName = String.format("%s [%s]", account.description(), type.description());
-        Long accountBalance = getBalanceForAccountUseCase.getBalanceForAccount(account.id(), classification);
+        Long accountBalance = getBalanceForAccountUseCase.getBalanceForAccount(userId, account.id(), classification);
 
         return new AccountEnrichedObject(account.id(), account.typeId(), account.description(), accountTypeName, accountDisplayName, accountBalance, account.active(), account.notes());
+    }
+
+    private Long extractUserId(Jwt jwt){
+        if(jwt == null || jwt.getSubject() == null){
+            throw new IllegalStateException("JWT subject is required");
+        }
+        return Long.valueOf(jwt.getSubject());
     }
 }

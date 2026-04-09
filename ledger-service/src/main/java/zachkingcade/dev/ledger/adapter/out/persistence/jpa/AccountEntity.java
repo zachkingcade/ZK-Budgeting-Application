@@ -35,4 +35,9 @@ public class AccountEntity {
     @Setter
     @Getter
     private String notes = "";
+
+    @Column(name = "user_id", nullable = false)
+    @Setter
+    @Getter
+    private Long userId;
 }

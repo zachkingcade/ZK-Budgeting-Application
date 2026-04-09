@@ -9,6 +9,7 @@ import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountTypeEntity;
 import zachkingcade.dev.ledger.application.commands.accounttype.CreateAccountTypeCommand;
 import zachkingcade.dev.ledger.application.commands.accounttype.GetAllAccountTypesCommand;
+import zachkingcade.dev.ledger.application.commands.accounttype.GetByIdAccountTypeCommand;
 import zachkingcade.dev.ledger.application.commands.accounttype.UpdateAccountTypeCommand;
 import zachkingcade.dev.ledger.application.exception.ApplicationException;
 import zachkingcade.dev.ledger.application.port.in.accounttype.CreateAccountTypeUseCase;
@@ -44,29 +45,25 @@ public class AccountTypeService implements CreateAccountTypeUseCase, GetAllAccou
 
             List<AccountType> results;
             Sort sort = null;
-            Specification<AccountTypeEntity> spec = null;
+            Specification<AccountTypeEntity> spec = Specification.where(visibleToUser(command.userId()));
 
             if(command.sort().isPresent()){
                 sort = Sort.by(command.sort().get().direction() == SortDirection.ascending? Sort.Direction.ASC : Sort.Direction.DESC, command.sort().get().type().toString());
             }
 
             if(command.filters().isPresent()){
-                spec = Specification
-                        .where(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
+                spec = spec
+                        .and(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
                         .and(notesContains(command.filters().get().notesContains().orElse(null)))
                         .and(classIdWithin(command.filters().get().accountClass().orElse(null)))
                         .and(hideInactive(command.filters().get().hideInactive().orElse(null)))
                         .and(hideActive(command.filters().get().hideActive().orElse(null)));
             }
 
-            if(sort != null && spec == null){
-                results = accountTypeRepository.findAll(sort);
-            } else if (sort == null && spec != null){
-                results = accountTypeRepository.findAll(spec);
-            } else if (sort != null && spec != null){
-                results = accountTypeRepository.findAll(spec, sort);
+            if(sort != null){
+                results = accountTypeRepository.findAllVisibleToUser(command.userId(), spec, sort);
             } else {
-                results = accountTypeRepository.findAll();
+                results = accountTypeRepository.findAllVisibleToUser(command.userId(), spec);
             }
 
             log.debug("Ending Get All Account Types results:[{}]", results.size());
@@ -78,14 +75,14 @@ public class AccountTypeService implements CreateAccountTypeUseCase, GetAllAccou
     }
 
     @Override
-    public AccountType getAccountTypeById(Long id) {
+    public AccountType getAccountTypeById(GetByIdAccountTypeCommand command) {
         try {
-            log.debug("Starting Get Account Type by id:[{}]",id);
-            AccountType result = accountTypeRepository.findById(id);
+            log.debug("Starting Get Account Type by id:[{}]",command.id());
+            AccountType result = accountTypeRepository.findByIdVisibleToUser(command.userId(), command.id());
             log.debug("Ending Get Account Type by id:[{}]", result.id());
             return result;
         } catch (RuntimeException ex) {
-            log.error("AccountTypeService.getAccountTypeById failed for id:[{}]", id, ex);
+            log.error("AccountTypeService.getAccountTypeById failed for command:[{}]", command, ex);
             throw ex;
         }
     }
@@ -94,7 +91,7 @@ public class AccountTypeService implements CreateAccountTypeUseCase, GetAllAccou
     public AccountType createAccountType(CreateAccountTypeCommand command) {
         try {
             log.debug("Starting Create Account Type classificationId:[{}] description:[{}]",command.classificationId(),command.description());
-            AccountType accountType = AccountType.createNew(command.description(), command.classificationId(), command.notes().orElse(""));
+            AccountType accountType = AccountType.createNew(command.description(), command.classificationId(), command.notes().orElse(""), command.userId(), false);
             AccountType saved = accountTypeRepository.save(accountType);
             log.debug("Ending Create Account Type createdId:[{}]",saved.id());
             return saved;
@@ -108,14 +105,20 @@ public class AccountTypeService implements CreateAccountTypeUseCase, GetAllAccou
     public AccountType updateAccountType(UpdateAccountTypeCommand command) {
         try {
             log.debug("Starting Update Account Type accountTypeId:[{}] description:[{}]",command.id(),command.description());
-            AccountType accountType = accountTypeRepository.findById(command.id());
+            AccountType accountType = accountTypeRepository.findByIdVisibleToUser(command.userId(), command.id());
+
+            if(accountType.getSystemAccount() != null && accountType.getSystemAccount()){
+                throw new ApplicationException(String.format("System account types may not be modified (id=[%s])", accountType.id()));
+            }
 
             AccountType newAccountType = AccountType.rehydrate(
                     accountType.id(),
                     command.description().orElse(accountType.description()),
                     accountType.classificationId(),
                     command.notes().orElse(accountType.notes()),
-                    command.active().orElse(accountType.active())
+                    command.active().orElse(accountType.active()),
+                    accountType.getUserId(),
+                    false
             );
 
             // Check for unique description

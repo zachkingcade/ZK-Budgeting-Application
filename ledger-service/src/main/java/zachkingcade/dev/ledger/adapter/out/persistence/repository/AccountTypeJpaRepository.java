@@ -11,4 +11,10 @@ public interface AccountTypeJpaRepository extends JpaRepository<AccountTypeEntit
     Optional<AccountTypeEntity> findByDescription(String description);
 
     Boolean existsByDescription(String description);
+
+    Optional<AccountTypeEntity> findByIdAndUserId(Long id, Long userId);
+
+    Optional<AccountTypeEntity> findByIdAndSystemAccountTrue(Long id);
+
+    List<AccountTypeEntity> findAllByUserIdOrSystemAccountTrue(Long userId);
 }

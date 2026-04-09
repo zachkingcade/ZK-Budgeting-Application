@@ -13,6 +13,10 @@ import java.util.List;
 
 public class JournalEntrySpecifications {
 
+    public static Specification<JournalEntryEntity> belongsToUser(Long userId){
+        return (root, query, cb) -> userId == null ? null : cb.equal(root.get("userId"), userId);
+    }
+
     public static Specification<JournalEntryEntity> dateAfter(LocalDate desiredDateRangeEnd){
         return(root, query, cb) ->
                 desiredDateRangeEnd == null? null : cb.greaterThanOrEqualTo(root.get("entryDate"), desiredDateRangeEnd);

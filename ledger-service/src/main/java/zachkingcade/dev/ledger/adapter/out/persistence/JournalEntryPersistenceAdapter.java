@@ -33,8 +33,8 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
     }
 
     @Override
-    public JournalEntry findById(Long id) {
-        Optional<JournalEntryEntity> entity = journalEntryJpaRepository.findWithJournalLinesById(id);
+    public JournalEntry findById(Long userId, Long id) {
+        Optional<JournalEntryEntity> entity = journalEntryJpaRepository.findWithJournalLinesByIdAndUserId(id, userId);
         if(entity.isPresent()){
             return mapToDomain(entity.get());
         } else {
@@ -43,26 +43,28 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
     }
 
     @Override
-    public List<JournalEntry> findAll() {
-        List<JournalEntryEntity> list = journalEntryJpaRepository.findAll();
+    public List<JournalEntry> findAll(Long userId) {
+        List<JournalEntryEntity> list = journalEntryJpaRepository.findAllByUserId(userId);
         return convertListOfJournalEntrysToDomain(list);
     }
 
     @Override
-    public List<JournalEntry> findAll(Sort sort) {
-        List<JournalEntryEntity> list = journalEntryJpaRepository.findAll(sort);
+    public List<JournalEntry> findAll(Long userId, Sort sort) {
+        List<JournalEntryEntity> list = journalEntryJpaRepository.findAll((root, query, cb) -> cb.equal(root.get("userId"), userId), sort);
         return convertListOfJournalEntrysToDomain(list);
     }
 
     @Override
-    public List<JournalEntry> findAll(Specification<JournalEntryEntity> spec) {
-        List<JournalEntryEntity> list = journalEntryJpaRepository.findAll(spec);
+    public List<JournalEntry> findAll(Long userId, Specification<JournalEntryEntity> spec) {
+        Specification<JournalEntryEntity> scopedSpec = ((Specification<JournalEntryEntity>) (root, query, cb) -> cb.equal(root.get("userId"), userId)).and(spec);
+        List<JournalEntryEntity> list = journalEntryJpaRepository.findAll(scopedSpec);
         return convertListOfJournalEntrysToDomain(list);
     }
 
     @Override
-    public List<JournalEntry> findAll(Specification<JournalEntryEntity> spec, Sort sort) {
-        List<JournalEntryEntity> list = journalEntryJpaRepository.findAll(spec,sort);
+    public List<JournalEntry> findAll(Long userId, Specification<JournalEntryEntity> spec, Sort sort) {
+        Specification<JournalEntryEntity> scopedSpec = ((Specification<JournalEntryEntity>) (root, query, cb) -> cb.equal(root.get("userId"), userId)).and(spec);
+        List<JournalEntryEntity> list = journalEntryJpaRepository.findAll(scopedSpec,sort);
         return convertListOfJournalEntrysToDomain(list);
     }
 
@@ -75,7 +77,11 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
     }
 
     @Override
-    public void removeJournalEntry(Long id) {
+    public void removeJournalEntry(Long userId, Long id) {
+        Optional<JournalEntryEntity> existing = journalEntryJpaRepository.findById(id);
+        if(existing.isEmpty() || !userId.equals(existing.get().getUserId())){
+            throw new NotFoundException(String.format("Journal Entry not found for id [%s]", id));
+        }
         journalEntryJpaRepository.deleteById(id);
     }
 
@@ -89,11 +95,12 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
         entity.setEntryDate(Date.valueOf(journalEntryToSave.entryDate()));
         entity.setDescription(journalEntryToSave.description());
         entity.setNotes(journalEntryToSave.notes());
+        entity.setUserId(journalEntryToSave.getUserId());
 
         // Save journal lines
         List<JournalLineEntity> lineEntityList = new ArrayList<>();
         for(JournalLine line: journalEntryToSave.journalLines()){
-            AccountEntity account = this.accountJpaRepository.findById(line.accountId())
+            AccountEntity account = this.accountJpaRepository.findByIdAndUserId(line.accountId(), journalEntryToSave.getUserId())
                     .orElseThrow(() -> new NotFoundException(String.format("Account not found for id [%s]", line.accountId())));
             JournalLineEntity newLine = new JournalLineEntity();
             if(line.id() != null){
@@ -113,12 +120,12 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
     }
 
     @Override
-    public List<JournalLine> findLinesByAccountId(Long accountId) {
-        return mapToDomain(journalLinesJpaRepository.findByAccountId(accountId));
+    public List<JournalLine> findLinesByAccountId(Long userId, Long accountId) {
+        return mapToDomain(journalLinesJpaRepository.findByAccountIdAndJournalEntryUserId(accountId, userId));
     }
 
     private JournalEntry mapToDomain(JournalEntryEntity entity){
-        return JournalEntry.rehydrate(entity.getId(), entity.getEntryDate().toLocalDate(),entity.getDescription(), entity.getNotes(), mapToDomain(entity.getJournalLines()));
+        return JournalEntry.rehydrate(entity.getId(), entity.getEntryDate().toLocalDate(),entity.getDescription(), entity.getNotes(), entity.getUserId(), mapToDomain(entity.getJournalLines()));
     }
 
     private List<JournalLine> mapToDomain(List<JournalLineEntity> lineList){

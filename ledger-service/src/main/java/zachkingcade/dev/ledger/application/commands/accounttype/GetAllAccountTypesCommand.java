@@ -6,6 +6,7 @@ import zachkingcade.dev.ledger.application.validation.AccountTypeSortType;
 import java.util.Optional;
 
 public record GetAllAccountTypesCommand(
+        Long userId,
         Optional<SortObjectCommandObject<AccountTypeSortType>> sort,
         Optional<AccountTypeFilterCommandObject> filters
 ) {
