@@ -116,7 +116,7 @@ public class JournalEntryController {
     }
 
     private ResponseEntity<ApiResponse<GetAllJournalEntryResponse>> handleGetAll(Jwt jwt, GetAllJournalEntryRequest request){
-        Long userId = extractUserId(jwt);
+        Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
         // Sanitize Request
         SortObjectCommandObject<JournalEntrySortType> sort = null;
         if(request != null && request.sort().isPresent()){
@@ -155,7 +155,7 @@ public class JournalEntryController {
     public ResponseEntity<ApiResponse<GetByIdJournalEntryResponse>> getById(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id){
         try {
             log.debug("Starting Rest Controller /journalentry endpoint /byid id:[{}]",id);
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             GetByIdJournalEntryCommand command = new GetByIdJournalEntryCommand(userId, id);
             JournalEntry entry = getByIdJournalEntryUseCase.getByIdJournalEntry(command);
             JournalEntryDTOEnrichedResponse enrichedEntry = convertDomainObjectToResponseAndEnrich(userId, entry);
@@ -173,7 +173,7 @@ public class JournalEntryController {
     public ResponseEntity<ApiResponse<CreateJournalEntryResponse>> createJournalEntry(@AuthenticationPrincipal Jwt jwt, @RequestBody CreateJournalEntryRequest request){
         try {
             log.debug("Starting Rest Controller /journalentry endpoint /add description:[{}] journalLinesCount:[{}]",request.description(),request.journalLines() == null ? 0 : request.journalLines().size());
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             List<JournalLineCommandObject> resultingCommandLineList = new ArrayList<>();
             for(JournalLineDTORequest requestLine: request.journalLines()){
                 resultingCommandLineList.add(new JournalLineCommandObject(requestLine.amount(), requestLine.accountId(), requestLine.direction(), requestLine.notes()));
@@ -198,7 +198,7 @@ public class JournalEntryController {
     public ResponseEntity<ApiResponse<UpdateJournalEntryResponse>> updateJournalEntry(@AuthenticationPrincipal Jwt jwt, @RequestBody UpdateJournalEntryRequest request){
         try {
             log.debug("Starting Rest Controller /journalentry endpoint /update id:[{}] description:[{}] requestedLineUpdatesCount:[{}]",request.id(),request.description(),request.journalLines() == null ? 0 : request.journalLines().size());
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             List<JournalLineUpdateCommandObject> resultingCommandLineList = new ArrayList<>();
             for(JournalLineDTOUpdate requestLine: request.journalLines()){
                 resultingCommandLineList.add(new JournalLineUpdateCommandObject(requestLine.id(), requestLine.notes()));
@@ -229,7 +229,7 @@ public class JournalEntryController {
     public ResponseEntity<ApiResponse<RemoveJournalEntryDTOResponse>> removeJournalEntry(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id){
         try{
             log.debug("Starting Rest Controller /journalentry endpoint /remove/{id} id:[{}]",id);
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             RemoveByIdJournalEntryCommand command = new RemoveByIdJournalEntryCommand(userId, id);
             removeByIdJournalEntryUseCase.removeJournalEntryById(command);
             RemoveJournalEntryDTOResponse response = new RemoveJournalEntryDTOResponse(id);
@@ -299,10 +299,4 @@ public class JournalEntryController {
         return new JournalEntryDTOEnrichedResponse(entry.id(),entry.entryDate(),entry.description(),entry.notes(), lineList);
     }
 
-    private Long extractUserId(Jwt jwt){
-        if(jwt == null || jwt.getSubject() == null){
-            throw new IllegalStateException("JWT subject is required");
-        }
-        return Long.valueOf(jwt.getSubject());
-    }
 }

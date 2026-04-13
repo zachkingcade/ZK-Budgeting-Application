@@ -82,7 +82,7 @@ public class AccountTypeController {
     private ResponseEntity<ApiResponse<GetAllAccountTypesResponse>> handleGetAll(Jwt jwt, GetAllAccountTypesRequest request){
         try {
             log.debug("Starting Rest Controller /accounttypes endpoint /all requestPresent:[{}]", request != null);
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             // Sanitize Request
             SortObjectCommandObject<AccountTypeSortType> sort = null;
             if(request != null && request.sort().isPresent()){
@@ -136,7 +136,7 @@ public class AccountTypeController {
     public ResponseEntity<ApiResponse<GetAccountTypeByIdResponse>> getAccountTypeById(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id){
         try {
             log.debug("Starting Rest Controller /accounttypes endpoint /byid id:[{}]",id);
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             AccountType accountType = getByIdAccountTypeUseCase.getAccountTypeById(new GetByIdAccountTypeCommand(userId, id));
             GetAccountTypeByIdResponse response = new GetAccountTypeByIdResponse(
                     accountType.id(),
@@ -159,7 +159,7 @@ public class AccountTypeController {
     public ResponseEntity<ApiResponse<CreateAccountTypeResponse>> createAccountType(@AuthenticationPrincipal Jwt jwt, @RequestBody CreateAccountTypeRequest request){
         try {
             log.debug("Starting Rest Controller /accounttypes endpoint /add classificationId:[{}] description:[{}]",request.classificationId(),request.description());
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             CreateAccountTypeCommand command = new CreateAccountTypeCommand(userId, request.classificationId(), request.description(), request.notes());
             AccountType accountType = createAccountTypeUseCase.createAccountType(command);
             CreateAccountTypeResponse response = new CreateAccountTypeResponse(
@@ -183,7 +183,7 @@ public class AccountTypeController {
     public ResponseEntity<ApiResponse<UpdateAccountTypeResponse>> updateAccountType(@AuthenticationPrincipal Jwt jwt, @RequestBody UpdateAccountTypeRequest request){
         try {
             log.debug("Starting Rest Controller /accounttypes endpoint /update id:[{}] descriptiont:[{}]",request.id(),request.description());
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             UpdateAccountTypeCommand command = new UpdateAccountTypeCommand(userId, request.id(), request.description(),request.notes(),request.active());
             AccountType accountType = updateAccountTypeUseCase.updateAccountType(command);
             UpdateAccountTypeResponse response = new UpdateAccountTypeResponse(
@@ -203,10 +203,4 @@ public class AccountTypeController {
         }
     }
 
-    private Long extractUserId(Jwt jwt){
-        if(jwt == null || jwt.getSubject() == null){
-            throw new IllegalStateException("JWT subject is required");
-        }
-        return Long.valueOf(jwt.getSubject());
-    }
 }

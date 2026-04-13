@@ -115,7 +115,7 @@ public class AccountController {
     private ResponseEntity<ApiResponse<GetAllAccountsResponse>> handleGetAll(Jwt jwt, GetAllAccountsRequest request){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /all requestPresent:[{}]", request != null);
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             // Sanitize Request sort
             SortObjectCommandObject<AccountSortType> sort = null;
             if(request != null && request.sort().isPresent()){
@@ -157,7 +157,7 @@ public class AccountController {
     public ResponseEntity<ApiResponse<GetAccountByIdResponse>> getById(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /byid id:[{}]",id);
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             Account foundAccount = getByIdAccountUseCase.getAccountById(new GetByIdAccountCommand(userId, id));
             AccountEnrichedObject enrichedObject = convertDomainObjectToResponseAndEnrich(userId, foundAccount);
             GetAccountByIdResponse response = new GetAccountByIdResponse(enrichedObject.accountId(), enrichedObject.typeId(), enrichedObject.description(), enrichedObject.accountTypeName(), enrichedObject.accountDisplayName(), enrichedObject.accountBalance(), enrichedObject.active(), enrichedObject.notes());
@@ -174,7 +174,7 @@ public class AccountController {
     public ResponseEntity<ApiResponse<CreateAccountResponse>> create(@AuthenticationPrincipal Jwt jwt, @RequestBody CreateAccountRequest request) {
         try {
             log.debug("Starting Rest Controller /accounts endpoint /add typeId:[{}] description:[{}]",request.typeId(),request.description());
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             CreateAccountCommand command = new CreateAccountCommand(userId, request.typeId(), request.description(), request.notes());
             Account result = createAccountUseCase.createAccount(command);
             CreateAccountResponse response = new CreateAccountResponse(result.id(), result.typeId(), result.description(), result.active(), result.notes());
@@ -191,7 +191,7 @@ public class AccountController {
     public ResponseEntity<ApiResponse<UpdateAccountResponse>> updateAccount(@AuthenticationPrincipal Jwt jwt, @RequestBody UpdateAccountRequest request){
         try {
             log.debug("Starting Rest Controller /accounts endpoint /update id:[{}] description:[{}]",request.id(),request.description());
-            Long userId = extractUserId(jwt);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             UpdateAccountCommand command = new UpdateAccountCommand(userId, request.id(), request.description(), request.notes(), request.active());
             Account result = updateAccountUseCase.updateAccount(command);
             UpdateAccountResponse response = new UpdateAccountResponse(request.id(), result.typeId(), result.description(), result.active(), result.notes());
@@ -243,10 +243,4 @@ public class AccountController {
         return new AccountEnrichedObject(account.id(), account.typeId(), account.description(), accountTypeName, accountDisplayName, accountBalance, account.active(), account.notes());
     }
 
-    private Long extractUserId(Jwt jwt){
-        if(jwt == null || jwt.getSubject() == null){
-            throw new IllegalStateException("JWT subject is required");
-        }
-        return Long.valueOf(jwt.getSubject());
-    }
 }
