@@ -1,0 +1,26 @@
+.reports-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.error-banner {
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  background: rgba(200, 0, 0, 0.08);
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+.reports-table {
+  width: 100%;
+}
+
+.empty-row .mat-cell {
+  text-align: center;
+  font-style: italic;
+}

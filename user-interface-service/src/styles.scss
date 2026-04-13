@@ -35,4 +35,13 @@ body {
   margin: 0;
   height: 100%;
 }
-/* You can add global styles to this file, and also import other style files */
+
+.toast-success .mdc-snackbar__surface {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.toast-error .mdc-snackbar__surface {
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}

@@ -1,26 +1,14 @@
 ## Roadmap to Interview Minimal Viable Product (IMVP) to show
 
-## Next 10 steps
-7. Implement Account Balance report
-8. Implement Transaction Summary report
-9. Add Docker + Docker Compose setup
-10. Set up CI pipeline (build + test + lint)
-
 ## Features List
-- Create account detail view (transaction history per account)
-- Build Account Balance report
-- Build Transaction Summary report (by date range + account type)
 - Add form validation + user-friendly error messaging
 - Add loading, empty, and error states
 
 ## Active Minor Fixes and Domain Rules to enforce later on
-- Account should be at a balance of 0 before being allowed to close
+- Account should be at a balance of 0 before being allowed to close.
 - Searches should have an option to include "General Search" that includes items that have the included text in either description, notes or both.
 
 ## Stack List
-- Implement Spring Security with JWT authentication
-- Add user entity + ownership relationships in database
-- Configure Flyway for database migrations
 - Containerize services with Docker
 - Create Docker Compose setup (app + database)
 - Make GitHub repository look professional

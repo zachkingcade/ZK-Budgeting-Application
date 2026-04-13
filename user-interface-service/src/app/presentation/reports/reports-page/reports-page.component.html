@@ -1,0 +1,53 @@
+<app-page-cage pageName="Reports" subText="Request and download PDF reports">
+  <div class="reports-toolbar">
+    <button mat-raised-button color="primary" type="button" (click)="openRequestDialog()">
+      Request report
+    </button>
+    <button mat-stroked-button type="button" (click)="refresh()" [disabled]="loading()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </div>
+
+  @if (loadError()) {
+    <div class="error-banner">{{ loadError() }}</div>
+  }
+
+  <div class="table-wrap">
+    <table mat-table [dataSource]="reports()" class="reports-table">
+      <ng-container matColumnDef="reportType">
+        <th mat-header-cell *matHeaderCellDef>Report type</th>
+        <td mat-cell *matCellDef="let row">{{ row.reportType }}</td>
+      </ng-container>
+      <ng-container matColumnDef="requestedAt">
+        <th mat-header-cell *matHeaderCellDef>Created</th>
+        <td mat-cell *matCellDef="let row">{{ row.requestedAt | date: 'medium' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          @if (row.status === 'COMPLETED') {
+            <button mat-button type="button" (click)="openDetail(row)">More info</button>
+            <button mat-button type="button" (click)="download(row)">Download</button>
+          }
+          @if (row.status === 'FAILED') {
+            <button mat-button type="button" (click)="openDetail(row)">More info</button>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" class="data-row"></tr>
+
+      <tr class="mat-row empty-row" *ngIf="!loading() && reports().length === 0">
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          No reports created yet, please request reports
+        </td>
+      </tr>
+    </table>
+  </div>
+</app-page-cage>

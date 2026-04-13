@@ -213,7 +213,7 @@ Both services use a **shared PostgreSQL database** with a **dedicated schema** p
 
 Assign a **unique** `server.port` per service (ledger: **8081**, user: **8082**, reporting: **8083**). Document new ports in this file or in deployment docs when you add services.
 
-**reporting-service** stores completed report PDFs in PostgreSQL (`reporting.completed_reports.pdf_content` as `BYTEA`), not on the filesystem. User access tokens must include the **`reporting-service`** JWT audience (alongside **`ledger-service`**) so the Angular app can call reporting APIs with the same bearer token as ledger. Service-to-service calls use `POST /user/service/login` in user-service with a shared secret and `actingForUserId` as described in that service.
+**reporting-service** stores completed report PDFs in PostgreSQL (`reporting.completed_reports.pdf_content` as `BYTEA`). User access tokens must include the **`reporting-service`** audience (alongside **`ledger-service`**) from that the reporting service will request it's own access token doing work for that user.
 
 ### CORS
 

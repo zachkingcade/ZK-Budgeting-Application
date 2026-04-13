@@ -1,0 +1,28 @@
+<h2 mat-dialog-title>Report details</h2>
+<div mat-dialog-content>
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+  @if (meta(); as m) {
+    <p><strong>Type:</strong> {{ m.reportType }}</p>
+    <p><strong>Status:</strong> {{ m.status }}</p>
+    <p><strong>Requested:</strong> {{ m.requestedAt | date: 'medium' }}</p>
+    @if (m.startedAt) {
+      <p><strong>Started:</strong> {{ m.startedAt | date: 'medium' }}</p>
+    }
+    @if (m.completedAt) {
+      <p><strong>Completed:</strong> {{ m.completedAt | date: 'medium' }}</p>
+    }
+    @if (m.failureReason) {
+      <p><strong>Failure:</strong> {{ m.failureReason }}</p>
+    }
+    <p><strong>Parameters:</strong></p>
+    <pre class="json">{{ m.requestParameters | json }}</pre>
+  }
+</div>
+<div mat-dialog-actions align="end">
+  @if (meta()?.status === 'COMPLETED') {
+    <button mat-flat-button color="primary" type="button" (click)="download()">Download PDF</button>
+  }
+  <button mat-button type="button" (click)="close()">Close</button>
+</div>

@@ -1,0 +1,136 @@
+<h2 mat-dialog-title>Request a report</h2>
+<div mat-dialog-content class="dialog-body">
+  @if (loading()) {
+    <p>Loading catalog…</p>
+  } @else if (error()) {
+    <p class="error">{{ error() }}</p>
+  } @else {
+    <div class="catalog-list">
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Report type</mat-label>
+        <mat-select
+          [(ngModel)]="selectedCode"
+          (ngModelChange)="onSelectCode($event)"
+          name="reportType"
+        >
+          @for (c of catalog(); track trackCatalogReport($index, c)) {
+            <mat-option [value]="c.code">{{ c.displayName }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    @if (selectedReport(); as rep) {
+      <section class="report-summary" aria-label="Report description">
+        <p class="desc">{{ rep.description }}</p>
+      </section>
+      <section class="report-fields" aria-label="Report parameters">
+        @if (rep.fields.length > 0) {
+          <h3 class="parameters-heading">Parameters</h3>
+        }
+        @for (f of rep.fields; track trackField($index, f)) {
+          <div class="field-block">
+            <div class="field-desc">{{ f.description }}</div>
+            @if (f.type === 'text') {
+              <mat-form-field appearance="outline" class="full">
+                <mat-label>{{ f.name }}</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="paramValues[f.name]"
+                  (ngModelChange)="onParamEdited()"
+                  [name]="'t-' + f.name"
+                />
+              </mat-form-field>
+            }
+            @if (f.type === 'checkbox') {
+              <mat-checkbox
+                [(ngModel)]="paramValues[f.name]"
+                (ngModelChange)="onParamEdited()"
+                [name]="'cb-' + f.name"
+                [attr.aria-label]="f.name"
+              ></mat-checkbox>
+            }
+            @if (f.type === 'date') {
+              <app-request-report-date-field
+                [label]="f.name"
+                [nameAttr]="'d-' + f.name"
+                [value]="paramDate(f.name)"
+                (valueChange)="setParamDate(f.name, $event)"
+              />
+            }
+            @if (f.type === 'account-single') {
+              <mat-form-field appearance="outline" class="full">
+                <mat-label>{{ f.name }}</mat-label>
+                <mat-select
+                  [(ngModel)]="paramValues[f.name]"
+                  (ngModelChange)="onParamEdited()"
+                  [name]="'as-' + f.name"
+                >
+                  @for (a of accounts(); track a.accountId) {
+                    <mat-option [value]="a.accountId">{{ a.accountDisplayName }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+            @if (f.type === 'account-type-single') {
+              <mat-form-field appearance="outline" class="full">
+                <mat-label>{{ f.name }}</mat-label>
+                <mat-select
+                  [(ngModel)]="paramValues[f.name]"
+                  (ngModelChange)="onParamEdited()"
+                  [name]="'ats-' + f.name"
+                >
+                  @for (t of accountTypes(); track t.id) {
+                    <mat-option [value]="t.id">{{ t.description }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+            @if (f.type === 'account-multi') {
+              <mat-form-field appearance="outline" class="full">
+                <mat-label>{{ f.name }}</mat-label>
+                <mat-select
+                  [(ngModel)]="paramValues[f.name]"
+                  (ngModelChange)="onParamEdited()"
+                  multiple
+                  [name]="'am-' + f.name"
+                >
+                  @for (a of accounts(); track a.accountId) {
+                    <mat-option [value]="a.accountId">{{ a.accountDisplayName }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+            @if (f.type === 'account-type-multi') {
+              <mat-form-field appearance="outline" class="full">
+                <mat-label>{{ f.name }}</mat-label>
+                <mat-select
+                  [(ngModel)]="paramValues[f.name]"
+                  (ngModelChange)="onParamEdited()"
+                  multiple
+                  [name]="'atm-' + f.name"
+                >
+                  @for (t of accountTypes(); track t.id) {
+                    <mat-option [value]="t.id">{{ t.description }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    type="button"
+    (click)="submit()"
+    [disabled]="!canSubmit()"
+  >
+    Submit
+  </button>
+</div>
