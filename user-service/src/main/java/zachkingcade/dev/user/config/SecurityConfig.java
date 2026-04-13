@@ -27,6 +27,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/logout").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/service/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());

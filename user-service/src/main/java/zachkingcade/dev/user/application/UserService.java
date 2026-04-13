@@ -89,7 +89,7 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
         }
 
         // Create Access Token
-        String accessToken = jwtService.generateAccessToken(userEntity.getUserId(), userEntity.getUsername());
+        String accessToken = jwtService.generateUserAccessToken(userEntity.getUserId(), userEntity.getUsername());
         // TODO put this in JWTService and abstract the response with a result object
         Instant accessTokenCreated = Instant.now();
         Instant accessTokenExpires = accessTokenCreated.plus(10, ChronoUnit.MINUTES);
@@ -144,7 +144,7 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
         }
 
         // Create new Access Token
-        String accessToken = jwtService.generateAccessToken(userEntity.getUserId(), userEntity.getUsername());
+        String accessToken = jwtService.generateUserAccessToken(userEntity.getUserId(), userEntity.getUsername());
         // TODO put this in JWTService and abstract the response with a result object
         Instant accessTokenCreated = Instant.now();
         Instant accessTokenExpires = accessTokenCreated.plus(10, ChronoUnit.MINUTES);
