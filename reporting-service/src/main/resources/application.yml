@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: reporting-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/budgeting?currentSchema=reporting
+    username: reporting_owner
+    password: reporting_owner
+  jpa:
+    properties:
+      hibernate:
+        default_schema: reporting
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    schemas: reporting
+    default-schema: reporting
+    create-schemas: false
+
+server:
+  port: 8083
+
+reporting:
+  cors:
+    allowed-origins: "http://localhost:4200,http://127.0.0.1:4200"
+  outbound:
+    user-service-base-url: ${USER_SERVICE_BASE_URL:http://localhost:8082}
+    ledger-service-base-url: ${LEDGER_SERVICE_BASE_URL:http://localhost:8081}
+    service-name: ${REPORTING_SERVICE_NAME:reporting-service}
+    service-secret: ${REPORTING_SERVICE_SECRET:password}
