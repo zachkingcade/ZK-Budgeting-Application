@@ -1,5 +1,6 @@
 import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 import { PageCage } from '../../../page-cage/page-cage.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -69,6 +70,13 @@ export class AccountTypesPageComponent implements OnInit {
   ngOnInit(): void {
     this.accountClassificationsApplicationService
       .getAll()
+      .pipe(
+        catchError(() =>
+          of({
+            data: { accountClassificationList: [] },
+          } as any)
+        ),
+      )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -78,10 +86,6 @@ export class AccountTypesPageComponent implements OnInit {
             map.set(c.id, c.description);
           }
           this.classificationLabelById.set(map);
-          this.applyFilters({ nextState: this.currentState(), markApplied: true });
-        },
-        error: () => {
-          this.classificationLabelById.set(new Map());
           this.applyFilters({ nextState: this.currentState(), markApplied: true });
         },
       });

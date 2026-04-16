@@ -1,21 +1,77 @@
 services:
   postgres:
-    image: postgres:16
-    container_name: budgeting-postgres
+    image: postgres:17
+    container_name: ledger-postgres
     environment:
-      POSTGRES_DB: budgeting
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
     ports:
       - "5432:5432"
     volumes:
-      - budgeting_pgdata:/var/lib/postgresql/data
-      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d budgeting"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
+      start_period: 10s
+
+  user-service:
+    build: ./user-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/app
+      SPRING_DATASOURCE_USERNAME: auth_owner
+      SPRING_DATASOURCE_PASSWORD: auth_owner
+      LEDGER_SERVICE_BASE_URL: http://ledger-service:8081
+      REPORTING_SERVICE_BASE_URL: http://reporting-service:8083
+    ports:
+      - "8082:8082"
+
+  ledger-service:
+    build: ./ledger-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/app
+      SPRING_DATASOURCE_USERNAME: ledger_svc
+      SPRING_DATASOURCE_PASSWORD: ledger_svc
+      USER_SERVICE_BASE_URL: http://user-service:8082
+    ports:
+      - "8081:8081"
+
+  reporting-service:
+    build: ./reporting-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ledger-service:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/app
+      SPRING_DATASOURCE_USERNAME: reporting_owner
+      SPRING_DATASOURCE_PASSWORD: reporting_owner
+      LEDGER_SERVICE_BASE_URL: http://ledger-service:8081
+      USER_SERVICE_BASE_URL: http://user-service:8082
+    ports:
+      - "8083:8083"
+
+  ui:
+    build: ./user-interface-service
+    depends_on:
+      ledger-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+      reporting-service:
+        condition: service_started
+    ports:
+      - "4200:80"
 
 volumes:
-  budgeting_pgdata:
+  postgres-data:

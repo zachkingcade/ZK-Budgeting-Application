@@ -1,11 +1,14 @@
 package zachkingcade.dev.ledger.application;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import zachkingcade.dev.ledger.application.commands.journal.CreateJournalEntryCommand;
 import zachkingcade.dev.ledger.application.commands.journal.JournalLineCommandObject;
 import zachkingcade.dev.ledger.application.commands.journal.JournalLineUpdateCommandObject;
 import zachkingcade.dev.ledger.application.commands.journal.UpdateJournalEntryCommand;
 import zachkingcade.dev.ledger.application.port.out.journal.JournalEntryRepositoryPort;
+import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalEntryEntity;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
 
@@ -35,17 +38,32 @@ class JournalEntryServiceTest {
         }
 
         @Override
-        public JournalEntry findById(Long id) {
+        public JournalEntry findById(Long userId, Long id) {
             return findByIdResult;
         }
 
         @Override
-        public List<JournalEntry> findAll() {
+        public List<JournalEntry> findAll(Long userId) {
             return List.of();
         }
 
         @Override
-        public void removeJournalEntry(Long id) {
+        public List<JournalEntry> findAll(Long userId, Sort sort) {
+            return List.of();
+        }
+
+        @Override
+        public List<JournalEntry> findAll(Long userId, Specification<JournalEntryEntity> spec) {
+            return List.of();
+        }
+
+        @Override
+        public List<JournalEntry> findAll(Long userId, Specification<JournalEntryEntity> spec, Sort sort) {
+            return List.of();
+        }
+
+        @Override
+        public void removeJournalEntry(Long userId, Long id) {
             return;
         }
 
@@ -54,6 +72,11 @@ class JournalEntryServiceTest {
             saveCalls++;
             this.saved = journalEntryToSave;
             return journalEntryToSave.withId(1L);
+        }
+
+        @Override
+        public List<JournalLine> findLinesByAccountId(Long userId, Long accountId) {
+            return List.of();
         }
     }
 
@@ -71,12 +94,13 @@ class JournalEntryServiceTest {
         JournalEntryService service = new JournalEntryService(repo);
 
         CreateJournalEntryCommand command = new CreateJournalEntryCommand(
+                1L,
                 LocalDate.of(2026, 3, 19),
                 "Rent",
-                "entry-notes",
+                Optional.of("entry-notes"),
                 List.of(
-                        new JournalLineCommandObject(5L, 100L, 'C', "c-note"),
-                        new JournalLineCommandObject(5L, 200L, 'D', "d-note")
+                        new JournalLineCommandObject(5L, 100L, 'C', Optional.of("c-note")),
+                        new JournalLineCommandObject(5L, 200L, 'D', Optional.of("d-note"))
                 )
         );
 
@@ -108,13 +132,14 @@ class JournalEntryServiceTest {
         LocalDate date = LocalDate.of(2026, 3, 1);
         JournalLine line1 = JournalLine.rehydrate(10L, 5L, 100L, 'C', "old-line1");
         JournalLine line2 = JournalLine.rehydrate(11L, 5L, 200L, 'D', "old-line2");
-        JournalEntry existing = JournalEntry.rehydrate(1L, date, "old-desc", "old-notes", List.of(line1, line2));
+        JournalEntry existing = JournalEntry.rehydrate(1L, date, "old-desc", "old-notes", 1L, List.of(line1, line2));
 
         repo.whenFindById(existing);
 
         JournalEntryService service = new JournalEntryService(repo);
 
         UpdateJournalEntryCommand command = new UpdateJournalEntryCommand(
+                1L,
                 1L,
                 Optional.empty(),
                 Optional.empty(),

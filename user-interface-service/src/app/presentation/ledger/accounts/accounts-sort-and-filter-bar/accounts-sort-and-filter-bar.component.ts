@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MtxSelectModule } from '@ng-matero/extensions/select';
 import { AccountTypesApplicationService } from '../../../../application/ledger/account-types.application-service';
+import { catchError, of } from 'rxjs';
 import {
   AccountsSortByOption,
   DEFAULT_ACCOUNTS_FILTER_STATE,
@@ -57,12 +58,14 @@ export class AccountsSortAndFilterBarComponent implements OnInit {
   ngOnInit(): void {
     this.accountTypesApplicationService
       .getAll()
+      .pipe(catchError(() => of({ data: { accountTypeList: [] } } as any)))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          const list = res.data?.accountTypeList ?? [];
+          const list: Array<{ id: number; description: string; active: boolean }> =
+            (res.data?.accountTypeList ?? []) as any;
           this.accountTypeOptions.set(
-            list.map((t) => ({
+            list.map((t: { id: number; description: string; active: boolean }) => ({
               id: t.id,
               label: t.active ? t.description : `${t.description} (inactive)`,
             })),

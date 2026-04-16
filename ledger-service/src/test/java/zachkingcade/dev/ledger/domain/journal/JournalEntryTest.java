@@ -17,7 +17,7 @@ class JournalEntryTest {
                 JournalLine.createNew(5L, 2L, 'D', null)
         );
 
-        assertThrows(DomainException.class, () -> JournalEntry.createNew(null, "desc", null, lines));
+        assertThrows(DomainException.class, () -> JournalEntry.createNew(null, "desc", null, 1L, lines));
     }
 
     @Test
@@ -27,7 +27,7 @@ class JournalEntryTest {
                 JournalLine.createNew(5L, 2L, 'D', null)
         );
 
-        assertThrows(DomainException.class, () -> JournalEntry.createNew(LocalDate.now(), "", null, lines));
+        assertThrows(DomainException.class, () -> JournalEntry.createNew(LocalDate.now(), "", null, 1L, lines));
     }
 
     @Test
@@ -36,7 +36,7 @@ class JournalEntryTest {
                 JournalLine.createNew(5L, 1L, 'C', null)
         );
 
-        assertThrows(DomainException.class, () -> JournalEntry.createNew(LocalDate.now(), "desc", null, lines));
+        assertThrows(DomainException.class, () -> JournalEntry.createNew(LocalDate.now(), "desc", null, 1L, lines));
     }
 
     @Test
@@ -46,7 +46,7 @@ class JournalEntryTest {
                 JournalLine.createNew(4L, 2L, 'D', null)
         );
 
-        assertThrows(DomainException.class, () -> JournalEntry.createNew(LocalDate.now(), "desc", null, lines));
+        assertThrows(DomainException.class, () -> JournalEntry.createNew(LocalDate.now(), "desc", null, 1L, lines));
     }
 
     @Test
@@ -56,7 +56,7 @@ class JournalEntryTest {
                 JournalLine.createNew(5L, 2L, 'D', "d-note")
         );
 
-        JournalEntry entry = JournalEntry.createNew(LocalDate.now(), "desc", "notes", lines);
+        JournalEntry entry = JournalEntry.createNew(LocalDate.now(), "desc", "notes", 1L, lines);
         assertNull(entry.id());
         assertEquals("desc", entry.description());
         assertEquals("notes", entry.notes());

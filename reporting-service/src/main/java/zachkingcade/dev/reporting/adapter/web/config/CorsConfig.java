@@ -14,7 +14,8 @@ import java.util.List;
 public class CorsConfig {
 
     @Bean
-    public CorsFilter corsFilter(@Value("${reporting.cors.allowed-origins:http://localhost:4200}") String allowedOrigins) {
+    public CorsFilter corsFilter(
+            @Value("${reporting.cors.allowed-origins:http://localhost:4200,http://127.0.0.1:4200}") String allowedOrigins) {
         CorsConfiguration config = new CorsConfiguration();
         List<String> origins = Arrays.stream(allowedOrigins.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
         config.setAllowedOrigins(origins);

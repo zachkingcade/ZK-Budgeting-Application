@@ -9,6 +9,7 @@ import { AccountTypesApplicationService } from '../../../../application/ledger/a
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { ILedgerFilterSortState, LedgerDateRangeOption, LedgerSortByOption } from '../ledger-page/ledger-page.component';
+import { catchError, of } from 'rxjs';
 
 type LedgerOption<TId extends string | number> = { id: TId; label: string };
 
@@ -58,25 +59,32 @@ export class LedgerSortAndFilterBar {
   ngOnInit(): void {
     this.accountTypesApplicationService
       .getAll()
+      .pipe(catchError(() => of({ data: { accountTypeList: [] } } as any)))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          const list = res.data?.accountTypeList ?? [];
+          const list: Array<{ id: number; description: string; active: boolean }> =
+            (res.data?.accountTypeList ?? []) as any;
           this.accountTypeOptions.set(
-            list.map((t) => ({ id: t.id, label: t.active ? t.description : `${t.description} (inactive)` }))
+            list.map((t: { id: number; description: string; active: boolean }) => ({
+              id: t.id,
+              label: t.active ? t.description : `${t.description} (inactive)`,
+            }))
           );
         },
       });
 
     this.accountsApplicationService
       .getAll()
+      .pipe(catchError(() => of({ data: { accountsList: [] } } as any)))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          const list = res.data?.accountsList ?? [];
+          const list: Array<{ accountId: number; accountDisplayName: string; active: boolean }> =
+            (res.data?.accountsList ?? []) as any;
           this.accountOptions.set(
             list
-              .map((a) => ({
+              .map((a: { accountId: number; accountDisplayName: string; active: boolean }) => ({
                 id: a.accountId,
                 label: a.active ? a.accountDisplayName : `${a.accountDisplayName} (inactive)`,
               }))

@@ -9,13 +9,9 @@
 - Searches should have an option to include "General Search" that includes items that have the included text in either description, notes or both.
 
 ## Stack List
-- Containerize services with Docker
-- Create Docker Compose setup (app + database)
 - Make GitHub repository look professional
 - Implement CI/CD pipeline (GitHub Actions)
-- Add backend unit testing (JUnit + Mockito)
 - Add backend integration testing (API + DB)
-- Add frontend linting (ESLint + Prettier)
 - Add backend linting/style enforcement (Checkstyle or Spotless)
 - Add code coverage reporting (JaCoCo)
 - Implement environment-based configuration (profiles/env vars)
