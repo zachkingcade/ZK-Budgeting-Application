@@ -140,9 +140,6 @@ export class LedgerPage implements OnInit {
   }
 
   applyButtonClicked(): void {
-    // #region agent log
-    fetch('http://127.0.0.1:7699/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1c67cb'},body:JSON.stringify({sessionId:'1c67cb',runId:'pre-fix',hypothesisId:'H1',location:'ledger-page.component.ts:applyButtonClicked',message:'Apply/Refresh clicked',data:{isDirtySinceLastApply:this.isDirtySinceLastApply,currentState:this.currentState(),lastAppliedState:this.lastAppliedState()},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     if (this.isDirtySinceLastApply) {
       this.applyFilters({ nextState: this.currentState(), markApplied: true });
       return;
@@ -162,9 +159,6 @@ export class LedgerPage implements OnInit {
 
   private applyFilters(opts: { nextState: ILedgerFilterSortState; markApplied: boolean }): void {
     const request: GETAllJournalEntrysRequest = this.buildGetAllRequest(opts.nextState);
-    // #region agent log
-    fetch('http://127.0.0.1:7699/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1c67cb'},body:JSON.stringify({sessionId:'1c67cb',runId:'pre-fix',hypothesisId:'H2',location:'ledger-page.component.ts:applyFilters',message:'Applying filters -> getAll(request)',data:{markApplied:opts.markApplied,nextState:opts.nextState,request},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     if (opts.markApplied) {
       this.lastAppliedState.set(cloneFilterSortState(opts.nextState));
     }
@@ -176,13 +170,6 @@ export class LedgerPage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          const journalEntryList: JournalEntryDTOEnrichedResponse[] = res.data?.journalEntryList ?? [];
-          const entryDates: string[] = journalEntryList.map((e) => e.entryDate).filter((d) => !!d);
-          const minDate: string | null = entryDates.length > 0 ? entryDates.reduce((a, b) => (a < b ? a : b)) : null;
-          const maxDate: string | null = entryDates.length > 0 ? entryDates.reduce((a, b) => (a > b ? a : b)) : null;
-          // #region agent log
-          fetch('http://127.0.0.1:7699/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1c67cb'},body:JSON.stringify({sessionId:'1c67cb',runId:'pre-fix',hypothesisId:'H5',location:'ledger-page.component.ts:applyFilters:next',message:'getAll response received',data:{request,returnedCount:journalEntryList.length,minEntryDate:minDate,maxEntryDate:maxDate,sampleIds:journalEntryList.slice(0,5).map((e)=>e.id)},timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
           this.entries.set(res.data?.journalEntryList ?? []);
           this.loading.set(false);
         },

@@ -27,8 +27,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/app
       SPRING_DATASOURCE_USERNAME: auth_owner
       SPRING_DATASOURCE_PASSWORD: auth_owner
-      LEDGER_SERVICE_BASE_URL: http://ledger-service:8081
-      REPORTING_SERVICE_BASE_URL: http://reporting-service:8083
     ports:
       - "8082:8082"
 

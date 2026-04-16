@@ -50,26 +50,16 @@ export class LoginPageComponent {
       return;
     }
 
-    // #region agent log
-    fetch('http://127.0.0.1:7725/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4000cb'},body:JSON.stringify({sessionId:'4000cb',runId:'pre-fix',hypothesisId:'H4',location:'login-page.component.ts:64',message:'Login submit',data:{usernameLength:username.trim().length},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-
     this.submitting.set(true);
     this.authManager
       .login(username.trim(), password)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          // #region agent log
-          fetch('http://127.0.0.1:7725/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4000cb'},body:JSON.stringify({sessionId:'4000cb',runId:'pre-fix',hypothesisId:'H4',location:'login-page.component.ts:76',message:'Login success',data:{},timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
           this.submitting.set(false);
           void this.router.navigateByUrl('/ledger');
         },
         error: () => {
-          // #region agent log
-          fetch('http://127.0.0.1:7725/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4000cb'},body:JSON.stringify({sessionId:'4000cb',runId:'pre-fix',hypothesisId:'H4',location:'login-page.component.ts:83',message:'Login error',data:{},timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
           this.submitting.set(false);
           this.errorMessage.set('Login failed. Please check your credentials and try again.');
         },

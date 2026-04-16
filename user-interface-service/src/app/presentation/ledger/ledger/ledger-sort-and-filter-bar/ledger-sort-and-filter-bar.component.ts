@@ -105,16 +105,10 @@ export class LedgerSortAndFilterBar {
   }
 
   onClear(): void {
-    // #region agent log
-    fetch('http://127.0.0.1:7699/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1c67cb'},body:JSON.stringify({sessionId:'1c67cb',runId:'pre-fix',hypothesisId:'H3',location:'ledger-sort-and-filter-bar.component.ts:onClear',message:'Clear clicked',data:{state:this.state,showRefresh:this.showRefresh},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     this.clearClicked.emit();
   }
 
   onApplyOrRefresh(): void {
-    // #region agent log
-    fetch('http://127.0.0.1:7699/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1c67cb'},body:JSON.stringify({sessionId:'1c67cb',runId:'pre-fix',hypothesisId:'H3',location:'ledger-sort-and-filter-bar.component.ts:onApplyOrRefresh',message:'Apply/Refresh button clicked in bar',data:{state:this.state,showRefresh:this.showRefresh,label:this.showRefresh?'Refresh':'Apply'},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     this.applyOrRefreshClicked.emit();
   }
 }

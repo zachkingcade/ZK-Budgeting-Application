@@ -1,18 +1,13 @@
 ## Roadmap to Interview Minimal Viable Product (IMVP) to show
 
-## Features List
-- Add form validation + user-friendly error messaging
-- Add loading, empty, and error states
-
-## Active Minor Fixes and Domain Rules to enforce later on
-- Account should be at a balance of 0 before being allowed to close.
-- Searches should have an option to include "General Search" that includes items that have the included text in either description, notes or both.
+## Final small fixes
+- If no accounts can't open add modal.
+- Before closing modal clear inputs. (All Modals)
+- Show Current Total Debit and Credit
+- Show positive/negative account affects on create MJE screen
 
 ## Stack List
 - Make GitHub repository look professional
-- Implement CI/CD pipeline (GitHub Actions)
-- Add backend integration testing (API + DB)
-- Add backend linting/style enforcement (Checkstyle or Spotless)
 - Add code coverage reporting (JaCoCo)
 - Implement environment-based configuration (profiles/env vars)
 - Add API documentation (README + examples)

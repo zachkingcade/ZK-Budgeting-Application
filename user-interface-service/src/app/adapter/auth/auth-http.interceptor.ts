@@ -54,15 +54,8 @@ export const authHttpInterceptor: HttpInterceptorFn = (
     return next(initialRequest);
   }
 
-  // #region agent log
-  fetch('http://127.0.0.1:7725/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4000cb'},body:JSON.stringify({sessionId:'4000cb',runId:'pre-fix',hypothesisId:'H4',location:'auth-http.interceptor.ts:60',message:'Intercept request',data:{url:initialRequest.url,method:initialRequest.method,retry:getRetryCount(initialRequest)},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
-
   return authManager.getValidAccessToken().pipe(
     catchError((error) => {
-      // #region agent log
-      fetch('http://127.0.0.1:7725/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4000cb'},body:JSON.stringify({sessionId:'4000cb',runId:'pre-fix',hypothesisId:'H4',location:'auth-http.interceptor.ts:71',message:'Preflight token failed; redirect to login',data:{url:initialRequest.url},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       redirectToLoginAndClearAuthState(authManager, router);
       return throwError(() => error);
     }),
@@ -79,23 +72,13 @@ export const authHttpInterceptor: HttpInterceptorFn = (
       const currentRetryCount: number = getRetryCount(initialRequest);
       const nextRetryCount: number = currentRetryCount + 1;
       if (nextRetryCount > 3) {
-        // #region agent log
-        fetch('http://127.0.0.1:7725/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4000cb'},body:JSON.stringify({sessionId:'4000cb',runId:'pre-fix',hypothesisId:'H4',location:'auth-http.interceptor.ts:95',message:'401 after max retries; redirect to login',data:{url:initialRequest.url,retry:nextRetryCount},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
         redirectToLoginAndClearAuthState(authManager, router);
         return throwError(() => error);
       }
 
-      // #region agent log
-      fetch('http://127.0.0.1:7725/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4000cb'},body:JSON.stringify({sessionId:'4000cb',runId:'pre-fix',hypothesisId:'H4',location:'auth-http.interceptor.ts:104',message:'401 received; attempting refresh',data:{url:initialRequest.url,retry:nextRetryCount},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
-
       return authManager.refreshAccessToken().pipe(
         switchMap((refreshedToken) => {
           if (refreshedToken == null) {
-            // #region agent log
-            fetch('http://127.0.0.1:7725/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4000cb'},body:JSON.stringify({sessionId:'4000cb',runId:'pre-fix',hypothesisId:'H4',location:'auth-http.interceptor.ts:112',message:'Refresh returned null; redirect to login',data:{url:initialRequest.url,retry:nextRetryCount},timestamp:Date.now()})}).catch(()=>{});
-            // #endregion
             redirectToLoginAndClearAuthState(authManager, router);
             return throwError(() => error);
           }
@@ -107,9 +90,6 @@ export const authHttpInterceptor: HttpInterceptorFn = (
           return next(retried);
         }),
         catchError(() => {
-          // #region agent log
-          fetch('http://127.0.0.1:7725/ingest/2fb30966-6fce-4ce3-9190-7064cc5feee2',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4000cb'},body:JSON.stringify({sessionId:'4000cb',runId:'pre-fix',hypothesisId:'H4',location:'auth-http.interceptor.ts:125',message:'Refresh threw; redirect to login',data:{url:initialRequest.url,retry:nextRetryCount},timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
           redirectToLoginAndClearAuthState(authManager, router);
           return throwError(() => error);
         }),
