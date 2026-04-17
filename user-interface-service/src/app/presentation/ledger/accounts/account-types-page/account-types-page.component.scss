@@ -11,10 +11,19 @@
 .accountTypesActionsRow {
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
+  gap: 0.75rem;
   padding-right: 0.25rem;
+}
+
+.accountTypesActionsRow__left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .addButton {

@@ -19,8 +19,10 @@
         <p class="modalMessage">{{ message }}</p>
       </div>
 
-      <div class="modalFooter">
-        <button mat-button type="button" (click)="onCancel()" [disabled]="confirmDisabled">{{ cancelLabel }}</button>
+      <div class="modalFooter" [class.modalFooter--single]="!showCancelButton">
+        @if (showCancelButton) {
+          <button mat-button type="button" (click)="onCancel()" [disabled]="confirmDisabled">{{ cancelLabel }}</button>
+        }
         <button mat-raised-button type="button" class="confirmButton" (click)="onConfirm()" [disabled]="confirmDisabled">
           {{ confirmLabel }}
         </button>

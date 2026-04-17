@@ -126,7 +126,12 @@
         </table>
 
         @if (!loading() && entries().length === 0) {
-          <p class="ledger-table__empty">No journal entries yet.</p>
+          <div class="ledger-table__empty" role="status">
+            <p class="ledger-table__empty-title">No journal entries yet</p>
+            <p class="ledger-table__empty-hint">
+              Use the <strong>Add</strong> button above to create your first journal entry.
+            </p>
+          </div>
         }
       </div>
     </div>

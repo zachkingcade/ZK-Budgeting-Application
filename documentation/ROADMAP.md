@@ -1,11 +1,5 @@
 ## Roadmap to Interview Minimal Viable Product (IMVP) to show
 
-## Final small fixes
-- If no accounts can't open add modal.
-- Before closing modal clear inputs. (All Modals)
-- Show Current Total Debit and Credit
-- Show positive/negative account affects on create MJE screen
-
 ## Stack List
 - Make GitHub repository look professional
 - Add code coverage reporting (JaCoCo)

@@ -8,6 +8,8 @@ public record GetAccountByIdResponse(
         String accountDisplayName,
         Long accountBalance,
         boolean active,
-        String notes
+        String notes,
+        String creditEffect,
+        String debitEffect
 ) {
 }

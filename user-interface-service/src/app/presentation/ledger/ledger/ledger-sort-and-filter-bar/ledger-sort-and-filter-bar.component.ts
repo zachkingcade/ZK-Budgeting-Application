@@ -35,11 +35,7 @@ export class LedgerSortAndFilterBar {
     selectedAccountIds: [],
   };
 
-  @Input() showRefresh: boolean = false;
-
   @Output() stateChanged: EventEmitter<ILedgerFilterSortState> = new EventEmitter<ILedgerFilterSortState>();
-  @Output() clearClicked: EventEmitter<void> = new EventEmitter<void>();
-  @Output() applyOrRefreshClicked: EventEmitter<void> = new EventEmitter<void>();
 
   readonly dateOptions: LedgerOption<LedgerDateRangeOption>[] = [
     { id: 'Last 30 days', label: 'Last 30 days' },
@@ -104,11 +100,4 @@ export class LedgerSortAndFilterBar {
     this.stateChanged.emit(nextState);
   }
 
-  onClear(): void {
-    this.clearClicked.emit();
-  }
-
-  onApplyOrRefresh(): void {
-    this.applyOrRefreshClicked.emit();
-  }
 }

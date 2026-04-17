@@ -7,6 +7,8 @@ export interface IAccountEnrichedObject {
   accountBalance: number;
   active: boolean;
   notes: string;
+  creditEffect: string;
+  debitEffect: string;
 }
 
 

@@ -12,6 +12,7 @@ export interface IAccountTypesFilterState {
   selectedSortBy: AccountTypesSortByOption;
   showInactive: boolean;
   hideActiveOnly: boolean;
+  hideSystemAccounts: boolean;
 }
 
 export const DEFAULT_ACCOUNT_TYPES_FILTER_STATE: IAccountTypesFilterState = {
@@ -20,6 +21,7 @@ export const DEFAULT_ACCOUNT_TYPES_FILTER_STATE: IAccountTypesFilterState = {
   selectedSortBy: 'Description (Asc.)',
   showInactive: false,
   hideActiveOnly: false,
+  hideSystemAccounts: false,
 };
 
 export function cloneAccountTypesFilterState(state: IAccountTypesFilterState): IAccountTypesFilterState {
@@ -29,6 +31,7 @@ export function cloneAccountTypesFilterState(state: IAccountTypesFilterState): I
     selectedSortBy: state.selectedSortBy,
     showInactive: state.showInactive,
     hideActiveOnly: state.hideActiveOnly,
+    hideSystemAccounts: state.hideSystemAccounts,
   };
 }
 

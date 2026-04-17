@@ -67,6 +67,15 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns" class="account-types-table__row"></tr>
         </table>
+
+        @if (!loading() && accountTypes().length === 0) {
+          <div class="account-types-table__empty" role="status">
+            <p class="account-types-table__empty-title">No account types yet</p>
+            <p class="account-types-table__empty-hint">
+              Use the <strong>Add</strong> button above to create your first account type.
+            </p>
+          </div>
+        }
       </div>
     </div>
   }

@@ -1,3 +1,42 @@
+.modalLoading {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+.barrierMessage {
+  margin: 0;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.linesTotals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.linesTotals__item {
+  font-variant-numeric: tabular-nums;
+}
+
+.lineEffect {
+  display: inline-block;
+  padding-top: 0.5rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.affect-positive {
+  color: #2e7d32;
+}
+
+.affect-negative {
+  color: #c62828;
+}
+
 .modalBackdrop {
   position: fixed;
   inset: 0;

@@ -39,11 +39,7 @@ export class AccountTypesSortAndFilterBarComponent implements OnInit {
 
   @Input() state: IAccountTypesFilterState = { ...DEFAULT_ACCOUNT_TYPES_FILTER_STATE };
 
-  @Input() showRefresh: boolean = false;
-
   @Output() stateChanged = new EventEmitter<IAccountTypesFilterState>();
-  @Output() clearClicked = new EventEmitter<void>();
-  @Output() applyOrRefreshClicked = new EventEmitter<void>();
 
   readonly classificationOptions = signal<{ id: number; label: string }[]>([]);
 
@@ -73,6 +69,7 @@ export class AccountTypesSortAndFilterBarComponent implements OnInit {
       selectedSortBy: this.state.selectedSortBy,
       showInactive: this.state.showInactive,
       hideActiveOnly: this.state.hideActiveOnly,
+      hideSystemAccounts: this.state.hideSystemAccounts,
     });
   }
 
@@ -99,11 +96,16 @@ export class AccountTypesSortAndFilterBarComponent implements OnInit {
     this.emitState();
   }
 
-  onClear(): void {
-    this.clearClicked.emit();
-  }
-
-  onApplyOrRefresh(): void {
-    this.applyOrRefreshClicked.emit();
+  onHideSystemAccountsChange(checked: boolean): void {
+    // Do not mutate this.state here: it is the same object as the parent's currentState and
+    // mutating before emit makes the parent's hideToggled check see no change (prev already updated).
+    this.stateChanged.emit({
+      searchTerm: this.state.searchTerm,
+      selectedClassificationIds: [...this.state.selectedClassificationIds],
+      selectedSortBy: this.state.selectedSortBy,
+      showInactive: this.state.showInactive,
+      hideActiveOnly: this.state.hideActiveOnly,
+      hideSystemAccounts: checked,
+    });
   }
 }

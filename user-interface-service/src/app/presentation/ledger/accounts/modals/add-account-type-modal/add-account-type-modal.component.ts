@@ -77,6 +77,7 @@ export class AddAccountTypeModalComponent implements OnChanges {
   onCancel(): void {
     if (this.submitting()) return;
     this.errorMessage.set(null);
+    this.resetForm();
     this.cancelled.emit();
   }
 
@@ -111,9 +112,7 @@ export class AddAccountTypeModalComponent implements OnChanges {
           this.created.emit(res);
           this.resetForm();
         },
-        error: (err: unknown) => {
-          // eslint-disable-next-line no-console
-          console.error(err);
+        error: () => {
           this.submitting.set(false);
           this.errorMessage.set('Could not create account type.');
         },

@@ -40,11 +40,7 @@ export class AccountsSortAndFilterBarComponent implements OnInit {
 
   @Input() state: IAccountsFilterState = { ...DEFAULT_ACCOUNTS_FILTER_STATE };
 
-  @Input() showRefresh: boolean = false;
-
   @Output() stateChanged = new EventEmitter<IAccountsFilterState>();
-  @Output() clearClicked = new EventEmitter<void>();
-  @Output() applyOrRefreshClicked = new EventEmitter<void>();
 
   readonly accountTypeOptions = signal<{ id: number; label: string }[]>([]);
 
@@ -107,11 +103,4 @@ export class AccountsSortAndFilterBarComponent implements OnInit {
     this.emitState();
   }
 
-  onClear(): void {
-    this.clearClicked.emit();
-  }
-
-  onApplyOrRefresh(): void {
-    this.applyOrRefreshClicked.emit();
-  }
 }

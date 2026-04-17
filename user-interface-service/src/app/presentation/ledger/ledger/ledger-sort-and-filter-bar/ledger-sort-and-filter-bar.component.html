@@ -2,7 +2,7 @@
     <mat-form-field appearance="outline" id="searchBar">
         <mat-icon matPrefix>search</mat-icon>
 
-        <input matInput placeholder="Search..." [(ngModel)]="state.searchTerm" (ngModelChange)="onStateChanged()" />
+        <input matInput placeholder="Search notes or description..." [(ngModel)]="state.searchTerm" (ngModelChange)="onStateChanged()" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="selectInputs">
@@ -42,7 +42,4 @@
             [multiple]="false" [searchable]="false" [clearable]="false" placeholder="Select account types">
         </mtx-select>
     </mat-form-field>
-
-    <button class="actionButton redButton" type="button" (click)="onClear()">Clear</button>
-    <button class="actionButton blueButton" type="button" (click)="onApplyOrRefresh()">{{ showRefresh ? 'Refresh' : 'Apply' }}</button>
 </div>

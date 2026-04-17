@@ -1,5 +1,7 @@
 import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PageCage } from '../../../page-cage/page-cage.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -53,22 +55,37 @@ export class AccountsPageComponent implements OnInit {
   readonly addModalOpen = signal(false);
   readonly editModalOpen = signal(false);
   readonly toggleActiveConfirmOpen = signal(false);
+  /** Set when user tries to disable an active account whose balance is not zero. */
+  readonly accountBlockedByBalance = signal<AccountEnrichedObject | null>(null);
 
   readonly modalError = signal<string | null>(null);
   readonly accountBeingEdited = signal<AccountEnrichedObject | null>(null);
   readonly accountPendingToggle = signal<AccountEnrichedObject | null>(null);
   readonly togglingAccountId = signal<number | null>(null);
 
+  private readonly pendingFilterApply$ = new Subject<IAccountsFilterState>();
+
   ngOnInit(): void {
+    this.pendingFilterApply$
+      .pipe(
+        debounceTime(1000),
+        distinctUntilChanged((a, b) => this.statesEqual(a, b)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((state) => {
+        if (!this.statesEqual(state, this.currentState())) {
+          return;
+        }
+        this.applyFilters({ nextState: state, markApplied: true });
+      });
+
     this.applyFilters({ nextState: this.currentState(), markApplied: true });
   }
 
   onStateChanged(nextState: IAccountsFilterState): void {
-    this.currentState.set(cloneAccountsFilterState(nextState));
-  }
-
-  get isDirtySinceLastApply(): boolean {
-    return !this.statesEqual(this.currentState(), this.lastAppliedState());
+    const cloned = cloneAccountsFilterState(nextState);
+    this.currentState.set(cloned);
+    this.pendingFilterApply$.next(cloned);
   }
 
   openAddModal(): void {
@@ -93,8 +110,34 @@ export class AccountsPageComponent implements OnInit {
 
   openToggleActiveConfirm(account: AccountEnrichedObject): void {
     this.modalError.set(null);
+    if (account.active && account.accountBalance !== 0) {
+      this.accountBlockedByBalance.set(account);
+      return;
+    }
     this.accountPendingToggle.set(account);
     this.toggleActiveConfirmOpen.set(true);
+  }
+
+  closeAccountBalanceBlockModal(): void {
+    this.accountBlockedByBalance.set(null);
+  }
+
+  accountBalanceBlockMessage(): string {
+    const acc = this.accountBlockedByBalance();
+    if (!acc) {
+      return '';
+    }
+    const current = this.formatMoneyMinor(acc.accountBalance);
+    const zero = this.formatMoneyMinor(0);
+    return (
+      `The account balance must be ${zero} to disable an account. ` +
+      `Current balance for "${acc.description}": ${current}.`
+    );
+  }
+
+  private formatMoneyMinor(minorUnits: number): string {
+    const major = minorUnits / 100;
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(major);
   }
 
   closeToggleActiveConfirm(): void {
@@ -124,14 +167,6 @@ export class AccountsPageComponent implements OnInit {
     const acc = this.accountPendingToggle();
     if (!acc) return 'Confirm';
     return acc.active ? 'Disable' : 'Enable';
-  }
-
-  applyButtonClicked(): void {
-    if (this.isDirtySinceLastApply) {
-      this.applyFilters({ nextState: this.currentState(), markApplied: true });
-      return;
-    }
-    this.refresh();
   }
 
   clearClicked(): void {
@@ -181,9 +216,7 @@ export class AccountsPageComponent implements OnInit {
           this.closeToggleActiveConfirm();
           this.refresh();
         },
-        error: (err: unknown) => {
-          // eslint-disable-next-line no-console
-          console.error(err);
+        error: () => {
           this.togglingAccountId.set(null);
           this.modalError.set('Could not update account status.');
         },
@@ -219,7 +252,7 @@ export class AccountsPageComponent implements OnInit {
     const filters: AccountFilterObject = {};
     const trimmedSearch = (state.searchTerm ?? '').trim();
     if (trimmedSearch.length > 0) {
-      filters.descriptionContains = trimmedSearch;
+      filters.searchContains = trimmedSearch;
     }
     if (state.selectedAccountTypeIds.length > 0) {
       filters.accountTypes = state.selectedAccountTypeIds;

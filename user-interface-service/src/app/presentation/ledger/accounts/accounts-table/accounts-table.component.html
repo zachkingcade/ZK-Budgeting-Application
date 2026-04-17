@@ -68,6 +68,15 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns" class="accounts-table__row"></tr>
         </table>
+
+        @if (!loading() && accounts().length === 0) {
+          <div class="accounts-table__empty" role="status">
+            <p class="accounts-table__empty-title">No accounts yet</p>
+            <p class="accounts-table__empty-hint">
+              Use the <strong>Add</strong> button above to create your first account.
+            </p>
+          </div>
+        }
       </div>
     </div>
   }

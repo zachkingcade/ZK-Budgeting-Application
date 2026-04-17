@@ -3,7 +3,7 @@
     <mat-icon matPrefix>search</mat-icon>
     <input
       matInput
-      placeholder="Search by description..."
+      placeholder="Search notes or description..."
       [(ngModel)]="state.searchTerm"
       (ngModelChange)="onSearchChange()"
     />
@@ -43,6 +43,12 @@
   </mat-form-field>
 
   <div class="toggleGroup">
+    <mat-slide-toggle
+      [ngModel]="state.hideSystemAccounts"
+      (ngModelChange)="onHideSystemAccountsChange($event)"
+    >
+      Hide system account types
+    </mat-slide-toggle>
     <mat-slide-toggle [(ngModel)]="state.showInactive" (ngModelChange)="onShowInactiveChange()">
       Show inactive
     </mat-slide-toggle>
@@ -53,9 +59,4 @@
       Hide active (inactive only)
     </mat-slide-toggle>
   </div>
-
-  <button class="actionButton redButton" type="button" (click)="onClear()">Clear</button>
-  <button class="actionButton blueButton" type="button" (click)="onApplyOrRefresh()">
-    {{ showRefresh ? 'Refresh' : 'Apply' }}
-  </button>
 </div>

@@ -8,6 +8,7 @@ public record AccountFilterCommandObject(
         Optional<String> notesContains,
         Optional<List<Long>> accountTypes,
         Optional<Boolean> hideInactive,
-        Optional<Boolean> hideActive
+        Optional<Boolean> hideActive,
+        Optional<String> searchContains
 ) {
 }

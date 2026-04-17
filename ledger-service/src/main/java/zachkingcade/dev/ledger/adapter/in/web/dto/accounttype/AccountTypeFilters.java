@@ -8,6 +8,8 @@ public record AccountTypeFilters(
         Optional<String> notesContains,
         Optional<List<Long>> accountClass,
         Optional<Boolean> hideInactive,
-        Optional<Boolean> hideActive
+        Optional<Boolean> hideActive,
+        Optional<String> searchContains,
+        Optional<Boolean> hideSystemAccounts
 ) {
 }

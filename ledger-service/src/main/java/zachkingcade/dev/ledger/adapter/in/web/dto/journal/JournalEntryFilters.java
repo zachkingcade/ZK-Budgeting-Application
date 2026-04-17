@@ -10,6 +10,7 @@ public record JournalEntryFilters(
         Optional<String> descriptionContains,
         Optional<String> notesContains,
         Optional<List<Long>> accountTypes,
-        Optional<List<Long>> accounts
+        Optional<List<Long>> accounts,
+        Optional<String> searchContains
 ) {
 }

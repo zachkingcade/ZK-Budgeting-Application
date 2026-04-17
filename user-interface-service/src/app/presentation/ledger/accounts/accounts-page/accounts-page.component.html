@@ -1,14 +1,18 @@
 <app-page-cage [pageName]="'Accounts'" [subText]="'Manage ledger accounts'">
   <div class="cageContents">
-    <app-accounts-sort-and-filter-bar
-      [state]="currentState()"
-      [showRefresh]="!isDirtySinceLastApply"
-      (stateChanged)="onStateChanged($event)"
-      (clearClicked)="clearClicked()"
-      (applyOrRefreshClicked)="applyButtonClicked()"
-    />
+    <app-accounts-sort-and-filter-bar [state]="currentState()" (stateChanged)="onStateChanged($event)" />
 
     <div class="accountsActionsRow">
+      <div class="accountsActionsRow__left">
+        <button mat-stroked-button type="button" (click)="clearClicked()">
+          <mat-icon>clear_all</mat-icon>
+          Clear
+        </button>
+        <button mat-stroked-button type="button" (click)="refresh()">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
       <button mat-raised-button type="button" class="addButton" (click)="openAddModal()" aria-label="Add account">
         <mat-icon>add</mat-icon>
         Add
@@ -26,6 +30,16 @@
     />
   </div>
 </app-page-cage>
+
+<app-confirmation-modal
+  [open]="accountBlockedByBalance() !== null"
+  [header]="'Cannot disable account'"
+  [message]="accountBalanceBlockMessage()"
+  [showCancelButton]="false"
+  [confirmLabel]="'OK'"
+  (cancelled)="closeAccountBalanceBlockModal()"
+  (confirmed)="closeAccountBalanceBlockModal()"
+/>
 
 <app-confirmation-modal
   [open]="toggleActiveConfirmOpen()"

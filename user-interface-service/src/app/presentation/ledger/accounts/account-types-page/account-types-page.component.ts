@@ -1,6 +1,7 @@
 import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, of } from 'rxjs';
+import { catchError, of, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { PageCage } from '../../../page-cage/page-cage.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -67,14 +68,63 @@ export class AccountTypesPageComponent implements OnInit {
   readonly typePendingToggle = signal<AccountTypeRowView | null>(null);
   readonly togglingTypeId = signal<number | null>(null);
 
+  private readonly pendingFilterApply$ = new Subject<IAccountTypesFilterState>();
+  private readonly loadAccountTypes$ = new Subject<{
+    nextState: IAccountTypesFilterState;
+    markApplied: boolean;
+  }>();
+
   ngOnInit(): void {
+    this.loadAccountTypes$
+      .pipe(
+        switchMap(({ nextState, markApplied }) => {
+          if (markApplied) {
+            this.lastAppliedState.set(cloneAccountTypesFilterState(nextState));
+          }
+          this.loading.set(true);
+          this.loadError.set(null);
+          return this.accountTypesApplicationService.getAll(this.buildGetAllRequest(nextState)).pipe(
+            catchError(() => {
+              this.loadError.set('Could not load account types.');
+              return of({ data: { accountTypeList: [] } } as any);
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((res) => {
+        const list: AccountTypeObject[] = res.data?.accountTypeList ?? [];
+        const labelMap = this.classificationLabelById();
+        const rows: AccountTypeRowView[] = list.map((t) => ({
+          ...t,
+          classificationLabel: labelMap.get(t.classificationId) ?? '—',
+        }));
+        this.accountTypes.set(rows);
+        this.loading.set(false);
+      });
+
+    this.pendingFilterApply$
+      .pipe(
+        debounceTime(1000),
+        distinctUntilChanged((a, b) => this.statesEqual(a, b)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((state) => {
+        const cur = this.currentState();
+        const equalToCur = this.statesEqual(state, cur);
+        if (!equalToCur) {
+          return;
+        }
+        this.applyFilters({ nextState: state, markApplied: true });
+      });
+
     this.accountClassificationsApplicationService
       .getAll()
       .pipe(
         catchError(() =>
           of({
             data: { accountClassificationList: [] },
-          } as any)
+          } as any),
         ),
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -92,11 +142,15 @@ export class AccountTypesPageComponent implements OnInit {
   }
 
   onStateChanged(nextState: IAccountTypesFilterState): void {
-    this.currentState.set(cloneAccountTypesFilterState(nextState));
-  }
-
-  get isDirtySinceLastApply(): boolean {
-    return !this.statesEqual(this.currentState(), this.lastAppliedState());
+    const prev = this.currentState();
+    const cloned = cloneAccountTypesFilterState(nextState);
+    const hideToggled = prev.hideSystemAccounts !== cloned.hideSystemAccounts;
+    this.currentState.set(cloned);
+    if (hideToggled) {
+      this.applyFilters({ nextState: cloned, markApplied: true });
+    } else {
+      this.pendingFilterApply$.next(cloned);
+    }
   }
 
   openAddModal(): void {
@@ -155,14 +209,6 @@ export class AccountTypesPageComponent implements OnInit {
     return t.active ? 'Disable' : 'Enable';
   }
 
-  applyButtonClicked(): void {
-    if (this.isDirtySinceLastApply) {
-      this.applyFilters({ nextState: this.currentState(), markApplied: true });
-      return;
-    }
-    this.refresh();
-  }
-
   clearClicked(): void {
     const defaultState = cloneAccountTypesFilterState(DEFAULT_ACCOUNT_TYPES_FILTER_STATE);
     this.currentState.set(defaultState);
@@ -170,7 +216,10 @@ export class AccountTypesPageComponent implements OnInit {
   }
 
   refresh(): void {
-    this.applyFilters({ nextState: this.lastAppliedState(), markApplied: false });
+    this.applyFilters({
+      nextState: cloneAccountTypesFilterState(this.currentState()),
+      markApplied: false,
+    });
   }
 
   onAddCancelled(): void {
@@ -210,9 +259,7 @@ export class AccountTypesPageComponent implements OnInit {
           this.closeToggleActiveConfirm();
           this.refresh();
         },
-        error: (err: unknown) => {
-          // eslint-disable-next-line no-console
-          console.error(err);
+        error: () => {
           this.togglingTypeId.set(null);
           this.modalError.set('Could not update account type status.');
         },
@@ -220,47 +267,21 @@ export class AccountTypesPageComponent implements OnInit {
   }
 
   private applyFilters(opts: { nextState: IAccountTypesFilterState; markApplied: boolean }): void {
-    if (opts.markApplied) {
-      this.lastAppliedState.set(cloneAccountTypesFilterState(opts.nextState));
-    }
-
-    const request = this.buildGetAllRequest(opts.nextState);
-
-    this.loading.set(true);
-    this.loadError.set(null);
-
-    this.accountTypesApplicationService
-      .getAll(request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          const list: AccountTypeObject[] = res.data?.accountTypeList ?? [];
-          const labelMap = this.classificationLabelById();
-          const rows: AccountTypeRowView[] = list.map((t) => ({
-            ...t,
-            classificationLabel: labelMap.get(t.classificationId) ?? '—',
-          }));
-          this.accountTypes.set(rows);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loadError.set('Could not load account types.');
-          this.loading.set(false);
-        },
-      });
+    this.loadAccountTypes$.next(opts);
   }
 
   private buildGetAllRequest(state: IAccountTypesFilterState): GETAllAccountTypesRequest {
     const filters: AccountTypeFilters = {};
     const trimmedSearch = (state.searchTerm ?? '').trim();
     if (trimmedSearch.length > 0) {
-      filters.descriptionContains = trimmedSearch;
+      filters.searchContains = trimmedSearch;
     }
     if (state.selectedClassificationIds.length > 0) {
       filters.accountClass = state.selectedClassificationIds;
     }
     filters.hideInactive = !state.showInactive;
     filters.hideActive = state.hideActiveOnly;
+    filters.hideSystemAccounts = state.hideSystemAccounts;
 
     const sort = this.buildSortObject(state.selectedSortBy);
 
@@ -284,6 +305,7 @@ export class AccountTypesPageComponent implements OnInit {
       a.selectedSortBy === b.selectedSortBy &&
       a.showInactive === b.showInactive &&
       a.hideActiveOnly === b.hideActiveOnly &&
+      a.hideSystemAccounts === b.hideSystemAccounts &&
       this.arraysEqual(a.selectedClassificationIds, b.selectedClassificationIds)
     );
   }

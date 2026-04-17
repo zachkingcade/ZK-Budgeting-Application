@@ -37,6 +37,28 @@ public class AccountTypeSpecifications {
                 desiredText == null? null : cb.like(root.get("notes"), "%" + desiredText + "%");
     }
 
+    public static Specification<AccountTypeEntity> searchContainsDescriptionOrNotes(String raw){
+        return (root, query, cb) -> {
+            if (raw == null || raw.isBlank()) {
+                return null;
+            }
+            String pattern = "%" + raw.toLowerCase() + "%";
+            return cb.or(
+                    cb.like(cb.lower(root.get("description")), pattern),
+                    cb.like(cb.lower(root.get("notes")), pattern)
+            );
+        };
+    }
+
+    public static Specification<AccountTypeEntity> hideSystemAccounts(Boolean hide){
+        return(root, query, cb) ->{
+            if(hide != null && hide){
+                return cb.isFalse(root.get("systemAccount"));
+            }
+            return null;
+        };
+    }
+
     public static Specification<AccountTypeEntity> hideInactive(Boolean use){
         return(root, query, cb) ->{
             if(use != null && use){

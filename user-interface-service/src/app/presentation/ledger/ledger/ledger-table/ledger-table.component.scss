@@ -141,6 +141,17 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
+.ledger-table__empty-title {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+}
+
+.ledger-table__empty-hint {
+  margin: 0;
+  line-height: 1.45;
+}
+
 @media (max-width: 900px) {
   .ledger-table__line {
     grid-template-columns: 1fr;

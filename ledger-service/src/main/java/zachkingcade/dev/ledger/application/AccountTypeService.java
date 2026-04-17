@@ -52,12 +52,26 @@ public class AccountTypeService implements CreateAccountTypeUseCase, GetAllAccou
             }
 
             if(command.filters().isPresent()){
-                spec = spec
-                        .and(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
-                        .and(notesContains(command.filters().get().notesContains().orElse(null)))
-                        .and(classIdWithin(command.filters().get().accountClass().orElse(null)))
-                        .and(hideInactive(command.filters().get().hideInactive().orElse(null)))
-                        .and(hideActive(command.filters().get().hideActive().orElse(null)));
+                var f = command.filters().get();
+                boolean useSearch = f.searchContains().isPresent()
+                        && f.searchContains().get() != null
+                        && !f.searchContains().get().isBlank();
+                if (useSearch) {
+                    spec = spec
+                            .and(searchContainsDescriptionOrNotes(f.searchContains().get().trim()))
+                            .and(classIdWithin(f.accountClass().orElse(null)))
+                            .and(hideInactive(f.hideInactive().orElse(null)))
+                            .and(hideActive(f.hideActive().orElse(null)))
+                            .and(hideSystemAccounts(f.hideSystemAccounts().orElse(null)));
+                } else {
+                    spec = spec
+                            .and(descriptionContains(f.descriptionContains().orElse(null)))
+                            .and(notesContains(f.notesContains().orElse(null)))
+                            .and(classIdWithin(f.accountClass().orElse(null)))
+                            .and(hideInactive(f.hideInactive().orElse(null)))
+                            .and(hideActive(f.hideActive().orElse(null)))
+                            .and(hideSystemAccounts(f.hideSystemAccounts().orElse(null)));
+                }
             }
 
             if(sort != null){

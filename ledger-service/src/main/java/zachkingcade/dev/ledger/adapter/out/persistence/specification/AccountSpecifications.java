@@ -30,6 +30,20 @@ public class AccountSpecifications {
                 desiredText == null? null : cb.like(root.get("notes"), "%" + desiredText + "%");
     }
 
+    /** Case-insensitive match on description or notes. */
+    public static Specification<AccountEntity> searchContainsDescriptionOrNotes(String raw){
+        return (root, query, cb) -> {
+            if (raw == null || raw.isBlank()) {
+                return null;
+            }
+            String pattern = "%" + raw.toLowerCase() + "%";
+            return cb.or(
+                    cb.like(cb.lower(root.get("description")), pattern),
+                    cb.like(cb.lower(root.get("notes")), pattern)
+            );
+        };
+    }
+
     public static Specification<AccountEntity> hideInactive(Boolean use){
         return(root, query, cb) ->{
             if(use != null && use){

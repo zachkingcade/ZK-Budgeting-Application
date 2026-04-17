@@ -135,11 +135,12 @@ public class JournalEntryController {
                     request.filters().get().descriptionContains(),
                     request.filters().get().notesContains(),
                     request.filters().get().accountTypes(),
-                    request.filters().get().accounts()
+                    request.filters().get().accounts(),
+                    request.filters().get().searchContains()
             );
         } else {
             //default
-            filters = new JournalEntryFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty(),Optional.empty());
+            filters = new JournalEntryFilterCommandObject(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
         }
 
         GetAllJournalEntriesCommand command = new GetAllJournalEntriesCommand(userId, Optional.of(sort), Optional.of(filters));

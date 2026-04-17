@@ -5,6 +5,7 @@ export interface IJournalEntryFilters {
   notesContains?: string;
   accountTypes?: number[];
   accounts?: number[];
+  searchContains?: string;
 }
 
 

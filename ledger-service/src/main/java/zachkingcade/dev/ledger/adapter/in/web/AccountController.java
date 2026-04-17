@@ -133,11 +133,12 @@ public class AccountController {
                         request.filters().get().notesContains(),
                         request.filters().get().accountTypes(),
                         request.filters().get().hideInactive(),
-                        request.filters().get().hideActive()
+                        request.filters().get().hideActive(),
+                        request.filters().get().searchContains()
                 );
             } else {
                 //default
-                filters = new AccountFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(), Optional.of(false), Optional.of(false));
+                filters = new AccountFilterCommandObject(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(false), Optional.of(false), Optional.empty());
             }
 
             GetAllAccountCommand command = new GetAllAccountCommand(userId, Optional.of(sort), Optional.of(filters));
@@ -160,7 +161,17 @@ public class AccountController {
             Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
             Account foundAccount = getByIdAccountUseCase.getAccountById(new GetByIdAccountCommand(userId, id));
             AccountEnrichedObject enrichedObject = convertDomainObjectToResponseAndEnrich(userId, foundAccount);
-            GetAccountByIdResponse response = new GetAccountByIdResponse(enrichedObject.accountId(), enrichedObject.typeId(), enrichedObject.description(), enrichedObject.accountTypeName(), enrichedObject.accountDisplayName(), enrichedObject.accountBalance(), enrichedObject.active(), enrichedObject.notes());
+            GetAccountByIdResponse response = new GetAccountByIdResponse(
+                    enrichedObject.accountId(),
+                    enrichedObject.typeId(),
+                    enrichedObject.description(),
+                    enrichedObject.accountTypeName(),
+                    enrichedObject.accountDisplayName(),
+                    enrichedObject.accountBalance(),
+                    enrichedObject.active(),
+                    enrichedObject.notes(),
+                    enrichedObject.creditEffect(),
+                    enrichedObject.debitEffect());
             ApiResponse<GetAccountByIdResponse> apiResponse = new ApiResponse<>(String.format("Returned Account of ID:[%s]", id),new MetaData(1L),response);
             log.debug("Ending Rest Controller /accounts endpoint /byid id:[{}]",response.accountId());
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
@@ -225,8 +236,21 @@ public class AccountController {
             String accountTypeName = type.description();
             String accountDisplayName = String.format("%s [%s]", account.description(), type.description());
             Long accountBalance = getBalanceForAccountUseCase.getBalanceForAccount(userId, account.id(), classMap.get(type.classificationId()));
+            AccountClassification classification = classMap.get(type.classificationId());
+            String creditEffect = classification != null ? String.valueOf(classification.creditEffect()) : "+";
+            String debitEffect = classification != null ? String.valueOf(classification.debitEffect()) : "+";
 
-            resultingList.add(new AccountEnrichedObject(account.id(), account.typeId(), account.description(), accountTypeName, accountDisplayName, accountBalance, account.active(), account.notes()));
+            resultingList.add(new AccountEnrichedObject(
+                    account.id(),
+                    account.typeId(),
+                    account.description(),
+                    accountTypeName,
+                    accountDisplayName,
+                    accountBalance,
+                    account.active(),
+                    account.notes(),
+                    creditEffect,
+                    debitEffect));
         }
         return resultingList;
     }
@@ -240,7 +264,17 @@ public class AccountController {
         String accountDisplayName = String.format("%s [%s]", account.description(), type.description());
         Long accountBalance = getBalanceForAccountUseCase.getBalanceForAccount(userId, account.id(), classification);
 
-        return new AccountEnrichedObject(account.id(), account.typeId(), account.description(), accountTypeName, accountDisplayName, accountBalance, account.active(), account.notes());
+        return new AccountEnrichedObject(
+                account.id(),
+                account.typeId(),
+                account.description(),
+                accountTypeName,
+                accountDisplayName,
+                accountBalance,
+                account.active(),
+                account.notes(),
+                String.valueOf(classification.creditEffect()),
+                String.valueOf(classification.debitEffect()));
     }
 
 }

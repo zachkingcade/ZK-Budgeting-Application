@@ -8,6 +8,8 @@ public record AccountEnrichedObject(
         String accountDisplayName,
         Long accountBalance,
         boolean active,
-        String notes
+        String notes,
+        String creditEffect,
+        String debitEffect
 ) {
 }

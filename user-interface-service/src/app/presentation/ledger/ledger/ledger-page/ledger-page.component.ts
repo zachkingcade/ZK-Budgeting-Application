@@ -1,5 +1,7 @@
 import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PageCage } from '../../../page-cage/page-cage.component';
 import { LedgerTable } from '../ledger-table/ledger-table.component';
 import { LedgerSortAndFilterBar } from '../ledger-sort-and-filter-bar/ledger-sort-and-filter-bar.component';
@@ -88,16 +90,29 @@ export class LedgerPage implements OnInit {
   readonly entryBeingEdited = signal<JournalEntryDTOEnrichedResponse | null>(null);
   readonly entryPendingDelete = signal<JournalEntryDTOEnrichedResponse | null>(null);
 
+  private readonly pendingFilterApply$ = new Subject<ILedgerFilterSortState>();
+
   ngOnInit(): void {
+    this.pendingFilterApply$
+      .pipe(
+        debounceTime(1000),
+        distinctUntilChanged((a, b) => this.statesEqual(a, b)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((state) => {
+        if (!this.statesEqual(state, this.currentState())) {
+          return;
+        }
+        this.applyFilters({ nextState: state, markApplied: true });
+      });
+
     this.applyFilters({ nextState: this.currentState(), markApplied: true });
   }
 
   onStateChanged(nextState: ILedgerFilterSortState): void {
-    this.currentState.set(cloneFilterSortState(nextState));
-  }
-
-  get isDirtySinceLastApply(): boolean {
-    return !this.statesEqual(this.currentState(), this.lastAppliedState());
+    const cloned = cloneFilterSortState(nextState);
+    this.currentState.set(cloned);
+    this.pendingFilterApply$.next(cloned);
   }
 
   openAddModal(): void {
@@ -137,14 +152,6 @@ export class LedgerPage implements OnInit {
   closeDeleteConfirm(): void {
     this.deleteConfirmOpen.set(false);
     this.entryPendingDelete.set(null);
-  }
-
-  applyButtonClicked(): void {
-    if (this.isDirtySinceLastApply) {
-      this.applyFilters({ nextState: this.currentState(), markApplied: true });
-      return;
-    }
-    this.refresh();
   }
 
   clearClicked(): void {
@@ -194,26 +201,19 @@ export class LedgerPage implements OnInit {
       .removeById(entry.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => {
-          // requested behavior
-          // eslint-disable-next-line no-console
-          console.log(res);
+        next: () => {
           this.removingEntryId.set(null);
           this.closeDeleteConfirm();
           this.refresh();
         },
-        error: (err: unknown) => {
-          // eslint-disable-next-line no-console
-          console.error(err);
+        error: () => {
           this.removingEntryId.set(null);
           this.modalError.set('Could not remove that journal entry.');
         },
       });
   }
 
-  onAddCreatedSuccessfully(res: unknown): void {
-    // eslint-disable-next-line no-console
-    console.log(res);
+  onAddCreatedSuccessfully(): void {
     this.closeAddModal();
     this.refresh();
   }
@@ -222,9 +222,7 @@ export class LedgerPage implements OnInit {
     this.closeAddModal();
   }
 
-  onEditUpdatedSuccessfully(res: unknown): void {
-    // eslint-disable-next-line no-console
-    console.log(res);
+  onEditUpdatedSuccessfully(): void {
     this.closeEditModal();
     this.refresh();
   }
@@ -237,7 +235,7 @@ export class LedgerPage implements OnInit {
     const filters: JournalEntryFilters = {};
     const trimmedSearch: string = (state.searchTerm ?? '').trim();
     if (trimmedSearch.length > 0) {
-      filters.descriptionContains = trimmedSearch;
+      filters.searchContains = trimmedSearch;
     }
     if (state.selectedAccountTypeIds.length > 0) {
       filters.accountTypes = state.selectedAccountTypeIds;

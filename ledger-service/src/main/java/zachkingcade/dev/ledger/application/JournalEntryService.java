@@ -66,13 +66,26 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
             }
 
             if(command.filters().isPresent()){
-                spec = spec
-                        .and(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
-                        .and(dateAfter(command.filters().get().dateAfter().orElse(null)))
-                        .and(dateBefore(command.filters().get().dateBefore().orElse(null)))
-                        .and(accountIdsWithin(command.filters().get().accounts().orElse(null)))
-                        .and(accountTypeIdsWithin(command.filters().get().accountTypes().orElse(null)))
-                        .and(notesContains(command.filters().get().notesContains().orElse(null)));
+                var f = command.filters().get();
+                boolean useSearch = f.searchContains().isPresent()
+                        && f.searchContains().get() != null
+                        && !f.searchContains().get().isBlank();
+                if (useSearch) {
+                    spec = spec
+                            .and(searchContainsEntryOrLineNotes(f.searchContains().get().trim()))
+                            .and(dateAfter(f.dateAfter().orElse(null)))
+                            .and(dateBefore(f.dateBefore().orElse(null)))
+                            .and(accountIdsWithin(f.accounts().orElse(null)))
+                            .and(accountTypeIdsWithin(f.accountTypes().orElse(null)));
+                } else {
+                    spec = spec
+                            .and(descriptionContains(f.descriptionContains().orElse(null)))
+                            .and(dateAfter(f.dateAfter().orElse(null)))
+                            .and(dateBefore(f.dateBefore().orElse(null)))
+                            .and(accountIdsWithin(f.accounts().orElse(null)))
+                            .and(accountTypeIdsWithin(f.accountTypes().orElse(null)))
+                            .and(notesContains(f.notesContains().orElse(null)));
+                }
             }
 
             if(sort != null){

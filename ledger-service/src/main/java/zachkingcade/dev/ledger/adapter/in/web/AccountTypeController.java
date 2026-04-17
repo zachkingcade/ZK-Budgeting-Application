@@ -100,11 +100,13 @@ public class AccountTypeController {
                         request.filters().get().notesContains(),
                         request.filters().get().accountClass(),
                         request.filters().get().hideInactive(),
-                        request.filters().get().hideActive()
+                        request.filters().get().hideActive(),
+                        request.filters().get().searchContains(),
+                        request.filters().get().hideSystemAccounts()
                 );
             } else {
                 //default
-                filters = new AccountTypeFilterCommandObject(Optional.empty(),Optional.empty(),Optional.empty(), Optional.of(false), Optional.of(false));
+                filters = new AccountTypeFilterCommandObject(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(false), Optional.of(false), Optional.empty(), Optional.empty());
             }
 
             GetAllAccountTypesCommand command = new GetAllAccountTypesCommand(userId, Optional.of(sort), Optional.of(filters));

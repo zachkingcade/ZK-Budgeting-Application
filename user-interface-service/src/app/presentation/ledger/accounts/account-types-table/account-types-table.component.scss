@@ -80,3 +80,21 @@
   font-weight: 600;
   color: #7c3aed;
 }
+
+.account-types-table__empty {
+  margin: 0;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.account-types-table__empty-title {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+}
+
+.account-types-table__empty-hint {
+  margin: 0;
+  line-height: 1.45;
+}

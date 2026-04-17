@@ -7,6 +7,8 @@ export interface IGETAccountByIdResponse {
   accountBalance: number;
   active: boolean;
   notes: string;
+  creditEffect: string;
+  debitEffect: string;
 }
 
 export type GETAccountByIdResponse = IGETAccountByIdResponse;

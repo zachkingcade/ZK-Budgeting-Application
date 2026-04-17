@@ -67,4 +67,21 @@ public class JournalEntrySpecifications {
         return(root, query, cb) ->
                 desiredText == null? null : cb.like(root.get("notes"), "%" + desiredText + "%");
     }
+
+    /** Case-insensitive: entry description, entry notes, or any journal line notes. */
+    public static Specification<JournalEntryEntity> searchContainsEntryOrLineNotes(String raw){
+        return (root, query, cb) -> {
+            if (raw == null || raw.isBlank()) {
+                return null;
+            }
+            String pattern = "%" + raw.toLowerCase() + "%";
+            query.distinct(true);
+            Join<JournalEntryEntity, JournalLineEntity> lines = root.join("journalLines", JoinType.LEFT);
+            return cb.or(
+                    cb.like(cb.lower(root.get("description")), pattern),
+                    cb.like(cb.lower(root.get("notes")), pattern),
+                    cb.like(cb.lower(lines.get("notes")), pattern)
+            );
+        };
+    }
 }

@@ -91,6 +91,8 @@ describe('AccountsPageComponent', () => {
       accountBalance: 0,
       active: true,
       notes: '',
+      creditEffect: '+',
+      debitEffect: '+',
     };
 
     component.openToggleActiveConfirm(acc);

@@ -122,7 +122,9 @@ class AccountControllerWebMvcTest {
                         .with(jwt().jwt(userJwt(1L))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.accountId").value(10))
-                .andExpect(jsonPath("$.data.accountBalance").value(5000));
+                .andExpect(jsonPath("$.data.accountBalance").value(5000))
+                .andExpect(jsonPath("$.data.creditEffect").value("+"))
+                .andExpect(jsonPath("$.data.debitEffect").value("+"));
     }
 
     @Test
@@ -167,7 +169,9 @@ class AccountControllerWebMvcTest {
                         .with(jwt().jwt(serviceJwt)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.accountId").value(10))
-                .andExpect(jsonPath("$.data.accountBalance").value(5000));
+                .andExpect(jsonPath("$.data.accountBalance").value(5000))
+                .andExpect(jsonPath("$.data.creditEffect").value("+"))
+                .andExpect(jsonPath("$.data.debitEffect").value("+"));
     }
 
     @Test

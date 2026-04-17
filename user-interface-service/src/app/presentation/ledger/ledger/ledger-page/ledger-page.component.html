@@ -2,13 +2,20 @@
     <div class="cageContents">
         <app-ledger-sort-and-filter-bar
           [state]="currentState()"
-          [showRefresh]="!isDirtySinceLastApply"
           (stateChanged)="onStateChanged($event)"
-          (clearClicked)="clearClicked()"
-          (applyOrRefreshClicked)="applyButtonClicked()"
         ></app-ledger-sort-and-filter-bar>
 
         <div class="ledgerActionsRow">
+          <div class="ledgerActionsRow__left">
+            <button mat-stroked-button type="button" (click)="clearClicked()">
+              <mat-icon>clear_all</mat-icon>
+              Clear
+            </button>
+            <button mat-stroked-button type="button" (click)="refresh()">
+              <mat-icon>refresh</mat-icon>
+              Refresh
+            </button>
+          </div>
           <button
             mat-raised-button
             type="button"
@@ -47,12 +54,12 @@
 <app-add-journal-entry-modal
   [open]="addModalOpen()"
   (cancelled)="onAddCancelled()"
-  (created)="onAddCreatedSuccessfully($event)"
+  (created)="onAddCreatedSuccessfully()"
 ></app-add-journal-entry-modal>
 
 <app-edit-journal-entry-modal
   [open]="editModalOpen()"
   [entry]="entryBeingEdited()"
   (cancelled)="onEditCancelled()"
-  (updated)="onEditUpdatedSuccessfully($event)"
+  (updated)="onEditUpdatedSuccessfully()"
 ></app-edit-journal-entry-modal>

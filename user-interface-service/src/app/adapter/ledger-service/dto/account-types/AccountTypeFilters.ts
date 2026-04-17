@@ -4,6 +4,8 @@ export interface IAccountTypeFilters {
   accountClass?: number[];
   hideInactive?: boolean;
   hideActive?: boolean;
+  searchContains?: string;
+  hideSystemAccounts?: boolean;
 }
 
 

@@ -1,14 +1,18 @@
 <app-page-cage [pageName]="'Account Types'" [subText]="'Manage ledger account types'">
   <div class="cageContents">
-    <app-account-types-sort-and-filter-bar
-      [state]="currentState()"
-      [showRefresh]="!isDirtySinceLastApply"
-      (stateChanged)="onStateChanged($event)"
-      (clearClicked)="clearClicked()"
-      (applyOrRefreshClicked)="applyButtonClicked()"
-    />
+    <app-account-types-sort-and-filter-bar [state]="currentState()" (stateChanged)="onStateChanged($event)" />
 
     <div class="accountTypesActionsRow">
+      <div class="accountTypesActionsRow__left">
+        <button mat-stroked-button type="button" (click)="clearClicked()">
+          <mat-icon>clear_all</mat-icon>
+          Clear
+        </button>
+        <button mat-stroked-button type="button" (click)="refresh()">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
       <button mat-raised-button type="button" class="addButton" (click)="openAddModal()" aria-label="Add account type">
         <mat-icon>add</mat-icon>
         Add

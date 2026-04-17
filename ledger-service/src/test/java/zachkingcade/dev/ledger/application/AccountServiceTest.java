@@ -3,12 +3,18 @@ package zachkingcade.dev.ledger.application;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountTypeEntity;
 import zachkingcade.dev.ledger.application.commands.account.CreateAccountCommand;
 import zachkingcade.dev.ledger.application.commands.account.UpdateAccountCommand;
 import zachkingcade.dev.ledger.application.exception.ApplicationException;
+import zachkingcade.dev.ledger.application.port.in.journal.GetBalanceForAccountUseCase;
 import zachkingcade.dev.ledger.application.port.out.account.AccountRepositoryPort;
+import zachkingcade.dev.ledger.application.port.out.accounttype.AccountClassificationRepositoryPort;
+import zachkingcade.dev.ledger.application.port.out.accounttype.AccountTypeRepositoryPort;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
 import zachkingcade.dev.ledger.domain.account.Account;
+import zachkingcade.dev.ledger.domain.account.AccountClassification;
+import zachkingcade.dev.ledger.domain.account.AccountType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,10 +97,77 @@ class AccountServiceTest {
         }
     }
 
+    private static AccountService createService(
+            FakeAccountRepositoryPort repo,
+            GetBalanceForAccountUseCase balanceUseCase,
+            AccountTypeRepositoryPort accountTypeRepositoryPort,
+            AccountClassificationRepositoryPort classificationRepositoryPort) {
+        return new AccountService(repo, balanceUseCase, accountTypeRepositoryPort, classificationRepositoryPort);
+    }
+
+    private static final class StubAccountTypeRepository implements AccountTypeRepositoryPort {
+        @Override
+        public AccountType findByIdVisibleToUser(Long userId, Long id) {
+            return AccountType.rehydrate(id, "Type", 1L, "", true, userId, false);
+        }
+
+        @Override
+        public List<AccountType> findAllVisibleToUser(Long userId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<AccountType> findAllVisibleToUser(Long userId, Sort sort) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<AccountType> findAllVisibleToUser(Long userId, Specification<AccountTypeEntity> spec) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<AccountType> findAllVisibleToUser(Long userId, Specification<AccountTypeEntity> spec, Sort sort) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public AccountType findByDescription(String description) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Boolean existsByDescription(String description) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public AccountType save(AccountType accountTypeToSave) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private static final class StubClassificationRepository implements AccountClassificationRepositoryPort {
+        @Override
+        public AccountClassification findById(Long id) {
+            return AccountClassification.rehydrate(id, "Asset", '+', '+');
+        }
+
+        @Override
+        public List<AccountClassification> findAll() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private static AccountService createService(FakeAccountRepositoryPort repo) {
+        GetBalanceForAccountUseCase balance = (userId, accountId, classification) -> 0L;
+        return createService(repo, balance, new StubAccountTypeRepository(), new StubClassificationRepository());
+    }
+
     @Test
     void createAccount_notesMissing_defaultsToEmptyAndSaves() {
         FakeAccountRepositoryPort repo = new FakeAccountRepositoryPort();
-        AccountService service = new AccountService(repo);
+        AccountService service = createService(repo);
 
         CreateAccountCommand command = new CreateAccountCommand(
                 1L,
@@ -125,7 +198,7 @@ class AccountServiceTest {
         repo.whenExistsByDescription(true);
         repo.whenFindByDescription(Account.rehydrate(999L, 10L, "New description", true, "other", 1L));
 
-        AccountService service = new AccountService(repo);
+        AccountService service = createService(repo);
 
         UpdateAccountCommand command = new UpdateAccountCommand(
                 1L,
@@ -137,6 +210,26 @@ class AccountServiceTest {
 
         ApplicationException ex = assertThrows(ApplicationException.class, () -> service.updateAccount(command));
         assertTrue(ex.getMessage().contains("already exists with the description"));
+    }
+
+    @Test
+    void updateAccount_deactivate_nonZeroBalance_throwsApplicationException() {
+        FakeAccountRepositoryPort repo = new FakeAccountRepositoryPort();
+        repo.whenFindById(Account.rehydrate(1L, 10L, "Checking", true, "", 1L));
+
+        GetBalanceForAccountUseCase balance = (userId, accountId, classification) -> 100L;
+        AccountService service = createService(repo, balance, new StubAccountTypeRepository(), new StubClassificationRepository());
+
+        UpdateAccountCommand command = new UpdateAccountCommand(
+                1L,
+                1L,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(false)
+        );
+
+        ApplicationException ex = assertThrows(ApplicationException.class, () -> service.updateAccount(command));
+        assertTrue(ex.getMessage().contains("balance"));
     }
 }
 

@@ -16,9 +16,14 @@ import zachkingcade.dev.ledger.application.port.in.account.UpdateAccountUseCase;
 import zachkingcade.dev.ledger.application.commands.account.CreateAccountCommand;
 import zachkingcade.dev.ledger.application.commands.account.UpdateAccountCommand;
 import zachkingcade.dev.ledger.application.exception.ApplicationException;
+import zachkingcade.dev.ledger.application.port.in.journal.GetBalanceForAccountUseCase;
 import zachkingcade.dev.ledger.application.port.out.account.AccountRepositoryPort;
+import zachkingcade.dev.ledger.application.port.out.accounttype.AccountClassificationRepositoryPort;
+import zachkingcade.dev.ledger.application.port.out.accounttype.AccountTypeRepositoryPort;
 import zachkingcade.dev.ledger.application.validation.SortDirection;
 import zachkingcade.dev.ledger.domain.account.Account;
+import zachkingcade.dev.ledger.domain.account.AccountClassification;
+import zachkingcade.dev.ledger.domain.account.AccountType;
 
 import java.util.List;
 
@@ -28,10 +33,20 @@ import static zachkingcade.dev.ledger.adapter.out.persistence.specification.Acco
 public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseCase, CreateAccountUseCase, UpdateAccountUseCase {
 
     private final AccountRepositoryPort accountRepository;
+    private final GetBalanceForAccountUseCase getBalanceForAccountUseCase;
+    private final AccountTypeRepositoryPort accountTypeRepositoryPort;
+    private final AccountClassificationRepositoryPort accountClassificationRepositoryPort;
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
-    public AccountService(AccountRepositoryPort accountRepository) {
+    public AccountService(
+            AccountRepositoryPort accountRepository,
+            GetBalanceForAccountUseCase getBalanceForAccountUseCase,
+            AccountTypeRepositoryPort accountTypeRepositoryPort,
+            AccountClassificationRepositoryPort accountClassificationRepositoryPort) {
         this.accountRepository = accountRepository;
+        this.getBalanceForAccountUseCase = getBalanceForAccountUseCase;
+        this.accountTypeRepositoryPort = accountTypeRepositoryPort;
+        this.accountClassificationRepositoryPort = accountClassificationRepositoryPort;
     }
 
     public List<Account> getAllAccounts(GetAllAccountCommand command){
@@ -46,12 +61,24 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
             }
 
             if(command.filters().isPresent()){
-                spec = spec
-                        .and(descriptionContains(command.filters().get().descriptionContains().orElse(null)))
-                        .and(notesContains(command.filters().get().notesContains().orElse(null)))
-                        .and(typeIdWithin(command.filters().get().accountTypes().orElse(null)))
-                        .and(hideInactive(command.filters().get().hideInactive().orElse(null)))
-                        .and(hideActive(command.filters().get().hideActive().orElse(null)));
+                var f = command.filters().get();
+                boolean useSearch = f.searchContains().isPresent()
+                        && f.searchContains().get() != null
+                        && !f.searchContains().get().isBlank();
+                if (useSearch) {
+                    spec = spec
+                            .and(searchContainsDescriptionOrNotes(f.searchContains().get().trim()))
+                            .and(typeIdWithin(f.accountTypes().orElse(null)))
+                            .and(hideInactive(f.hideInactive().orElse(null)))
+                            .and(hideActive(f.hideActive().orElse(null)));
+                } else {
+                    spec = spec
+                            .and(descriptionContains(f.descriptionContains().orElse(null)))
+                            .and(notesContains(f.notesContains().orElse(null)))
+                            .and(typeIdWithin(f.accountTypes().orElse(null)))
+                            .and(hideInactive(f.hideInactive().orElse(null)))
+                            .and(hideActive(f.hideActive().orElse(null)));
+                }
             }
 
             if(sort != null){
@@ -108,6 +135,15 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
                     command.notes().orElse(account.notes()),
                     account.getUserId()
                     );
+
+            if (account.active() && !newAccount.active()) {
+                AccountType type = accountTypeRepositoryPort.findByIdVisibleToUser(command.userId(), account.typeId());
+                AccountClassification classification = accountClassificationRepositoryPort.findById(type.classificationId());
+                Long balance = getBalanceForAccountUseCase.getBalanceForAccount(command.userId(), account.id(), classification);
+                if (balance != null && balance != 0L) {
+                    throw new ApplicationException("Cannot deactivate an account while its balance is not zero.");
+                }
+            }
 
             // Check for unique description
             if(command.description().isPresent() && accountRepository.existsByDescription(command.userId(), newAccount.description()) ){

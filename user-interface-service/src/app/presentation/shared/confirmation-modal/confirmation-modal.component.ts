@@ -18,6 +18,8 @@ export class ConfirmationModalComponent {
   @Input() confirmLabel: string = 'Confirm';
   @Input() cancelLabel: string = 'Cancel';
   @Input() confirmDisabled: boolean = false;
+  /** When false, only the primary action is shown (e.g. OK-only alerts). */
+  @Input() showCancelButton: boolean = true;
 
   @Output() confirmed: EventEmitter<void> = new EventEmitter<void>();
   @Output() cancelled: EventEmitter<void> = new EventEmitter<void>();
