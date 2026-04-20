@@ -1,0 +1,62 @@
+<app-page-cage pageName="Pending Journal Entries" subText="Import bank transactions and convert them to journal entries.">
+  <div class="cageContents">
+    <app-pending-import-bar
+      [formats]="formats()"
+      [selectedFormatId]="selectedFormatId()"
+      [selectedFileName]="selectedFileName()"
+      [importing]="importing()"
+      (selectedFormatIdChanged)="onFormatChanged($event)"
+      (filePicked)="onFilePicked($event)"
+      (importClicked)="onImportClicked()"
+    />
+
+    <app-pending-transactions-table
+      class="table"
+      [transactions]="txs()"
+      [loading]="loading()"
+      [loadError]="loadError()"
+      [removingTransactionNumber]="removingTransactionNumber()"
+      [accountOptions]="accountOptions()"
+      [accountsById]="accountsById()"
+      [draftsById]="draftsById()"
+      (deleteRequested)="openDeleteConfirm($event)"
+      (draftChanged)="onDraftChanged($event)"
+    />
+
+    @if (applyFailures().length > 0) {
+      <div class="failures" role="alert" aria-live="polite">
+        <p class="failures__title">Could not apply</p>
+        <ul class="failures__list">
+          @for (f of applyFailures(); track f.label) {
+            <li>
+              <strong>{{ f.label }}</strong> — {{ f.message }}
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <div class="applyBar">
+      <button mat-raised-button type="button" class="applyBar__button" (click)="onApplyClicked()" [disabled]="applyDisabled()">
+        <mat-icon>check</mat-icon>
+        @if (applying()) {
+          Applying…
+        } @else {
+          Apply
+        }
+      </button>
+    </div>
+  </div>
+</app-page-cage>
+
+<app-confirmation-modal
+  [open]="deleteConfirmOpen()"
+  [header]="'Confirm Delete'"
+  [message]="deleteConfirmMessage()"
+  [errorMessage]="modalError()"
+  [confirmLabel]="'Delete'"
+  [confirmDisabled]="removingTransactionNumber() !== null"
+  (cancelled)="closeDeleteConfirm()"
+  (confirmed)="onDeleteConfirmed()"
+></app-confirmation-modal>
+

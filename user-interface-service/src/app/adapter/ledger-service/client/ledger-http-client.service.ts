@@ -18,6 +18,10 @@ export class LedgerHttpClientService {
     return this.httpClient.post<T>(this.buildUrl(path), body);
   }
 
+  postForm<T>(path: string, formData: FormData): Observable<T> {
+    return this.httpClient.post<T>(this.buildUrl(path), formData);
+  }
+
   delete<T>(path: string): Observable<T | null> {
     return this.httpClient.delete<T | null>(this.buildUrl(path));
   }

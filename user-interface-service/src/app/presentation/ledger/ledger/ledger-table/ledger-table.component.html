@@ -115,6 +115,7 @@
           mat-row
           *matRowDef="let row; columns: displayedColumns"
           class="ledger-table__entry-row"
+          [class.altRow]="altRowForEntry(row)"
           (click)="toggleDetails(row)"
           [attr.aria-expanded]="detailsOpen(row)"
         ></tr>
@@ -122,6 +123,7 @@
           mat-row
           *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow"
           class="ledger-table__detail-row"
+          [class.altRow]="altRowForEntry(row)"
         ></tr>
         </table>
 

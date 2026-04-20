@@ -48,6 +48,14 @@
   background-color: color-mix(in srgb, var(--mat-sys-on-surface) 4%, transparent);
 }
 
+.ledger-table__entry-row.altRow {
+  background-color: #eef4ff;
+}
+
+.ledger-table__detail-row.altRow td {
+  background-color: #eef4ff;
+}
+
 .ledger-table__detail-row td {
   border-bottom-width: 1px;
   padding-top: 0;

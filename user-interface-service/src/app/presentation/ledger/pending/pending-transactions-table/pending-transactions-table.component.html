@@ -1,0 +1,194 @@
+<div class="pendingTable">
+  @if (loadError()) {
+    <p class="pendingTable__error" role="alert">{{ loadError() }}</p>
+  }
+
+  @if (loading() && transactions().length === 0) {
+    <div class="pendingTable__loading">
+      <mat-progress-spinner mode="indeterminate" diameter="40" />
+    </div>
+  }
+
+  @if (!loading() || transactions().length > 0) {
+    <div class="pendingTable__frame">
+      <div class="pendingTable__scroll">
+        <table mat-table [dataSource]="transactions()" multiTemplateDataRows class="pendingTable__mat">
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let row">{{ formatDate(row.transactionDate) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td mat-cell *matCellDef="let row">{{ formatMoney(row.amount) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="notes">
+            <th mat-header-cell *matHeaderCellDef>Notes</th>
+            <td mat-cell *matCellDef="let row">{{ row.notes || '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="colActions">Actions</th>
+            <td mat-cell *matCellDef="let row" class="colActions">
+              <button mat-icon-button type="button" aria-label="Delete pending transaction" [disabled]="removingTransactionNumber() === row.transactionNumber"
+                (click)="deleteRequested.emit(row); $event.stopPropagation()">
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button mat-icon-button type="button" [attr.aria-expanded]="detailsOpen(row)" aria-label="Expand"
+                (click)="toggleDetails(row); $event.stopPropagation()">
+                <mat-icon>{{ detailsOpen(row) ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length">
+              @if (detailsOpen(row)) {
+                @if (getDraft(row); as draft) {
+                  <div class="detail">
+                    <div class="detail__fields">
+                      <mat-form-field appearance="outline" class="field">
+                        <mat-label>Date</mat-label>
+                        <input matInput type="date" [(ngModel)]="draft.entryDate" (ngModelChange)="setDraft(row, { ...draft, entryDate: $event })" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="field fieldWide">
+                        <mat-label>Description</mat-label>
+                        <input matInput [(ngModel)]="draft.description" (ngModelChange)="setDraft(row, { ...draft, description: $event })" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="field fieldWide">
+                        <mat-label>Notes</mat-label>
+                        <input matInput [(ngModel)]="draft.notes" (ngModelChange)="setDraft(row, { ...draft, notes: $event })" />
+                      </mat-form-field>
+                    </div>
+
+                    @if (!validatePending(row).valid && validatePending(row).message) {
+                      <div class="detail__error" role="alert">{{ validatePending(row).message }}</div>
+                    }
+
+                    <div class="detail__linesHeader">
+                      <div class="detail__linesHeaderMain">
+                        <h3 class="detail__title">Journal lines</h3>
+                        <button mat-button type="button" (click)="addRow(row)">
+                          <mat-icon>add</mat-icon>
+                          Add row
+                        </button>
+                      </div>
+                      <div class="detail__totals" aria-live="polite">
+                        <span>Pending: <strong>{{ formatMoney(row.amount) }}</strong></span>
+                        <span>Debits: <strong>{{ formatMoney(debitTotalMinor(row)) }}</strong></span>
+                        <span>Credits: <strong>{{ formatMoney(creditTotalMinor(row)) }}</strong></span>
+                        <span>Remaining: <strong>{{ formatMoney(remainingMinor(row)) }}</strong></span>
+                      </div>
+                    </div>
+
+                    <div class="detail__linesWrap">
+                      <table class="linesTable">
+                        <thead>
+                          <tr>
+                            <th>Amount</th>
+                            <th>Account</th>
+                            <th>Direction</th>
+                            <th>Effect on account</th>
+                            <th>Notes</th>
+                            <th class="colActions"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (line of draft.lines; track $index) {
+                            <tr>
+                              <td>
+                                <mat-form-field appearance="outline" class="cellField">
+                                  <mat-label>Dollars</mat-label>
+                                  <input matInput inputmode="decimal" placeholder="0.00" [(ngModel)]="line.amountDollars" />
+                                </mat-form-field>
+                              </td>
+                              <td>
+                                <mat-form-field appearance="outline" class="cellField">
+                                  <mat-label>Account</mat-label>
+                                  <mtx-select
+                                    [items]="accountOptions()"
+                                    bindLabel="label"
+                                    bindValue="id"
+                                    [(ngModel)]="line.accountId"
+                                    [multiple]="false"
+                                    placeholder="Select account"
+                                  >
+                                  </mtx-select>
+                                </mat-form-field>
+                              </td>
+                              <td>
+                                <mat-form-field appearance="outline" class="cellField">
+                                  <mat-label>Direction</mat-label>
+                                  <mtx-select
+                                    [items]="directionOptions"
+                                    bindLabel="label"
+                                    bindValue="id"
+                                    [(ngModel)]="line.direction"
+                                    [multiple]="false"
+                                    [searchable]="false"
+                                    placeholder="Select"
+                                  >
+                                  </mtx-select>
+                                </mat-form-field>
+                              </td>
+                              <td>
+                                <span class="lineEffect" [ngClass]="lineAffectClass(line)">{{ lineAffectLabel(line) }}</span>
+                              </td>
+                              <td>
+                                <mat-form-field appearance="outline" class="cellField">
+                                  <mat-label>Notes</mat-label>
+                                  <input matInput [(ngModel)]="line.notes" placeholder="Notes (optional)" />
+                                </mat-form-field>
+                              </td>
+                              <td class="colActions">
+                                <button mat-icon-button type="button" aria-label="Remove row" [disabled]="draft.lines.length <= 2"
+                                  (click)="removeRow(row, $index)">
+                                  <mat-icon>delete</mat-icon>
+                                </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                } @else {
+                  <p class="detail__error" role="alert">Missing draft state.</p>
+                }
+              }
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            class="pendingTable__row"
+            [class.altRow]="altRowForTransaction(row)"
+            (click)="toggleDetails(row)"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow"
+            class="pendingTable__detailRow"
+            [class.altRow]="altRowForTransaction(row)"
+          ></tr>
+        </table>
+
+        @if (!loading() && transactions().length === 0) {
+          <div class="pendingTable__empty" role="status">
+            <p class="pendingTable__emptyTitle">No pending transactions</p>
+            <p class="pendingTable__emptyHint">Use the import bar above to upload a bank file.</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+

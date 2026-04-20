@@ -1,0 +1,49 @@
+.importBar {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background-color: white;
+  border-radius: 15px;
+  gap: 1em;
+  flex-shrink: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1.5em;
+}
+
+.importBar__left {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.importBar__field {
+  min-width: 18rem;
+  height: 3rem;
+}
+
+.importBar__file {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.importBar__fileInput {
+  display: none;
+}
+
+.importBar__fileName {
+  font-size: 0.95rem;
+  color: #374151;
+  max-width: 520px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.importBar__importButton {
+  background-color: lightblue;
+}
+

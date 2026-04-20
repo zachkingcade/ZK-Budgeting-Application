@@ -55,6 +55,11 @@ export class LedgerTable {
     return this.expandedEntryIds().has(entry.id);
   }
 
+  altRowForEntry(entry: JournalEntryDTOEnrichedResponse): boolean {
+    const idx = (this.entries() ?? []).findIndex((e) => e.id === entry.id);
+    return idx >= 0 && idx % 2 === 1;
+  }
+
   formatDate(isoDate: string): string {
     if (!isoDate) {
       return '';

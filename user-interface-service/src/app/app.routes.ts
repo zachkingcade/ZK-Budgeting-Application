@@ -6,12 +6,14 @@ import { ReportsPageComponent } from './presentation/reports/reports-page/report
 import { LoginPageComponent } from './presentation/auth/login-page/login-page.component';
 import { RegisterPageComponent } from './presentation/auth/register-page/register-page.component';
 import { authGuard } from './presentation/auth/auth.guard';
+import { PendingJournalEntriesPageComponent } from './presentation/ledger/pending/pending-journal-entries-page/pending-journal-entries-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'ledger' },
   { path: 'login', component: LoginPageComponent },
   { path: 'register', component: RegisterPageComponent },
   { path: 'ledger', component: LedgerPage, canMatch: [authGuard] },
+  { path: 'pending-journal-entries', component: PendingJournalEntriesPageComponent, canMatch: [authGuard] },
   { path: 'accounts', component: AccountsPageComponent, canMatch: [authGuard] },
   { path: 'account-types', component: AccountTypesPageComponent, canMatch: [authGuard] },
   { path: 'reports', component: ReportsPageComponent, canMatch: [authGuard] },

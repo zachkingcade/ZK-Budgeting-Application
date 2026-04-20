@@ -1,0 +1,33 @@
+<div class="importBar">
+  <div class="importBar__left">
+    <mat-form-field appearance="outline" class="importBar__field">
+      <mat-label>Import format</mat-label>
+      <mat-select [(ngModel)]="localSelectedFormatId" (ngModelChange)="onFormatChanged($event)">
+        @for (opt of formatOptions; track opt.id) {
+          <mat-option [value]="opt.id">{{ opt.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="importBar__file">
+      <button mat-stroked-button type="button" [disabled]="importing()" (click)="fileInput.click()">
+        <mat-icon>attach_file</mat-icon>
+        Choose file
+      </button>
+      <input #fileInput type="file" class="importBar__fileInput" (change)="onFileInputChanged($event)" />
+      <span class="importBar__fileName">{{ selectedFileName() || 'No file selected' }}</span>
+    </div>
+  </div>
+
+  <div class="importBar__right">
+    <button mat-raised-button type="button" class="importBar__importButton" (click)="importClicked.emit()" [disabled]="importDisabled()">
+      @if (importing()) {
+        <mat-progress-spinner mode="indeterminate" diameter="20" />
+      } @else {
+        <mat-icon>upload</mat-icon>
+      }
+      Import
+    </button>
+  </div>
+</div>
+
