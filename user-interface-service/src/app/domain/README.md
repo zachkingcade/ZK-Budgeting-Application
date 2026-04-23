@@ -1,2 +1,6 @@
+Purpose: Explain what the UI domain layer contains (and does not contain).
+Last updated: 2026-04-22
+
 ## Domain
-if there is any domain/business rules about the the user interface then that will be stored here. Otherwise pleaes note that most business logic is handled by the various micro services called in the adapter layer prior to sending us information. If we were change any of the micro service solutions the expectation is that they do the same.
+
+If there are any domain/business rules about the user interface, they live here. Most business logic should be owned by backend microservices, with the UI acting as a thin client that maps API responses into UI models and renders state.
