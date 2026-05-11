@@ -1,0 +1,27 @@
+@if (actions().length > 0) {
+  <button
+    mat-icon-button
+    type="button"
+    class="table-row-actions-menu__trigger"
+    [attr.aria-label]="triggerAriaLabel()"
+    [matMenuTriggerFor]="rowActionsMenu"
+    #rowActionsMenuTrigger="matMenuTrigger"
+    (click)="onTriggerClick($event)"
+  >
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #rowActionsMenu="matMenu" [hasBackdrop]="true" [overlapTrigger]="false" panelClass="table-row-actions-menu-panel">
+    @for (action of actions(); track action.id) {
+      <button
+        mat-menu-item
+        type="button"
+        class="table-row-actions-menu__item"
+        [disabled]="action.disabled === true"
+        (click)="onMenuItemSelected(action, $event)"
+      >
+        <mat-icon class="table-row-actions-menu__itemIcon">{{ action.icon }}</mat-icon>
+        <span class="table-row-actions-menu__itemLabel">{{ action.label }}</span>
+      </button>
+    }
+  </mat-menu>
+}

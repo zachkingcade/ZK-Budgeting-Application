@@ -18,6 +18,8 @@ import {
   sanitizeMoneyDollarsInput,
   validateJournalEntryDraft,
 } from '../../../../domain/journal-entry/journal-entry.validation';
+import { TableRowActionsMenuComponent } from '../../../shared/table-row-actions-menu/table-row-actions-menu.component';
+import { ITableRowAction } from '../../../shared/table-row-actions-menu/table-row-action.types';
 
 type SelectOption<T extends string | number> = { id: T; label: string };
 
@@ -41,6 +43,7 @@ export interface IPendingDraft {
     MatInputModule,
     MatProgressSpinnerModule,
     MtxSelectModule,
+    TableRowActionsMenuComponent,
   ],
   templateUrl: './pending-transactions-table.component.html',
   styleUrl: './pending-transactions-table.component.scss',
@@ -62,11 +65,40 @@ export class PendingTransactionsTableComponent {
   readonly deleteRequested = output<PendingTransactionObject>();
   readonly draftChanged = output<{ transactionNumber: number; draft: IPendingDraft }>();
 
-  readonly displayedColumns = ['date', 'description', 'amount', 'debitAccount', 'creditAccount', 'actions'] as const;
+  readonly displayedColumns = [
+    'date',
+    'description',
+    'amount',
+    'debitAccount',
+    'creditAccount',
+    'rowActions',
+    'expand',
+  ] as const;
   readonly expandedIds = signal<Set<number>>(new Set<number>());
 
   readonly isExpansionDetailRow = (_index: number, row: PendingTransactionObject): boolean =>
     this.expandedIds().has(row.transactionNumber);
+
+  buildPendingRowActionsMenu(row: PendingTransactionObject): ITableRowAction[] {
+    return [
+      {
+        id: 'delete',
+        label: 'Delete',
+        icon: 'delete',
+        disabled: this.removingTransactionNumber() === row.transactionNumber,
+      },
+    ];
+  }
+
+  onPendingRowMenuAction(selection: { id: string }, row: PendingTransactionObject): void {
+    switch (selection.id) {
+      case 'delete':
+        this.deleteRequested.emit(row);
+        break;
+      default:
+        break;
+    }
+  }
 
   toggleDetails(tx: PendingTransactionObject): void {
     this.expandedIds.update((prev) => {

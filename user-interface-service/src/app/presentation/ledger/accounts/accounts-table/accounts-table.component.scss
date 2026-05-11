@@ -48,22 +48,19 @@
   background-color: color-mix(in srgb, var(--mat-sys-on-surface) 4%, transparent);
 }
 
-.col-actions {
-  text-align: right;
+.col-row-actions-header {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.col-row-actions-cell {
+  text-align: center;
   white-space: nowrap;
+  vertical-align: middle;
 }
 
-/* Enable/disable control: green when account is active, red when inactive. */
-.account-active-toggle--on mat-icon {
-  color: #16a34a;
-}
-
-.account-active-toggle--off mat-icon {
-  color: #dc2626;
-}
-
-.account-active-toggle[disabled] mat-icon {
-  opacity: 0.45;
+.accounts-table__mat .mat-column-rowActions {
+  width: 3.25rem;
 }
 
 .inactive-pill {

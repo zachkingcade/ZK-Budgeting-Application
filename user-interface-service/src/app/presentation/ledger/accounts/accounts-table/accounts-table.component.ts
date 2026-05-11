@@ -5,11 +5,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { AccountEnrichedObject } from '../../../../adapter/ledger-service/dto/account/AccountEnrichedObject';
+import { TableRowActionsMenuComponent } from '../../../shared/table-row-actions-menu/table-row-actions-menu.component';
+import { ITableRowAction } from '../../../shared/table-row-actions-menu/table-row-action.types';
 
 @Component({
   selector: 'app-accounts-table',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    TableRowActionsMenuComponent,
+  ],
   templateUrl: './accounts-table.component.html',
   styleUrl: './accounts-table.component.scss',
 })
@@ -27,8 +36,34 @@ export class AccountsTableComponent {
     'accountTypeName',
     'accountBalance',
     'notes',
-    'actions',
+    'rowActions',
   ] as const;
+
+  buildAccountsRowActionsMenu(row: AccountEnrichedObject): ITableRowAction[] {
+    const toggling: boolean = this.togglingAccountId() === row.accountId;
+    return [
+      { id: 'edit', label: 'Edit', icon: 'edit', disabled: toggling },
+      {
+        id: 'toggleActive',
+        label: row.active ? 'Disable account' : 'Enable account',
+        icon: row.active ? 'toggle_on' : 'toggle_off',
+        disabled: toggling,
+      },
+    ];
+  }
+
+  onAccountsRowMenuAction(selection: { id: string }, row: AccountEnrichedObject): void {
+    switch (selection.id) {
+      case 'edit':
+        this.onEdit(row);
+        break;
+      case 'toggleActive':
+        this.onToggleActive(row);
+        break;
+      default:
+        break;
+    }
+  }
 
   formatMoney(minorUnits: number): string {
     const major = minorUnits / 100;

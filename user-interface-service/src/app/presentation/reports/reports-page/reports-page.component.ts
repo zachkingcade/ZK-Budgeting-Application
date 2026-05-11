@@ -13,6 +13,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RequestReportDialogComponent } from './request-report-dialog.component';
 import { ReportDetailDialogComponent } from './report-detail-dialog.component';
 import { AuthManagerService } from '../../../application/auth/auth-manager.service';
+import { TableRowActionsMenuComponent } from '../../shared/table-row-actions-menu/table-row-actions-menu.component';
+import { ITableRowAction } from '../../shared/table-row-actions-menu/table-row-action.types';
 
 @Component({
   selector: 'app-reports-page',
@@ -24,6 +26,7 @@ import { AuthManagerService } from '../../../application/auth/auth-manager.servi
     MatIconModule,
     MatTableModule,
     MatDialogModule,
+    TableRowActionsMenuComponent,
   ],
   templateUrl: './reports-page.component.html',
   styleUrl: './reports-page.component.scss',
@@ -41,7 +44,7 @@ export class ReportsPageComponent implements OnInit {
   readonly loading = signal(false);
   readonly loadError = signal<string | null>(null);
 
-  displayedColumns: string[] = ['reportType', 'requestedAt', 'status', 'actions'];
+  displayedColumns: string[] = ['reportType', 'requestedAt', 'status', 'rowActions'];
 
   ngOnInit(): void {
     this.refresh();
@@ -63,6 +66,32 @@ export class ReportsPageComponent implements OnInit {
           this.loadError.set(this.formatHttpError(err));
         },
       });
+  }
+
+  buildReportsRowActionsMenu(row: IReportJobMetadata): ITableRowAction[] {
+    if (row.status === 'COMPLETED') {
+      return [
+        { id: 'moreInfo', label: 'More info', icon: 'info' },
+        { id: 'download', label: 'Download', icon: 'download' },
+      ];
+    }
+    if (row.status === 'FAILED') {
+      return [{ id: 'moreInfo', label: 'More info', icon: 'info' }];
+    }
+    return [];
+  }
+
+  onReportsRowMenuAction(selection: { id: string }, row: IReportJobMetadata): void {
+    switch (selection.id) {
+      case 'moreInfo':
+        this.openDetail(row);
+        break;
+      case 'download':
+        this.download(row);
+        break;
+      default:
+        break;
+    }
   }
 
   openRequestDialog(): void {

@@ -6,6 +6,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { JournalEntryDTOEnrichedResponse } from '../../../../adapter/ledger-service/dto/journal-entry/JournalEntryDTOEnrichedResponse';
 import { JournalLineDTOEnrichedResponse } from '../../../../adapter/ledger-service/dto/journal-entry/JournalLineDTOEnrichedResponse';
+import { TableRowActionsMenuComponent } from '../../../shared/table-row-actions-menu/table-row-actions-menu.component';
+import { ITableRowAction } from '../../../shared/table-row-actions-menu/table-row-action.types';
 
 @Component({
   selector: 'app-ledger-table',
@@ -16,6 +18,7 @@ import { JournalLineDTOEnrichedResponse } from '../../../../adapter/ledger-servi
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    TableRowActionsMenuComponent,
   ],
   templateUrl: './ledger-table.component.html',
   styleUrl: './ledger-table.component.scss',
@@ -31,7 +34,7 @@ export class LedgerTable {
   readonly editRequested = output<JournalEntryDTOEnrichedResponse>();
   readonly deleteRequested = output<JournalEntryDTOEnrichedResponse>();
 
-  readonly displayedColumns = ['entryDate', 'description', 'amount', 'actions'] as const;
+  readonly displayedColumns = ['entryDate', 'description', 'amount', 'rowActions', 'expand'] as const;
   readonly expandedEntryIds = signal<Set<number>>(new Set<number>());
 
   readonly isExpansionDetailRow = (_index: number, row: JournalEntryDTOEnrichedResponse): boolean =>
@@ -90,6 +93,31 @@ export class LedgerTable {
 
   lineAffectClass(line: JournalLineDTOEnrichedResponse): 'affect-positive' | 'affect-negative' {
     return line.lineAffectOnAccount === '+' ? 'affect-positive' : 'affect-negative';
+  }
+
+  buildLedgerRowActionsMenu(entry: JournalEntryDTOEnrichedResponse): ITableRowAction[] {
+    return [
+      { id: 'edit', label: 'Edit', icon: 'edit' },
+      {
+        id: 'delete',
+        label: 'Delete',
+        icon: 'delete',
+        disabled: this.removingEntryId() === entry.id,
+      },
+    ];
+  }
+
+  onLedgerRowMenuAction(selection: { id: string }, entry: JournalEntryDTOEnrichedResponse): void {
+    switch (selection.id) {
+      case 'edit':
+        this.onEditEntry(entry);
+        break;
+      case 'delete':
+        this.onRemoveEntry(entry);
+        break;
+      default:
+        break;
+    }
   }
 
   onEditEntry(entry: JournalEntryDTOEnrichedResponse): void {

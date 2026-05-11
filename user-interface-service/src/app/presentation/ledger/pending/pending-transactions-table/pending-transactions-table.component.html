@@ -108,15 +108,26 @@
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="colActions">Actions</th>
-            <td mat-cell *matCellDef="let row" class="colActions">
-              <button mat-icon-button type="button" aria-label="Delete pending transaction" [disabled]="removingTransactionNumber() === row.transactionNumber"
-                (click)="deleteRequested.emit(row); $event.stopPropagation()">
-                <mat-icon>delete</mat-icon>
-              </button>
-              <button mat-icon-button type="button" [attr.aria-expanded]="detailsOpen(row)" aria-label="Expand"
-                (click)="toggleDetails(row); $event.stopPropagation()">
+          <ng-container matColumnDef="rowActions">
+            <th mat-header-cell *matHeaderCellDef class="col-row-actions-header" aria-hidden="true"></th>
+            <td mat-cell *matCellDef="let row" class="col-row-actions-cell">
+              <app-table-row-actions-menu
+                [actions]="buildPendingRowActionsMenu(row)"
+                (actionSelected)="onPendingRowMenuAction($event, row)"
+              />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="expand">
+            <th mat-header-cell *matHeaderCellDef class="col-expand-header" aria-hidden="true"></th>
+            <td mat-cell *matCellDef="let row" class="col-expand-cell">
+              <button
+                mat-icon-button
+                type="button"
+                [attr.aria-expanded]="detailsOpen(row)"
+                aria-label="Expand row details"
+                (click)="toggleDetails(row); $event.stopPropagation()"
+              >
                 <mat-icon>{{ detailsOpen(row) ? 'expand_less' : 'expand_more' }}</mat-icon>
               </button>
             </td>

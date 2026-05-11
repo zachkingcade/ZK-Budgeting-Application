@@ -46,8 +46,11 @@
   width: 7rem;
 }
 
-.pendingTable__mat .mat-column-actions {
-  width: 7.5rem;
+.pendingTable__mat .mat-column-rowActions,
+.pendingTable__mat .mat-column-expand {
+  width: 3.25rem;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .pendingTable__mat .mat-column-description {
@@ -72,8 +75,15 @@
   padding: 0;
 }
 
-.colActions {
-  text-align: right;
+.col-row-actions-header,
+.col-expand-header {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.col-row-actions-cell,
+.col-expand-cell {
+  text-align: center;
   white-space: nowrap;
   vertical-align: middle;
 }
@@ -290,6 +300,12 @@
   padding: 0.5rem;
   border-bottom: 1px solid #e5e7eb;
   vertical-align: top;
+}
+
+.linesTable .colActions {
+  text-align: right;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .cellField {

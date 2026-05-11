@@ -20,6 +20,21 @@
   width: 100%;
 }
 
+.col-row-actions-header {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.col-row-actions-cell {
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.reports-table .mat-column-rowActions {
+  width: 3.25rem;
+}
+
 .empty-row .mat-cell {
   text-align: center;
   font-style: italic;

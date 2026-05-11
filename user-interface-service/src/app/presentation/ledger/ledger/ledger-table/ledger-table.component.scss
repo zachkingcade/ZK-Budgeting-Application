@@ -62,9 +62,22 @@
   padding-bottom: 0.25rem;
 }
 
-.col-actions {
-  text-align: right;
+.col-row-actions-header,
+.col-expand-header {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.col-row-actions-cell,
+.col-expand-cell {
+  text-align: center;
   white-space: nowrap;
+  vertical-align: middle;
+}
+
+.ledger-table__mat .mat-column-rowActions,
+.ledger-table__mat .mat-column-expand {
+  width: 3.25rem;
 }
 
 .ledger-table__lines {
