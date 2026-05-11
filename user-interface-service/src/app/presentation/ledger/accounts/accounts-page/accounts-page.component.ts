@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { PageCage } from '../../../page-cage/page-cage.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -63,12 +63,14 @@ export class AccountsPageComponent implements OnInit {
   readonly accountPendingToggle = signal<AccountEnrichedObject | null>(null);
   readonly togglingAccountId = signal<number | null>(null);
 
-  private readonly pendingFilterApply$ = new Subject<IAccountsFilterState>();
+  private readonly refreshIntent$ = new Subject<{ mode: 'immediate' | 'searchDebounce'; state: IAccountsFilterState }>();
 
   ngOnInit(): void {
-    this.pendingFilterApply$
+    this.refreshIntent$
       .pipe(
-        debounceTime(1000),
+        switchMap((intent) =>
+          intent.mode === 'immediate' ? of(intent.state) : of(intent.state).pipe(debounceTime(250)),
+        ),
         distinctUntilChanged((a, b) => this.statesEqual(a, b)),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -84,8 +86,24 @@ export class AccountsPageComponent implements OnInit {
 
   onStateChanged(nextState: IAccountsFilterState): void {
     const cloned = cloneAccountsFilterState(nextState);
+    const applied = this.lastAppliedState();
     this.currentState.set(cloned);
-    this.pendingFilterApply$.next(cloned);
+    /** Compare to lastApplied: ngModel mutates `currentState()` in place before emit. */
+    if (this.statesEqual(applied, cloned)) {
+      return;
+    }
+    const onlySearchChanged =
+      this.nonSearchPartsEqual(applied, cloned) &&
+      (applied.searchTerm ?? '') !== (cloned.searchTerm ?? '');
+    if (onlySearchChanged) {
+      const searchCleared = (cloned.searchTerm ?? '').trim().length === 0;
+      this.refreshIntent$.next({
+        mode: searchCleared ? 'immediate' : 'searchDebounce',
+        state: cloned,
+      });
+      return;
+    }
+    this.refreshIntent$.next({ mode: 'immediate', state: cloned });
   }
 
   openAddModal(): void {
@@ -283,6 +301,12 @@ export class AccountsPageComponent implements OnInit {
   private statesEqual(a: IAccountsFilterState, b: IAccountsFilterState): boolean {
     return (
       a.searchTerm === b.searchTerm &&
+      this.nonSearchPartsEqual(a, b)
+    );
+  }
+
+  private nonSearchPartsEqual(a: IAccountsFilterState, b: IAccountsFilterState): boolean {
+    return (
       a.selectedSortBy === b.selectedSortBy &&
       a.showInactive === b.showInactive &&
       a.hideActiveOnly === b.hideActiveOnly &&

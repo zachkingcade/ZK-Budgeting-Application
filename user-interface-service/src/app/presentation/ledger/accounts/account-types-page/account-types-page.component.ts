@@ -68,7 +68,7 @@ export class AccountTypesPageComponent implements OnInit {
   readonly typePendingToggle = signal<AccountTypeRowView | null>(null);
   readonly togglingTypeId = signal<number | null>(null);
 
-  private readonly pendingFilterApply$ = new Subject<IAccountTypesFilterState>();
+  private readonly refreshIntent$ = new Subject<{ mode: 'immediate' | 'searchDebounce'; state: IAccountTypesFilterState }>();
   private readonly loadAccountTypes$ = new Subject<{
     nextState: IAccountTypesFilterState;
     markApplied: boolean;
@@ -103,16 +103,16 @@ export class AccountTypesPageComponent implements OnInit {
         this.loading.set(false);
       });
 
-    this.pendingFilterApply$
+    this.refreshIntent$
       .pipe(
-        debounceTime(1000),
+        switchMap((intent) =>
+          intent.mode === 'immediate' ? of(intent.state) : of(intent.state).pipe(debounceTime(250)),
+        ),
         distinctUntilChanged((a, b) => this.statesEqual(a, b)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((state) => {
-        const cur = this.currentState();
-        const equalToCur = this.statesEqual(state, cur);
-        if (!equalToCur) {
+        if (!this.statesEqual(state, this.currentState())) {
           return;
         }
         this.applyFilters({ nextState: state, markApplied: true });
@@ -142,15 +142,25 @@ export class AccountTypesPageComponent implements OnInit {
   }
 
   onStateChanged(nextState: IAccountTypesFilterState): void {
-    const prev = this.currentState();
+    const applied = this.lastAppliedState();
     const cloned = cloneAccountTypesFilterState(nextState);
-    const hideToggled = prev.hideSystemAccounts !== cloned.hideSystemAccounts;
     this.currentState.set(cloned);
-    if (hideToggled) {
-      this.applyFilters({ nextState: cloned, markApplied: true });
-    } else {
-      this.pendingFilterApply$.next(cloned);
+    /** Compare to lastApplied: ngModel mutates `currentState()` in place before emit. */
+    if (this.statesEqual(applied, cloned)) {
+      return;
     }
+    const onlySearchChanged =
+      this.nonSearchPartsEqual(applied, cloned) &&
+      (applied.searchTerm ?? '') !== (cloned.searchTerm ?? '');
+    if (onlySearchChanged) {
+      const searchCleared = (cloned.searchTerm ?? '').trim().length === 0;
+      this.refreshIntent$.next({
+        mode: searchCleared ? 'immediate' : 'searchDebounce',
+        state: cloned,
+      });
+      return;
+    }
+    this.refreshIntent$.next({ mode: 'immediate', state: cloned });
   }
 
   openAddModal(): void {
@@ -300,8 +310,11 @@ export class AccountTypesPageComponent implements OnInit {
   }
 
   private statesEqual(a: IAccountTypesFilterState, b: IAccountTypesFilterState): boolean {
+    return a.searchTerm === b.searchTerm && this.nonSearchPartsEqual(a, b);
+  }
+
+  private nonSearchPartsEqual(a: IAccountTypesFilterState, b: IAccountTypesFilterState): boolean {
     return (
-      a.searchTerm === b.searchTerm &&
       a.selectedSortBy === b.selectedSortBy &&
       a.showInactive === b.showInactive &&
       a.hideActiveOnly === b.hideActiveOnly &&

@@ -5,7 +5,7 @@
       matInput
       placeholder="Search notes or description..."
       [(ngModel)]="state.searchTerm"
-      (ngModelChange)="onSearchChange()"
+      (ngModelChange)="onSearchChange($event)"
     />
   </mat-form-field>
 
@@ -17,6 +17,9 @@
       bindValue="id"
       [(ngModel)]="state.selectedClassificationIds"
       (ngModelChange)="onClassificationsChange()"
+      (change)="onClassificationsChange()"
+      (clear)="onClassificationsChange()"
+      (remove)="onClassificationsChange()"
       [multiple]="true"
       placeholder="All classifications"
     >

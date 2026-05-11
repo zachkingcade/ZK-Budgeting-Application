@@ -89,13 +89,23 @@ export class LedgerSortAndFilterBar {
       });
   }
 
+  onSearchChanged(searchTerm: string | null): void {
+    this.stateChanged.emit({
+      searchTerm: searchTerm ?? '',
+      selectedDate: this.state.selectedDate,
+      selectedSortBy: this.state.selectedSortBy,
+      selectedAccountTypeIds: [...(this.state.selectedAccountTypeIds ?? [])],
+      selectedAccountIds: [...(this.state.selectedAccountIds ?? [])],
+    });
+  }
+
   onStateChanged(): void {
     const nextState: ILedgerFilterSortState = {
       searchTerm: this.state.searchTerm,
       selectedDate: this.state.selectedDate,
       selectedSortBy: this.state.selectedSortBy,
-      selectedAccountTypeIds: [...this.state.selectedAccountTypeIds],
-      selectedAccountIds: [...this.state.selectedAccountIds],
+      selectedAccountTypeIds: [...(this.state.selectedAccountTypeIds ?? [])],
+      selectedAccountIds: [...(this.state.selectedAccountIds ?? [])],
     };
     this.stateChanged.emit(nextState);
   }

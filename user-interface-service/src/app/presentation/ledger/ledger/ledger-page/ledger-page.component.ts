@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { PageCage } from '../../../page-cage/page-cage.component';
 import { LedgerTable } from '../ledger-table/ledger-table.component';
 import { LedgerSortAndFilterBar } from '../ledger-sort-and-filter-bar/ledger-sort-and-filter-bar.component';
@@ -90,12 +90,14 @@ export class LedgerPage implements OnInit {
   readonly entryBeingEdited = signal<JournalEntryDTOEnrichedResponse | null>(null);
   readonly entryPendingDelete = signal<JournalEntryDTOEnrichedResponse | null>(null);
 
-  private readonly pendingFilterApply$ = new Subject<ILedgerFilterSortState>();
+  private readonly refreshIntent$ = new Subject<{ mode: 'immediate' | 'searchDebounce'; state: ILedgerFilterSortState }>();
 
   ngOnInit(): void {
-    this.pendingFilterApply$
+    this.refreshIntent$
       .pipe(
-        debounceTime(1000),
+        switchMap((intent) =>
+          intent.mode === 'immediate' ? of(intent.state) : of(intent.state).pipe(debounceTime(250)),
+        ),
         distinctUntilChanged((a, b) => this.statesEqual(a, b)),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -111,8 +113,24 @@ export class LedgerPage implements OnInit {
 
   onStateChanged(nextState: ILedgerFilterSortState): void {
     const cloned = cloneFilterSortState(nextState);
+    const applied = this.lastAppliedState();
     this.currentState.set(cloned);
-    this.pendingFilterApply$.next(cloned);
+    /** Compare to lastApplied: ngModel mutates `currentState()` in place before emit. */
+    if (this.statesEqual(applied, cloned)) {
+      return;
+    }
+    const onlySearchChanged =
+      this.nonSearchPartsEqual(applied, cloned) &&
+      (applied.searchTerm ?? '') !== (cloned.searchTerm ?? '');
+    if (onlySearchChanged) {
+      const searchCleared = (cloned.searchTerm ?? '').trim().length === 0;
+      this.refreshIntent$.next({
+        mode: searchCleared ? 'immediate' : 'searchDebounce',
+        state: cloned,
+      });
+      return;
+    }
+    this.refreshIntent$.next({ mode: 'immediate', state: cloned });
   }
 
   openAddModal(): void {
@@ -281,8 +299,11 @@ export class LedgerPage implements OnInit {
   }
 
   private statesEqual(a: ILedgerFilterSortState, b: ILedgerFilterSortState): boolean {
+    return a.searchTerm === b.searchTerm && this.nonSearchPartsEqual(a, b);
+  }
+
+  private nonSearchPartsEqual(a: ILedgerFilterSortState, b: ILedgerFilterSortState): boolean {
     return (
-      a.searchTerm === b.searchTerm &&
       a.selectedDate === b.selectedDate &&
       a.selectedSortBy === b.selectedSortBy &&
       this.arraysEqual(a.selectedAccountTypeIds, b.selectedAccountTypeIds) &&

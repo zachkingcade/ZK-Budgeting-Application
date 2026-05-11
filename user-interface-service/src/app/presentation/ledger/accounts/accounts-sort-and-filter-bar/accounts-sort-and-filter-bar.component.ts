@@ -73,7 +73,7 @@ export class AccountsSortAndFilterBarComponent implements OnInit {
   emitState(): void {
     this.stateChanged.emit({
       searchTerm: this.state.searchTerm,
-      selectedAccountTypeIds: [...this.state.selectedAccountTypeIds],
+      selectedAccountTypeIds: [...(this.state.selectedAccountTypeIds ?? [])],
       selectedSortBy: this.state.selectedSortBy,
       showInactive: this.state.showInactive,
       hideActiveOnly: this.state.hideActiveOnly,
@@ -85,8 +85,15 @@ export class AccountsSortAndFilterBarComponent implements OnInit {
     this.emitState();
   }
 
-  onSearchChange(): void {
-    this.emitState();
+  onSearchChange(searchTerm: string | null): void {
+    this.stateChanged.emit({
+      searchTerm: searchTerm ?? '',
+      selectedAccountTypeIds: [...(this.state.selectedAccountTypeIds ?? [])],
+      selectedSortBy: this.state.selectedSortBy,
+      showInactive: this.state.showInactive,
+      hideActiveOnly: this.state.hideActiveOnly,
+      groupByAccountType: this.state.groupByAccountType,
+    });
   }
 
   onAccountTypesChange(): void {
