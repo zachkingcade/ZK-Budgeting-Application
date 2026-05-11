@@ -16,12 +16,65 @@
 
   <aside class="sidebar" [class.sidebar-open]="sidebarOpen">
 
-    <nav class="sidebar-nav">
-      <a routerLink="/ledger" routerLinkActive="active" class="nav-link">Ledger</a>
-      <a routerLink="/pending-journal-entries" routerLinkActive="active" class="nav-link">Pending Journal Entries</a>
-      <a routerLink="/accounts" routerLinkActive="active" class="nav-link">Accounts</a>
-      <a routerLink="/account-types" routerLinkActive="active" class="nav-link">Account Types</a>
-      <a routerLink="/reports" routerLinkActive="active" class="nav-link">Reports</a>
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <div class="nav-section">
+        <button
+          type="button"
+          class="nav-section-toggle"
+          [attr.aria-expanded]="isNavSectionExpanded('master-ledger')"
+          [attr.aria-controls]="isNavSectionExpanded('master-ledger') ? 'nav-section-master-ledger' : null"
+          id="nav-section-master-ledger-heading"
+          (click)="toggleNavSection('master-ledger')"
+        >
+          <span class="nav-section-chevron" [class.nav-section-chevron--open]="isNavSectionExpanded('master-ledger')" aria-hidden="true"></span>
+          <span class="nav-section-label">Master Ledger</span>
+        </button>
+        @if (isNavSectionExpanded('master-ledger')) {
+          <div class="nav-section-links" id="nav-section-master-ledger" role="group" aria-labelledby="nav-section-master-ledger-heading">
+            <a routerLink="/ledger" routerLinkActive="active" class="nav-link nav-link--nested">Ledger</a>
+            <a routerLink="/pending-journal-entries" routerLinkActive="active" class="nav-link nav-link--nested">Pending Journal Entries</a>
+          </div>
+        }
+      </div>
+
+      <div class="nav-section">
+        <button
+          type="button"
+          class="nav-section-toggle"
+          [attr.aria-expanded]="isNavSectionExpanded('accounts')"
+          [attr.aria-controls]="isNavSectionExpanded('accounts') ? 'nav-section-accounts' : null"
+          id="nav-section-accounts-heading"
+          (click)="toggleNavSection('accounts')"
+        >
+          <span class="nav-section-chevron" [class.nav-section-chevron--open]="isNavSectionExpanded('accounts')" aria-hidden="true"></span>
+          <span class="nav-section-label">Accounts</span>
+        </button>
+        @if (isNavSectionExpanded('accounts')) {
+          <div class="nav-section-links" id="nav-section-accounts" role="group" aria-labelledby="nav-section-accounts-heading">
+            <a routerLink="/accounts" routerLinkActive="active" class="nav-link nav-link--nested">Accounts</a>
+            <a routerLink="/account-types" routerLinkActive="active" class="nav-link nav-link--nested">Account Types</a>
+          </div>
+        }
+      </div>
+
+      <div class="nav-section">
+        <button
+          type="button"
+          class="nav-section-toggle"
+          [attr.aria-expanded]="isNavSectionExpanded('reporting')"
+          [attr.aria-controls]="isNavSectionExpanded('reporting') ? 'nav-section-reporting' : null"
+          id="nav-section-reporting-heading"
+          (click)="toggleNavSection('reporting')"
+        >
+          <span class="nav-section-chevron" [class.nav-section-chevron--open]="isNavSectionExpanded('reporting')" aria-hidden="true"></span>
+          <span class="nav-section-label">Reporting</span>
+        </button>
+        @if (isNavSectionExpanded('reporting')) {
+          <div class="nav-section-links" id="nav-section-reporting" role="group" aria-labelledby="nav-section-reporting-heading">
+            <a routerLink="/reports" routerLinkActive="active" class="nav-link nav-link--nested">Reports</a>
+          </div>
+        }
+      </div>
     </nav>
 
     <div class="sidebar-footer">

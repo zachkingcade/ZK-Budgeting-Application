@@ -3,11 +3,22 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
+import { AuthManagerService } from '../../application/auth/auth-manager.service';
 import { PageCage } from './page-cage.component';
 
 describe('PageCage', () => {
   let component: PageCage;
   let fixture: ComponentFixture<PageCage>;
+
+  const authMock: Pick<AuthManagerService, 'getAuthSnapshot' | 'logout'> = {
+    getAuthSnapshot: () => ({
+      username: null,
+      sessionToken: null,
+      accessToken: null,
+      accessTokenExpiresAt: null,
+    }),
+    logout: () => of(undefined),
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -15,6 +26,7 @@ describe('PageCage', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideRouter([]),
+        { provide: AuthManagerService, useValue: authMock },
         {
           provide: ActivatedRoute,
           useValue: {
