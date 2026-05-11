@@ -28,9 +28,84 @@
             <td mat-cell *matCellDef="let row">{{ formatMoney(row.amount) }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="notes">
-            <th mat-header-cell *matHeaderCellDef>Notes</th>
-            <td mat-cell *matCellDef="let row">{{ row.notes || '—' }}</td>
+          <ng-container matColumnDef="debitAccount">
+            <th mat-header-cell *matHeaderCellDef class="colAccountHeader"></th>
+            <td mat-cell *matCellDef="let row" class="colDebitAccount">
+              @if (getDraft(row)) {
+                @if (showCompactDebitCreditSelectors(row)) {
+                  <div class="compactAccountCell">
+                    <mat-form-field appearance="outline" class="cellField cellFieldCompact" subscriptSizing="dynamic" [hideRequiredMarker]="true">
+                      <mtx-select
+                        [items]="accountOptions()"
+                        bindLabel="label"
+                        bindValue="id"
+                        [ngModel]="debitLine(row)!.accountId"
+                        (ngModelChange)="onCompactDebitAccountChange(row, $event)"
+                        [multiple]="false"
+                        placeholder="Debit"
+                        aria-label="Debit account"
+                      />
+                    </mat-form-field>
+                    @switch (compactAccountEffectSign(debitLine(row))) {
+                      @case ('+') {
+                        <span class="compactEffect compactEffect--plus" aria-hidden="true">(+)</span>
+                      }
+                      @case ('-') {
+                        <span class="compactEffect compactEffect--minus" aria-hidden="true">(-)</span>
+                      }
+                    }
+                  </div>
+                } @else {
+                  <div class="accountsSummaryCell">
+                    <span class="accountsSummary">{{ debitCountSummary(row) }}</span>
+                  </div>
+                }
+              } @else {
+                <div class="accountsSummaryCell">
+                  <span class="accountsSummaryPlaceholder">—</span>
+                </div>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="creditAccount">
+            <th mat-header-cell *matHeaderCellDef class="colAccountHeader"></th>
+            <td mat-cell *matCellDef="let row" class="colCreditAccount">
+              @if (getDraft(row)) {
+                @if (showCompactDebitCreditSelectors(row)) {
+                  <div class="compactAccountCell">
+                    <mat-form-field appearance="outline" class="cellField cellFieldCompact" subscriptSizing="dynamic" [hideRequiredMarker]="true">
+                      <mtx-select
+                        [items]="accountOptions()"
+                        bindLabel="label"
+                        bindValue="id"
+                        [ngModel]="creditLine(row)!.accountId"
+                        (ngModelChange)="onCompactCreditAccountChange(row, $event)"
+                        [multiple]="false"
+                        placeholder="Credit"
+                        aria-label="Credit account"
+                      />
+                    </mat-form-field>
+                    @switch (compactAccountEffectSign(creditLine(row))) {
+                      @case ('+') {
+                        <span class="compactEffect compactEffect--plus" aria-hidden="true">(+)</span>
+                      }
+                      @case ('-') {
+                        <span class="compactEffect compactEffect--minus" aria-hidden="true">(-)</span>
+                      }
+                    }
+                  </div>
+                } @else {
+                  <div class="accountsSummaryCell">
+                    <span class="accountsSummary">{{ creditCountSummary(row) }}</span>
+                  </div>
+                }
+              } @else {
+                <div class="accountsSummaryCell">
+                  <span class="accountsSummaryPlaceholder">—</span>
+                </div>
+              }
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
@@ -174,13 +249,7 @@
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: displayedColumns"
-            class="pendingTable__row"
-            [class.altRow]="altRowForTransaction(row)"
-            (click)="toggleDetails(row)"
-          ></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="pendingTable__row" [class.altRow]="altRowForTransaction(row)"></tr>
           <tr
             mat-row
             *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow"

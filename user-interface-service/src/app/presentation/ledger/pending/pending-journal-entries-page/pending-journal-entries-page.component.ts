@@ -17,6 +17,7 @@ import { POSTApplyPendingTransactionsRequest } from '../../../../adapter/ledger-
 import {
   dollarsStringToMinorUnits,
   IJournalEntryLineDraft,
+  minorUnitsToDollarsString,
   validateJournalEntryDraft,
 } from '../../../../domain/journal-entry/journal-entry.validation';
 import { ApplyPendingTransactionsFailureObject } from '../../../../adapter/ledger-service/dto/pending-transaction/apply/ApplyPendingTransactionsFailureObject';
@@ -155,13 +156,14 @@ export class PendingJournalEntriesPageComponent implements OnInit {
 
   private defaultDraftForTx(tx: PendingTransactionObject): IPendingDraft {
     const baseNotes = (tx.notes ?? '').trim();
+    const amountStr = minorUnitsToDollarsString(tx.amount);
     return {
       entryDate: tx.transactionDate,
       description: tx.description,
       notes: baseNotes,
       lines: [
-        { amountDollars: '', accountId: null, direction: '', notes: '' },
-        { amountDollars: '', accountId: null, direction: '', notes: '' },
+        { amountDollars: amountStr, accountId: null, direction: 'D', notes: '' },
+        { amountDollars: amountStr, accountId: null, direction: 'C', notes: '' },
       ],
     };
   }
@@ -352,10 +354,9 @@ export class PendingJournalEntriesPageComponent implements OnInit {
 
   private draftHasAnyLineInfo(draft: IPendingDraft): boolean {
     const lines = draft.lines ?? [];
+    if (lines.length > 2) return true;
     for (const l of lines) {
-      if ((l.amountDollars ?? '').trim().length > 0) return true;
       if (l.accountId != null) return true;
-      if (l.direction === 'C' || l.direction === 'D') return true;
       if ((l.notes ?? '').trim().length > 0) return true;
     }
     return false;

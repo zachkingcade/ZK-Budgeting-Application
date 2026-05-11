@@ -62,7 +62,7 @@ export class PendingTransactionsTableComponent {
   readonly deleteRequested = output<PendingTransactionObject>();
   readonly draftChanged = output<{ transactionNumber: number; draft: IPendingDraft }>();
 
-  readonly displayedColumns = ['date', 'description', 'amount', 'notes', 'actions'] as const;
+  readonly displayedColumns = ['date', 'description', 'amount', 'debitAccount', 'creditAccount', 'actions'] as const;
   readonly expandedIds = signal<Set<number>>(new Set<number>());
 
   readonly isExpansionDetailRow = (_index: number, row: PendingTransactionObject): boolean =>
@@ -88,6 +88,88 @@ export class PendingTransactionsTableComponent {
 
   setDraft(tx: PendingTransactionObject, next: IPendingDraft): void {
     this.draftChanged.emit({ transactionNumber: tx.transactionNumber, draft: next });
+    queueMicrotask(() => this.table?.renderRows());
+  }
+
+  debitLine(tx: PendingTransactionObject): IJournalEntryLineDraft | null {
+    const d = this.getDraft(tx);
+    return d?.lines?.[0] ?? null;
+  }
+
+  creditLine(tx: PendingTransactionObject): IJournalEntryLineDraft | null {
+    const d = this.getDraft(tx);
+    return d?.lines?.[1] ?? null;
+  }
+
+  showCompactDebitCreditSelectors(tx: PendingTransactionObject): boolean {
+    const d = this.getDraft(tx);
+    if (!d) return false;
+    const lines = d.lines ?? [];
+    if (lines.length !== 2) return false;
+    const l0 = lines[0];
+    const l1 = lines[1];
+    if (l0.direction !== 'D' || l1.direction !== 'C') return false;
+    const m0 = dollarsStringToMinorUnits(l0.amountDollars);
+    const m1 = dollarsStringToMinorUnits(l1.amountDollars);
+    if (m0 == null || m1 == null) return false;
+    return m0 === tx.amount && m1 === tx.amount;
+  }
+
+  lineDirectionCounts(tx: PendingTransactionObject): { debit: number; credit: number } {
+    const d = this.getDraft(tx);
+    if (!d) return { debit: 0, credit: 0 };
+    let debit = 0;
+    let credit = 0;
+    for (const line of d.lines ?? []) {
+      if (line.direction === 'D') debit++;
+      else if (line.direction === 'C') credit++;
+    }
+    return { debit, credit };
+  }
+
+  debitCountSummary(tx: PendingTransactionObject): string {
+    const n = this.lineDirectionCounts(tx).debit;
+    return n === 1 ? '1 debit' : `${n} debits`;
+  }
+
+  creditCountSummary(tx: PendingTransactionObject): string {
+    const n = this.lineDirectionCounts(tx).credit;
+    return n === 1 ? '1 credit' : `${n} credits`;
+  }
+
+  /** Ledger effect sign for the compact row line (green + / red −), once account + direction are set. */
+  compactAccountEffectSign(line: IJournalEntryLineDraft | null): '+' | '-' | null {
+    if (!line || line.accountId == null || (line.direction !== 'C' && line.direction !== 'D')) {
+      return null;
+    }
+    const acc = this.accountsById().get(line.accountId);
+    if (!acc) return null;
+    const sign = line.direction === 'C' ? acc.creditEffect : acc.debitEffect;
+    if (sign === '+') return '+';
+    if (sign === '-') return '-';
+    return null;
+  }
+
+  onCompactDebitAccountChange(tx: PendingTransactionObject, accountId: number | null): void {
+    const d = this.getDraft(tx);
+    if (!d || d.lines.length < 2) return;
+    const lines = d.lines.map((l, i) => {
+      if (i === 0) return { ...l, accountId, direction: 'D' as const };
+      if (i === 1) return { ...l, direction: 'C' as const };
+      return l;
+    });
+    this.setDraft(tx, { ...d, lines });
+  }
+
+  onCompactCreditAccountChange(tx: PendingTransactionObject, accountId: number | null): void {
+    const d = this.getDraft(tx);
+    if (!d || d.lines.length < 2) return;
+    const lines = d.lines.map((l, i) => {
+      if (i === 0) return { ...l, direction: 'D' as const };
+      if (i === 1) return { ...l, accountId, direction: 'C' as const };
+      return l;
+    });
+    this.setDraft(tx, { ...d, lines });
   }
 
   addRow(tx: PendingTransactionObject): void {

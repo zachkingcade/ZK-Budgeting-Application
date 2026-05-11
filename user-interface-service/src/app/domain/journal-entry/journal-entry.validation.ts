@@ -95,6 +95,14 @@ export function dollarsStringToMinorUnits(amountDollars: string): number | null 
   return minorUnits;
 }
 
+/** Fixed two-decimal dollars string for a whole minor-units amount (e.g. journal presets). */
+export function minorUnitsToDollarsString(minorUnits: number): string {
+  if (!Number.isFinite(minorUnits)) {
+    return '';
+  }
+  return (minorUnits / 100).toFixed(2);
+}
+
 export function validateJournalEntryDraft(lines: IJournalEntryLineDraft[]): IValidationResult {
   if (!lines || lines.length < 2) {
     return { valid: false, errorMessage: 'Journal entry requires at least two lines.' };

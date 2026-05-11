@@ -37,10 +37,35 @@
 
 .pendingTable__mat {
   width: 100%;
+  table-layout: fixed;
+}
+
+/* Fixed-ish columns; description + debit + credit share the rest */
+.pendingTable__mat .mat-column-date,
+.pendingTable__mat .mat-column-amount {
+  width: 7rem;
+}
+
+.pendingTable__mat .mat-column-actions {
+  width: 7.5rem;
+}
+
+.pendingTable__mat .mat-column-description {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Debit and credit each take the same share of the row (capped for very wide tables) */
+.pendingTable__mat .mat-column-debitAccount,
+.pendingTable__mat .mat-column-creditAccount {
+  width: 22%;
+  min-width: 9rem;
+  max-width: 26rem;
 }
 
 .pendingTable__row {
-  cursor: pointer;
+  cursor: default;
 }
 
 .pendingTable__detailRow td {
@@ -51,6 +76,118 @@
   text-align: right;
   white-space: nowrap;
   vertical-align: middle;
+}
+
+.colAccountHeader {
+  /* Unlabeled account columns: keep header row height without text */
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.colDebitAccount,
+.colCreditAccount {
+  vertical-align: middle;
+  text-align: center;
+}
+
+.compactAccountCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 3rem;
+  min-width: 0;
+}
+
+.compactEffect {
+  flex: 0 0 auto;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  user-select: none;
+}
+
+.compactEffect--plus {
+  color: #2e7d32;
+}
+
+.compactEffect--minus {
+  color: #c62828;
+}
+
+.cellFieldCompact {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+.cellFieldCompact.mat-mdc-form-field {
+  --mat-form-field-container-vertical-padding: 12px;
+}
+
+/* mtx-select host defaults to shrink-to-fit; ng-select panel matches host width — stretch both to the outline */
+:host ::ng-deep .cellFieldCompact mtx-select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+:host ::ng-deep .cellFieldCompact .ng-select {
+  width: 100%;
+  min-width: 0;
+}
+
+:host ::ng-deep .cellFieldCompact .ng-select .ng-select-container {
+  width: 100%;
+  min-width: 0;
+}
+
+/* MDC internals live in Material’s template; pierce locally for compact row selects only */
+:host ::ng-deep .cellFieldCompact .mdc-text-field--outlined {
+  min-height: 48px;
+  align-items: center;
+  width: 100%;
+}
+
+:host ::ng-deep .cellFieldCompact .mat-mdc-text-field-wrapper,
+:host ::ng-deep .cellFieldCompact .mat-mdc-form-field-flex {
+  height: 44px;
+  align-items: center;
+}
+
+:host ::ng-deep .cellFieldCompact .mat-mdc-form-field-infix {
+  min-height: 44px;
+  padding-top: 0;
+  padding-bottom: 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.accountsSummaryCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.75rem;
+}
+
+.accountsSummary {
+  font-size: 0.875rem;
+  color: #374151;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.accountsSummaryPlaceholder {
+  color: #9ca3af;
+  font-size: 0.875rem;
 }
 
 .pendingTable__row.altRow {
