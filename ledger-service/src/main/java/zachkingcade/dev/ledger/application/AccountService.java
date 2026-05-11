@@ -38,6 +38,9 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
     private final AccountClassificationRepositoryPort accountClassificationRepositoryPort;
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
+    private static final String DUPLICATE_ACCOUNT_MESSAGE =
+            "An account with this description already exists for that account type.";
+
     public AccountService(
             AccountRepositoryPort accountRepository,
             GetBalanceForAccountUseCase getBalanceForAccountUseCase,
@@ -112,6 +115,9 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
     public Account createAccount(CreateAccountCommand command) {
         try {
             log.debug("Starting Create Account typeId:[{}] description:[{}]", command.typeId(), command.description());
+            if (Boolean.TRUE.equals(accountRepository.existsByDescriptionAndTypeId(command.userId(), command.typeId(), command.description()))) {
+                throw new ApplicationException(DUPLICATE_ACCOUNT_MESSAGE);
+            }
             Account account = Account.createNew(command.typeId(), command.description(), command.notes().orElse(""), command.userId());
             Account saved = accountRepository.save(account);
             log.debug("Ending Create Account createdId:[{}]", saved.id());
@@ -145,12 +151,13 @@ public class AccountService implements GetAllAccountsUseCase, GetByIdAccountUseC
                 }
             }
 
-            // Check for unique description
-            if(command.description().isPresent() && accountRepository.existsByDescription(command.userId(), newAccount.description()) ){
-                Account existing = accountRepository.findByDescription(command.userId(), newAccount.description());
-                if(!existing.id().equals(newAccount.id()) ){
-                    log.debug("Update Account unique-description validation failed description:[{}] existingId:[{}] currentId:[{}]", newAccount.description(), existing.id(), newAccount.id());
-                    throw new ApplicationException(String.format("An account already exists with the description: [%s]", newAccount.description()));
+            if (command.description().isPresent()
+                    && Boolean.TRUE.equals(accountRepository.existsByDescriptionAndTypeId(command.userId(), newAccount.typeId(), newAccount.description()))) {
+                Account existing = accountRepository.findByDescriptionAndTypeId(command.userId(), newAccount.typeId(), newAccount.description());
+                if (!existing.id().equals(newAccount.id())) {
+                    log.debug("Update Account unique validation failed description:[{}] typeId:[{}] existingId:[{}] currentId:[{}]",
+                            newAccount.description(), newAccount.typeId(), existing.id(), newAccount.id());
+                    throw new ApplicationException(DUPLICATE_ACCOUNT_MESSAGE);
                 }
             }
 

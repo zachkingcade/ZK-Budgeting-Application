@@ -105,7 +105,15 @@
                               <td>
                                 <mat-form-field appearance="outline" class="cellField">
                                   <mat-label>Dollars</mat-label>
-                                  <input matInput inputmode="decimal" placeholder="0.00" [(ngModel)]="line.amountDollars" />
+                                  <input
+                                    matInput
+                                    inputmode="decimal"
+                                    placeholder="0.00"
+                                    [ngModel]="line.amountDollars"
+                                    (input)="onLineAmountInput(row, $index, $event)"
+                                    (blur)="onLineAmountBlur(row, $index)"
+                                    (keydown)="onMoneyKeydown($event)"
+                                  />
                                 </mat-form-field>
                               </td>
                               <td>

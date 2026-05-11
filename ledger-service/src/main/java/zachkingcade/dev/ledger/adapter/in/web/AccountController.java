@@ -34,6 +34,8 @@ import zachkingcade.dev.ledger.domain.account.AccountClassification;
 import zachkingcade.dev.ledger.domain.account.AccountType;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -141,12 +143,51 @@ public class AccountController {
                 filters = new AccountFilterCommandObject(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(false), Optional.of(false), Optional.empty());
             }
 
+            boolean groupByType = request != null && request.groupByType().orElse(false);
+
             GetAllAccountCommand command = new GetAllAccountCommand(userId, Optional.of(sort), Optional.of(filters));
             List<Account> domainList = getAllAccountsUseCase.getAllAccounts(command);
             List<AccountEnrichedObject> resultingList = convertDomainListToResponseAndEnrich(userId, domainList);
-            GetAllAccountsResponse response = new GetAllAccountsResponse(resultingList);
-            ApiResponse<GetAllAccountsResponse> apiResponse = new ApiResponse<>(String.format("Returned [%s] Accounts", resultingList.size()),new MetaData((long) resultingList.size()),response);
-            log.debug("Ending Rest Controller /accounts endpoint /all with [{}] results",resultingList.size());
+
+            Optional<List<AccountsGroupedByTypeResponse>> groups = Optional.empty();
+            List<AccountEnrichedObject> accountsForList = resultingList;
+            if (groupByType && !resultingList.isEmpty()) {
+                GetAllAccountTypesCommand typesCommand = new GetAllAccountTypesCommand(userId, Optional.empty(), Optional.empty());
+                List<AccountType> typeListSorted = new ArrayList<>(getAllAccountTypeUseCase.getAllAccountTypes(typesCommand));
+                typeListSorted.sort(Comparator.comparing(AccountType::id));
+
+                Map<Long, List<AccountEnrichedObject>> byTypeId = new HashMap<>();
+                for (AccountEnrichedObject a : resultingList) {
+                    byTypeId.computeIfAbsent(a.typeId(), k -> new ArrayList<>()).add(a);
+                }
+
+                List<AccountsGroupedByTypeResponse> grouped = new ArrayList<>();
+                List<AccountEnrichedObject> flat = new ArrayList<>();
+                for (AccountType t : typeListSorted) {
+                    List<AccountEnrichedObject> slice = byTypeId.remove(t.id());
+                    if (slice != null && !slice.isEmpty()) {
+                        grouped.add(new AccountsGroupedByTypeResponse(t.id(), t.description(), slice));
+                        flat.addAll(slice);
+                    }
+                }
+                for (Map.Entry<Long, List<AccountEnrichedObject>> e : new ArrayList<>(byTypeId.entrySet())) {
+                    List<AccountEnrichedObject> slice = e.getValue();
+                    if (!slice.isEmpty()) {
+                        AccountEnrichedObject first = slice.get(0);
+                        grouped.add(new AccountsGroupedByTypeResponse(e.getKey(), first.accountTypeName(), slice));
+                        flat.addAll(slice);
+                    }
+                }
+                accountsForList = flat;
+                groups = Optional.of(grouped);
+            }
+
+            GetAllAccountsResponse response = new GetAllAccountsResponse(accountsForList, groups);
+            ApiResponse<GetAllAccountsResponse> apiResponse = new ApiResponse<>(
+                    String.format("Returned [%s] Accounts", accountsForList.size()),
+                    new MetaData((long) accountsForList.size()),
+                    response);
+            log.debug("Ending Rest Controller /accounts endpoint /all with [{}] results", accountsForList.size());
             return new ResponseEntity< >(apiResponse,HttpStatus.OK);
         } catch (RuntimeException ex) {
             log.error("AccountController.handleGetAll failed", ex);
@@ -203,7 +244,12 @@ public class AccountController {
         try {
             log.debug("Starting Rest Controller /accounts endpoint /update id:[{}] description:[{}]",request.id(),request.description());
             Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
-            UpdateAccountCommand command = new UpdateAccountCommand(userId, request.id(), request.description(), request.notes(), request.active());
+            UpdateAccountCommand command = new UpdateAccountCommand(
+                    userId,
+                    request.id(),
+                    request.description(),
+                    Optional.ofNullable(request.notes()),
+                    request.active());
             Account result = updateAccountUseCase.updateAccount(command);
             UpdateAccountResponse response = new UpdateAccountResponse(request.id(), result.typeId(), result.description(), result.active(), result.notes());
             ApiResponse<UpdateAccountResponse> apiResponse = new ApiResponse<>(String.format("Updated Account of ID:[%s]", request.id()),new MetaData(1L),response);

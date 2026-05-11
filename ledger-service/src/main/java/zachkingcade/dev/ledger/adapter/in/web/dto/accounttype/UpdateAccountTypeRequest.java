@@ -6,6 +6,7 @@ public record UpdateAccountTypeRequest(
         Long id,
         Optional<String> description,
         Optional<Boolean> active,
-        Optional<String> notes
+        /** Null if omitted (leave unchanged); empty string clears notes. */
+        String notes
 ) {
 }

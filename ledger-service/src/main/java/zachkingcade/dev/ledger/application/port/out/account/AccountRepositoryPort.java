@@ -19,9 +19,9 @@ public interface AccountRepositoryPort {
 
     Account findById(Long userId, Long id);
 
-    Account findByDescription(Long userId, String description);
+    Account findByDescriptionAndTypeId(Long userId, Long typeId, String description);
 
-    Boolean existsByDescription(Long userId, String description);
+    Boolean existsByDescriptionAndTypeId(Long userId, Long typeId, String description);
 
     Account save(Account accountToSave);
 }

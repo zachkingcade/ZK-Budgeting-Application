@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public record GetAllAccountsRequest(
         Optional<SortObject<AccountSortType>> sort,
-        Optional<AccountFilterObject> filters
+        Optional<AccountFilterObject> filters,
+        Optional<Boolean> groupByType
 ) {
 }

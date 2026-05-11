@@ -27,8 +27,8 @@ class AccountServiceTest {
     private static class FakeAccountRepositoryPort implements AccountRepositoryPort {
         private final List<Account> accounts = new ArrayList<>();
         private Account findByIdResult;
-        private Account findByDescriptionResult;
-        private Boolean existsByDescriptionResult;
+        private Account findByDescriptionAndTypeIdResult;
+        private Boolean existsByDescriptionAndTypeIdResult;
 
         private Account saved;
         private int saveCalls = 0;
@@ -38,12 +38,12 @@ class AccountServiceTest {
             this.findByIdResult = account;
         }
 
-        void whenExistsByDescription(boolean exists) {
-            this.existsByDescriptionResult = exists;
+        void whenExistsByDescriptionAndTypeId(boolean exists) {
+            this.existsByDescriptionAndTypeIdResult = exists;
         }
 
-        void whenFindByDescription(Account account) {
-            this.findByDescriptionResult = account;
+        void whenFindByDescriptionAndTypeId(Account account) {
+            this.findByDescriptionAndTypeIdResult = account;
         }
 
         Account saved() {
@@ -80,13 +80,13 @@ class AccountServiceTest {
         }
 
         @Override
-        public Account findByDescription(Long userId, String description) {
-            return findByDescriptionResult;
+        public Account findByDescriptionAndTypeId(Long userId, Long typeId, String description) {
+            return findByDescriptionAndTypeIdResult;
         }
 
         @Override
-        public Boolean existsByDescription(Long userId, String description) {
-            return existsByDescriptionResult;
+        public Boolean existsByDescriptionAndTypeId(Long userId, Long typeId, String description) {
+            return existsByDescriptionAndTypeIdResult;
         }
 
         @Override
@@ -195,8 +195,8 @@ class AccountServiceTest {
         repo.whenFindById(Account.rehydrate(1L, 10L, "Old description", true, "old-notes", 1L));
 
         // Unique description already exists for a different account id
-        repo.whenExistsByDescription(true);
-        repo.whenFindByDescription(Account.rehydrate(999L, 10L, "New description", true, "other", 1L));
+        repo.whenExistsByDescriptionAndTypeId(true);
+        repo.whenFindByDescriptionAndTypeId(Account.rehydrate(999L, 10L, "New description", true, "other", 1L));
 
         AccountService service = createService(repo);
 
@@ -209,7 +209,7 @@ class AccountServiceTest {
         );
 
         ApplicationException ex = assertThrows(ApplicationException.class, () -> service.updateAccount(command));
-        assertTrue(ex.getMessage().contains("already exists with the description"));
+        assertTrue(ex.getMessage().contains("already exists"));
     }
 
     @Test

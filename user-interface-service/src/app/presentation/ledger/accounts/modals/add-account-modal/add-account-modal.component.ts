@@ -10,6 +10,7 @@ import { MtxSelectModule } from '@ng-matero/extensions/select';
 import { AccountTypesApplicationService } from '../../../../../application/ledger/account-types.application-service';
 import { AccountsApplicationService } from '../../../../../application/ledger/accounts.application-service';
 import { POSTCreateAccountRequest } from '../../../../../adapter/ledger-service/dto/account/POSTCreateAccountRequest';
+import { readLedgerApiErrorMessage } from '../../../../../adapter/ledger-service/ledger-http-error.util';
 
 type Option = { id: number; label: string };
 
@@ -100,7 +101,7 @@ export class AddAccountModalComponent implements OnChanges {
     const request: POSTCreateAccountRequest = {
       typeId: this.typeId,
       description: trimmedDescription,
-      notes: (this.notes ?? '').trim() || undefined,
+      notes: (this.notes ?? '').trim(),
     };
 
     this.submitting.set(true);
@@ -115,9 +116,9 @@ export class AddAccountModalComponent implements OnChanges {
           this.created.emit(res);
           this.resetForm();
         },
-        error: () => {
+        error: (err: unknown) => {
           this.submitting.set(false);
-          this.errorMessage.set('Could not create account.');
+          this.errorMessage.set(readLedgerApiErrorMessage(err, 'Could not create account.'));
         },
       });
   }

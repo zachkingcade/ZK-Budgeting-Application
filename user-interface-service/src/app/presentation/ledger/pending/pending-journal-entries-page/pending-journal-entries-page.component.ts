@@ -292,14 +292,14 @@ export class PendingJournalEntriesPageComponent implements OnInit {
         amount: dollarsStringToMinorUnits(l.amountDollars) as number,
         accountId: l.accountId as number,
         direction: l.direction as 'C' | 'D',
-        notes: (l.notes ?? '').trim() || undefined,
+        notes: (l.notes ?? '').trim(),
       }));
 
       items.push({
         pendingTransactionNumber: tx.transactionNumber,
         entryDate: draft.entryDate,
         description: desc,
-        notes: (draft.notes ?? '').trim() || undefined,
+        notes: (draft.notes ?? '').trim(),
         journalLines,
       });
     }

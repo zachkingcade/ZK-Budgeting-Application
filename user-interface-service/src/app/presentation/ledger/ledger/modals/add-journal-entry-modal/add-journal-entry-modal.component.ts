@@ -26,7 +26,10 @@ import { POSTCreateJournalEntryRequest } from '../../../../../adapter/ledger-ser
 import { AccountEnrichedObject } from '../../../../../adapter/ledger-service/dto/account/AccountEnrichedObject';
 import {
   dollarsStringToMinorUnits,
+  formatMoneyDollarsOnBlur,
   IJournalEntryLineDraft,
+  onMoneyDollarsKeydown,
+  sanitizeMoneyDollarsInput,
   validateJournalEntryDraft,
 } from '../../../../../domain/journal-entry/journal-entry.validation';
 
@@ -234,13 +237,13 @@ export class AddJournalEntryModalComponent implements OnInit, OnChanges {
       amount: dollarsStringToMinorUnits(l.amountDollars) as number,
       accountId: l.accountId as number,
       direction: l.direction,
-      notes: (l.notes ?? '').trim() || undefined,
+      notes: (l.notes ?? '').trim(),
     }));
 
     const request: POSTCreateJournalEntryRequest = {
       entryDate: this.entryDate,
       description: trimmedDescription,
-      notes: (this.notes ?? '').trim() || undefined,
+      notes: (this.notes ?? '').trim(),
       journalLines,
     };
 
@@ -261,6 +264,34 @@ export class AddJournalEntryModalComponent implements OnInit, OnChanges {
           this.errorMessage.set('Could not create journal entry.');
         },
       });
+  }
+
+  onLineAmountChange(index: number, value: string): void {
+    this.lines.update((rows) => {
+      const next = [...rows];
+      next[index] = { ...next[index], amountDollars: sanitizeMoneyDollarsInput(value) };
+      return next;
+    });
+  }
+
+  onLineAmountBlur(index: number): void {
+    this.lines.update((rows) => {
+      const next = [...rows];
+      next[index] = { ...next[index], amountDollars: formatMoneyDollarsOnBlur(next[index].amountDollars) };
+      return next;
+    });
+  }
+
+  onLineAmountInput(index: number, ev: Event): void {
+    const t = ev.target;
+    if (!(t instanceof HTMLInputElement)) {
+      return;
+    }
+    this.onLineAmountChange(index, sanitizeMoneyDollarsInput(t.value));
+  }
+
+  onMoneyKeydown(ev: KeyboardEvent): void {
+    onMoneyDollarsKeydown(ev);
   }
 
   resetForm(): void {

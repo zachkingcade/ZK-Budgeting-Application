@@ -66,7 +66,7 @@ export class EditAccountTypeModalComponent implements OnChanges {
     const request: POSTUpdateAccountTypeRequest = {
       id: this.accountType.id,
       description: trimmedDescription,
-      notes: (this.notes ?? '').trim() || undefined,
+      notes: (this.notes ?? '').trim(),
     };
 
     this.submitting.set(true);

@@ -85,7 +85,7 @@ export class EditJournalEntryModalComponent {
     const request: POSTUpdateJournalEntryRequest = {
       id: currentEntry.id,
       description: trimmedDescription,
-      notes: (this.notes ?? '').trim() || undefined,
+      notes: (this.notes ?? '').trim(),
       journalLines: this.lineDrafts().map((l) => ({ id: l.id, notes: (l.notes ?? '').trim() })),
     };
 

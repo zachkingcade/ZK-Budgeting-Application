@@ -10,7 +10,7 @@ public interface AccountJpaRepository extends JpaRepository<AccountEntity, Long>
 
     Optional<AccountEntity> findByIdAndUserId(Long id, Long userId);
 
-    Boolean existsByDescriptionAndUserId(String description, Long userId);
+    Boolean existsByDescriptionAndUserIdAndType_Id(String description, Long userId, Long typeId);
 
-    Optional<AccountEntity> findByDescriptionAndUserId(String description, Long userId);
+    Optional<AccountEntity> findByDescriptionAndUserIdAndType_Id(String description, Long userId, Long typeId);
 }

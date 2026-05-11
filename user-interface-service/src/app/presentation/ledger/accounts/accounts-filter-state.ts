@@ -12,14 +12,17 @@ export interface IAccountsFilterState {
   showInactive: boolean;
   /** When true, show only inactive accounts (maps to hideActive=true). */
   hideActiveOnly: boolean;
+  /** When true, request grouped-by-type layout from the ledger API. */
+  groupByAccountType: boolean;
 }
 
 export const DEFAULT_ACCOUNTS_FILTER_STATE: IAccountsFilterState = {
   searchTerm: '',
   selectedAccountTypeIds: [],
-  selectedSortBy: 'Description (Asc.)',
+  selectedSortBy: 'Creation order (Asc.)',
   showInactive: false,
   hideActiveOnly: false,
+  groupByAccountType: false,
 };
 
 export function cloneAccountsFilterState(state: IAccountsFilterState): IAccountsFilterState {
@@ -29,5 +32,6 @@ export function cloneAccountsFilterState(state: IAccountsFilterState): IAccounts
     selectedSortBy: state.selectedSortBy,
     showInactive: state.showInactive,
     hideActiveOnly: state.hideActiveOnly,
+    groupByAccountType: state.groupByAccountType,
   };
 }

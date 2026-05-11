@@ -12,7 +12,10 @@ import { PendingTransactionObject } from '../../../../adapter/ledger-service/dto
 import { AccountEnrichedObject } from '../../../../adapter/ledger-service/dto/account/AccountEnrichedObject';
 import {
   dollarsStringToMinorUnits,
+  formatMoneyDollarsOnBlur,
   IJournalEntryLineDraft,
+  onMoneyDollarsKeydown,
+  sanitizeMoneyDollarsInput,
   validateJournalEntryDraft,
 } from '../../../../domain/journal-entry/journal-entry.validation';
 
@@ -98,6 +101,36 @@ export class PendingTransactionsTableComponent {
     if (!d) return;
     if (d.lines.length <= 2) return;
     this.setDraft(tx, { ...d, lines: d.lines.filter((_l, i) => i !== index) });
+  }
+
+  onLineAmountChange(tx: PendingTransactionObject, lineIndex: number, value: string): void {
+    const d = this.getDraft(tx);
+    if (!d) return;
+    const lines = d.lines.map((l, i) =>
+      i === lineIndex ? { ...l, amountDollars: sanitizeMoneyDollarsInput(value) } : l,
+    );
+    this.setDraft(tx, { ...d, lines });
+  }
+
+  onLineAmountBlur(tx: PendingTransactionObject, lineIndex: number): void {
+    const d = this.getDraft(tx);
+    if (!d) return;
+    const lines = d.lines.map((l, i) =>
+      i === lineIndex ? { ...l, amountDollars: formatMoneyDollarsOnBlur(l.amountDollars) } : l,
+    );
+    this.setDraft(tx, { ...d, lines });
+  }
+
+  onLineAmountInput(tx: PendingTransactionObject, lineIndex: number, ev: Event): void {
+    const t = ev.target;
+    if (!(t instanceof HTMLInputElement)) {
+      return;
+    }
+    this.onLineAmountChange(tx, lineIndex, sanitizeMoneyDollarsInput(t.value));
+  }
+
+  onMoneyKeydown(ev: KeyboardEvent): void {
+    onMoneyDollarsKeydown(ev);
   }
 
   debitTotalMinor(tx: PendingTransactionObject): number {

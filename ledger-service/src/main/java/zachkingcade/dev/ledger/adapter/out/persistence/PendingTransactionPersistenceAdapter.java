@@ -22,7 +22,7 @@ public class PendingTransactionPersistenceAdapter implements PendingTransactionR
 
     @Override
     public List<PendingTransaction> findAllByUserId(Long userId) {
-        List<PendingTransactionEntity> entities = pendingTransactionJpaRepository.findAllByUserIdOrderByTransactionDateDescTransactionNumberDesc(userId);
+        List<PendingTransactionEntity> entities = pendingTransactionJpaRepository.findAllByUserIdOrderByTransactionDateAscTransactionNumberAsc(userId);
         List<PendingTransaction> results = new ArrayList<>();
         for (PendingTransactionEntity e : entities) {
             results.add(mapToDomain(e));

@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { AccountsApplicationService } from '../../../../../application/ledger/accounts.application-service';
 import { AccountEnrichedObject } from '../../../../../adapter/ledger-service/dto/account/AccountEnrichedObject';
 import { POSTUpdateAccountRequest } from '../../../../../adapter/ledger-service/dto/account/POSTUpdateAccountRequest';
+import { readLedgerApiErrorMessage } from '../../../../../adapter/ledger-service/ledger-http-error.util';
 
 @Component({
   selector: 'app-edit-account-modal',
@@ -71,7 +72,7 @@ export class EditAccountModalComponent implements OnChanges {
     const request: POSTUpdateAccountRequest = {
       id: this.account.accountId,
       description: trimmedDescription,
-      notes: (this.notes ?? '').trim() || undefined,
+      notes: (this.notes ?? '').trim(),
     };
 
     this.submitting.set(true);
@@ -89,7 +90,7 @@ export class EditAccountModalComponent implements OnChanges {
           // eslint-disable-next-line no-console
           console.error(err);
           this.submitting.set(false);
-          this.errorMessage.set('Could not update account.');
+          this.errorMessage.set(readLedgerApiErrorMessage(err, 'Could not update account.'));
         },
       });
   }

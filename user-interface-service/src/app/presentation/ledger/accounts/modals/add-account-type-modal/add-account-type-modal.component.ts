@@ -97,7 +97,7 @@ export class AddAccountTypeModalComponent implements OnChanges {
     const request: POSTCreateAccountTypeRequest = {
       classificationId: this.classificationId,
       description: trimmedDescription,
-      notes: (this.notes ?? '').trim() || undefined,
+      notes: (this.notes ?? '').trim(),
     };
 
     this.submitting.set(true);

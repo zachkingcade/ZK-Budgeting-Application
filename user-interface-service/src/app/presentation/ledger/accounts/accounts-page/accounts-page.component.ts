@@ -238,7 +238,9 @@ export class AccountsPageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          this.accounts.set(res.data?.accountsList ?? []);
+          const data = res.data;
+          // When `groupByType` is true, the ledger returns `accountsList` in account-type order (same rows, single sort).
+          this.accounts.set(data?.accountsList ?? []);
           this.loading.set(false);
         },
         error: () => {
@@ -262,7 +264,11 @@ export class AccountsPageComponent implements OnInit {
 
     const sort = this.buildSortObject(state.selectedSortBy);
 
-    return { sort, filters };
+    return {
+      sort,
+      filters,
+      groupByType: !!state.groupByAccountType,
+    };
   }
 
   private buildSortObject(selectedSortBy: IAccountsFilterState['selectedSortBy']): SortObject<'description' | 'id'> {
@@ -280,6 +286,7 @@ export class AccountsPageComponent implements OnInit {
       a.selectedSortBy === b.selectedSortBy &&
       a.showInactive === b.showInactive &&
       a.hideActiveOnly === b.hideActiveOnly &&
+      a.groupByAccountType === b.groupByAccountType &&
       this.arraysEqual(a.selectedAccountTypeIds, b.selectedAccountTypeIds)
     );
   }

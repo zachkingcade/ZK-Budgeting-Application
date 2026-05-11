@@ -1,18 +1,11 @@
 Purpose: Track planned work and ideas for the project over time.
-Last updated: 2026-04-22
+Last updated: 2026-05-04
 
 ## Roadmap to interview MVP
 
 ## Small changes found while daily driving
 
-- Money input should be formatted
-- Money input should allow numbers only
 - change add journal entry modal sizing
-- Proper error for duplicate account
-- accounts should only need to be unique by user, description and account type COMBINED
-- Pending order should be older transactions first
-- Group accounts by type and default creation order
-- Hot Key to bring current remaining down into amount input field
 
 ## Stack List
 

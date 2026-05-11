@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PendingTransactionJpaRepository extends JpaRepository<PendingTransactionEntity, Long> {
-    List<PendingTransactionEntity> findAllByUserIdOrderByTransactionDateDescTransactionNumberDesc(Long userId);
+    List<PendingTransactionEntity> findAllByUserIdOrderByTransactionDateAscTransactionNumberAsc(Long userId);
 
     Optional<PendingTransactionEntity> findByTransactionNumberAndUserId(Long transactionNumber, Long userId);
 }

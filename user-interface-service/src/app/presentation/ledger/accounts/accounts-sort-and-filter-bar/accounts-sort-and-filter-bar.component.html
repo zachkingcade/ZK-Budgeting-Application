@@ -52,5 +52,8 @@
     >
       Hide active (inactive only)
     </mat-slide-toggle>
+    <mat-slide-toggle [(ngModel)]="state.groupByAccountType" (ngModelChange)="onGroupByTypeChange()">
+      Group by account type
+    </mat-slide-toggle>
   </div>
 </div>

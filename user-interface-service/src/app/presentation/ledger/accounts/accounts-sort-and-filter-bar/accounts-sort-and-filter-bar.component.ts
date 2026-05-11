@@ -77,6 +77,7 @@ export class AccountsSortAndFilterBarComponent implements OnInit {
       selectedSortBy: this.state.selectedSortBy,
       showInactive: this.state.showInactive,
       hideActiveOnly: this.state.hideActiveOnly,
+      groupByAccountType: this.state.groupByAccountType,
     });
   }
 
@@ -100,6 +101,10 @@ export class AccountsSortAndFilterBarComponent implements OnInit {
     if (checked && !this.state.showInactive) {
       this.state.showInactive = true;
     }
+    this.emitState();
+  }
+
+  onGroupByTypeChange(): void {
     this.emitState();
   }
 

@@ -74,18 +74,18 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
     }
 
     @Override
-    public Account findByDescription(Long userId, String description){
-        Optional<AccountEntity> entity  = accountJpaRepository.findByDescriptionAndUserId(description, userId);
+    public Account findByDescriptionAndTypeId(Long userId, Long typeId, String description){
+        Optional<AccountEntity> entity  = accountJpaRepository.findByDescriptionAndUserIdAndType_Id(description, userId, typeId);
         if(entity.isPresent()){
             return Account.rehydrate(entity.get().getId(), entity.get().getType().getId(),entity.get().getDescription(),entity.get().isActive(),entity.get().getNotes(), entity.get().getUserId());
         } else {
-            throw new NotFoundException(String.format("Account not found for description [%s]", description));
+            throw new NotFoundException(String.format("Account not found for description [%s] and type id [%s]", description, typeId));
         }
     }
 
     @Override
-    public Boolean existsByDescription(Long userId, String description){
-        return accountJpaRepository.existsByDescriptionAndUserId(description, userId);
+    public Boolean existsByDescriptionAndTypeId(Long userId, Long typeId, String description){
+        return accountJpaRepository.existsByDescriptionAndUserIdAndType_Id(description, userId, typeId);
     }
 
     @Override

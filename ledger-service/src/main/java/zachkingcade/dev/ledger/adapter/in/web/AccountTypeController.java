@@ -186,7 +186,12 @@ public class AccountTypeController {
         try {
             log.debug("Starting Rest Controller /accounttypes endpoint /update id:[{}] descriptiont:[{}]",request.id(),request.description());
             Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
-            UpdateAccountTypeCommand command = new UpdateAccountTypeCommand(userId, request.id(), request.description(),request.notes(),request.active());
+            UpdateAccountTypeCommand command = new UpdateAccountTypeCommand(
+                    userId,
+                    request.id(),
+                    request.description(),
+                    Optional.ofNullable(request.notes()),
+                    request.active());
             AccountType accountType = updateAccountTypeUseCase.updateAccountType(command);
             UpdateAccountTypeResponse response = new UpdateAccountTypeResponse(
                     accountType.id(),

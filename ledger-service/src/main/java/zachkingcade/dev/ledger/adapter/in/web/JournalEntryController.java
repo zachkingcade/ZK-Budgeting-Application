@@ -208,7 +208,7 @@ public class JournalEntryController {
                     userId,
                     request.id(),
                     request.description(),
-                    request.notes(),
+                    Optional.ofNullable(request.notes()),
                     resultingCommandLineList
             );
             JournalEntry entry = updateJournalEntryUseCase.updateJournalEntry(command);

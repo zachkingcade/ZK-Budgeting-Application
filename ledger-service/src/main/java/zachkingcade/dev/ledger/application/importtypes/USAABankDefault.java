@@ -58,7 +58,6 @@ public class USAABankDefault implements ImportType {
             int dateIdx = indexOf(details.headerArray(), "Date");
             int descIdx = indexOf(details.headerArray(), "Description");
             int amountIdx = indexOf(details.headerArray(), "Amount");
-            int statusIdx = indexOf(details.headerArray(), "Status");
 
             List<PendingTransactionDraft> drafts = new ArrayList<>();
             for (int i = 1; i < records.size(); i++) {
@@ -70,7 +69,6 @@ public class USAABankDefault implements ImportType {
                 String rawDate = safeGet(row, dateIdx);
                 String rawDesc = safeGet(row, descIdx);
                 String rawAmount = safeGet(row, amountIdx);
-                String rawStatus = safeGet(row, statusIdx);
 
                 if ((rawDate == null || rawDate.isBlank()) && (rawDesc == null || rawDesc.isBlank()) && (rawAmount == null || rawAmount.isBlank())) {
                     continue;
@@ -86,9 +84,6 @@ public class USAABankDefault implements ImportType {
                 Long amountMinor = parseAbsMinorUnits(rawAmount, i + 1);
 
                 String notes = "";
-                if (rawStatus != null && rawStatus.trim().equalsIgnoreCase("pending")) {
-                    notes = appendPending(notes);
-                }
 
                 drafts.add(new PendingTransactionDraft(txDate, description, amountMinor, notes));
             }
@@ -260,15 +255,5 @@ public class USAABankDefault implements ImportType {
         }
     }
 
-    private static String appendPending(String existingNotes) {
-        String base = existingNotes == null ? "" : existingNotes.trim();
-        if (base.isEmpty()) {
-            return "PENDING";
-        }
-        if (base.toUpperCase().contains("PENDING")) {
-            return base;
-        }
-        return base + " PENDING";
-    }
 }
 
