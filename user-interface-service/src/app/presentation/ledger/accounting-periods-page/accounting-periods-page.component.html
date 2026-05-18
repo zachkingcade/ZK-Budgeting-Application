@@ -1,0 +1,83 @@
+<app-page-cage pageName="Accounting Periods" subText="View closed periods and archived journal entries">
+  <div class="accountingPeriodsPage">
+    <div class="accountingPeriodsPage__toolbar">
+      <button mat-raised-button color="primary" type="button" (click)="openCloseDialog()">
+        <mat-icon>lock</mat-icon>
+        Close accounting period
+      </button>
+      @if (!settingsConfigured()) {
+        <p class="accountingPeriodsPage__hint">
+          Configure accounting period settings on the
+          <a routerLink="/settings">Settings</a>
+          page before closing a period.
+        </p>
+      }
+    </div>
+
+    <div class="accountingPeriodsPage__body">
+      <aside class="accountingPeriodsPage__list">
+        <h2 class="accountingPeriodsPage__listTitle">Closed periods</h2>
+        @if (loadingPeriods()) {
+          <mat-spinner diameter="32"></mat-spinner>
+        } @else if (periodsError()) {
+          <p class="accountingPeriodsPage__error">{{ periodsError() }}</p>
+        } @else if (closedPeriods().length === 0) {
+          <p class="accountingPeriodsPage__empty">No closed accounting periods yet.</p>
+        } @else {
+          <ul class="periodList">
+            @for (period of closedPeriods(); track period.closedAccountingPeriodId) {
+              <li>
+                <button
+                  type="button"
+                  class="periodList__item"
+                  [class.periodList__item--active]="selectedPeriodId() === period.closedAccountingPeriodId"
+                  (click)="selectPeriod(period)"
+                >
+                  <span class="periodList__dates">{{ formatPeriodRange(period) }}</span>
+                  <span class="periodList__count">{{ period.transactionCount }} transactions</span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </aside>
+
+      <section class="accountingPeriodsPage__detail">
+        @if (selectedPeriod(); as period) {
+          <h2 class="accountingPeriodsPage__detailTitle">Archived entries ({{ formatPeriodRange(period) }})</h2>
+        }
+        @if (loadingEntries()) {
+          <mat-spinner diameter="32"></mat-spinner>
+        } @else if (entriesError()) {
+          <p class="accountingPeriodsPage__error">{{ entriesError() }}</p>
+        } @else if (selectedPeriodId() == null) {
+          <p class="accountingPeriodsPage__empty">Select a closed period to view transactions.</p>
+        } @else {
+          <div class="archivedTable__frame">
+            <div class="archivedTable__scroll">
+              <table mat-table [dataSource]="archivedEntries()" class="archivedTable">
+                <ng-container matColumnDef="entryDate">
+                  <th mat-header-cell *matHeaderCellDef>Date</th>
+                  <td mat-cell *matCellDef="let row">{{ row.entryDate | date: 'yyyy-MM-dd' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef>Description</th>
+                  <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+                </ng-container>
+                <ng-container matColumnDef="notes">
+                  <th mat-header-cell *matHeaderCellDef>Notes</th>
+                  <td mat-cell *matCellDef="let row">{{ row.notes }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
+          </div>
+          @if (archivedEntries().length === 0) {
+            <p class="accountingPeriodsPage__empty">No journal entries in this period.</p>
+          }
+        }
+      </section>
+    </div>
+  </div>
+</app-page-cage>

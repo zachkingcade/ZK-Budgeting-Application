@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import zachkingcade.dev.user.application.exception.ApplicationException;
+import zachkingcade.dev.user.application.exception.ConflictException;
 import zachkingcade.dev.user.application.exception.NotFoundException;
 import zachkingcade.dev.user.domain.exception.DomainException;
 
@@ -41,6 +42,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ApiErrorResponse("APPLICATION_ERROR", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiErrorResponse> handleConflict(ConflictException ex) {
+        log.error("Conflict", ex);
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiErrorResponse("CONFLICT", ex.getMessage()));
     }
 
     @ExceptionHandler(NotFoundException.class)

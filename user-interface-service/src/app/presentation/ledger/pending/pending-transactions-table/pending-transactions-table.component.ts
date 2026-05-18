@@ -63,6 +63,7 @@ export class PendingTransactionsTableComponent {
   readonly draftsById = input.required<Map<number, IPendingDraft>>();
 
   readonly deleteRequested = output<PendingTransactionObject>();
+  readonly changeDateRequested = output<PendingTransactionObject>();
   readonly draftChanged = output<{ transactionNumber: number; draft: IPendingDraft }>();
 
   readonly displayedColumns = [
@@ -82,6 +83,12 @@ export class PendingTransactionsTableComponent {
   buildPendingRowActionsMenu(row: PendingTransactionObject): ITableRowAction[] {
     return [
       {
+        id: 'changeDate',
+        label: 'Change date',
+        icon: 'event',
+        disabled: this.removingTransactionNumber() === row.transactionNumber,
+      },
+      {
         id: 'delete',
         label: 'Delete',
         icon: 'delete',
@@ -92,6 +99,9 @@ export class PendingTransactionsTableComponent {
 
   onPendingRowMenuAction(selection: { id: string }, row: PendingTransactionObject): void {
     switch (selection.id) {
+      case 'changeDate':
+        this.changeDateRequested.emit(row);
+        break;
       case 'delete':
         this.deleteRequested.emit(row);
         break;

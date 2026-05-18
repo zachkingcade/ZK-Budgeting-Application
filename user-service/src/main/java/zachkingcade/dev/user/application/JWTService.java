@@ -46,7 +46,7 @@ public class JWTService {
                 .subject(String.valueOf(userId))
                 .claim("username", username)
                 .claim("token_type", "user")
-                .claim("aud", List.of("ledger-service", "reporting-service"))
+                .claim("aud", List.of("ledger-service", "reporting-service", "user-service"))
                 .issuer("auth-service")
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiry))

@@ -1,0 +1,46 @@
+<app-page-cage pageName="Settings" subText="User account preferences">
+  <div class="settingsPage">
+    @if (loadError()) {
+      <p class="settingsPage__error">{{ loadError() }}</p>
+    }
+
+    <mat-expansion-panel class="settingsPanel" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Accounting Periods</mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <p class="settingsPanel__rules">
+        Accounting periods must be closed in chronological order. Once closed, a period cannot be reopened.
+        Transactions cannot be posted in closed periods or before the oldest unclosed period start (dates that would never archive).
+      </p>
+
+      <form [formGroup]="accountingPeriodForm" class="settingsForm">
+        <mat-form-field appearance="outline" class="settingsForm__field">
+          <mat-label>Frequency unit</mat-label>
+          <mat-select formControlName="frequencyUnit">
+            <mat-option value="DAYS">Days</mat-option>
+            <mat-option value="WEEKS">Weeks</mat-option>
+            <mat-option value="MONTHS">Months</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="settingsForm__field">
+          <mat-label>Frequency count</mat-label>
+          <input matInput type="number" formControlName="frequencyCount" [max]="maxCount()" min="1" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="settingsForm__field">
+          <mat-label>First accounting period start date</mat-label>
+          <input matInput type="date" formControlName="firstStartDate" />
+        </mat-form-field>
+      </form>
+    </mat-expansion-panel>
+
+    <div class="settingsPage__actions">
+      <button mat-stroked-button type="button" (click)="clear()" [disabled]="loading() || saving()">Clear</button>
+      <button mat-raised-button color="primary" type="button" (click)="save()" [disabled]="loading() || saving()">
+        Save
+      </button>
+    </div>
+  </div>
+</app-page-cage>

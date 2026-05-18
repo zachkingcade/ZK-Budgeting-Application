@@ -1,7 +1,9 @@
 import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { readLedgerApiErrorMessage } from '../../../../adapter/ledger-service/ledger-http-error.util';
 import { PageCage } from '../../../page-cage/page-cage.component';
 import { ConfirmationModalComponent } from '../../../shared/confirmation-modal/confirmation-modal.component';
 import { PendingImportBarComponent } from '../pending-import-bar/pending-import-bar.component';
@@ -21,6 +23,10 @@ import {
   validateJournalEntryDraft,
 } from '../../../../domain/journal-entry/journal-entry.validation';
 import { ApplyPendingTransactionsFailureObject } from '../../../../adapter/ledger-service/dto/pending-transaction/apply/ApplyPendingTransactionsFailureObject';
+import {
+  ChangePendingDateDialogComponent,
+  ChangePendingDateDialogResult,
+} from '../change-pending-date-dialog.component';
 
 type SelectOption<T extends string | number> = { id: T; label: string };
 
@@ -44,6 +50,7 @@ export class PendingJournalEntriesPageComponent implements OnInit {
     private readonly pendingTransactions: PendingTransactionsApplicationService,
     private readonly accounts: AccountsApplicationService,
     private readonly toast: ToastService,
+    private readonly dialog: MatDialog,
     private readonly destroyRef: DestroyRef,
   ) {}
 
@@ -199,6 +206,50 @@ export class PendingJournalEntriesPageComponent implements OnInit {
           this.toast.showError('Import failed. Make sure the format and CSV headers match.');
         },
       });
+  }
+
+  openChangeDateDialog(tx: PendingTransactionObject): void {
+    const ref = this.dialog.open(ChangePendingDateDialogComponent, {
+      data: { transaction: tx },
+      width: '28rem',
+    });
+    ref.afterClosed().subscribe((result: ChangePendingDateDialogResult | undefined) => {
+      if (!result) {
+        return;
+      }
+      if (result.transactionDate === tx.transactionDate) {
+        return;
+      }
+      this.pendingTransactions
+        .updateDate(tx.transactionNumber, { transactionDate: result.transactionDate })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.txs.update((list) =>
+              list.map((t) =>
+                t.transactionNumber === tx.transactionNumber
+                  ? { ...t, transactionDate: result.transactionDate }
+                  : t,
+              ),
+            );
+            this.draftsById.update((prev) => {
+              const draft = prev.get(tx.transactionNumber);
+              if (!draft) {
+                return prev;
+              }
+              const next = new Map(prev);
+              next.set(tx.transactionNumber, { ...draft, entryDate: result.transactionDate });
+              return next;
+            });
+            this.toast.showSuccess('Pending transaction date updated.');
+          },
+          error: (err: unknown) => {
+            this.toast.showError(
+              readLedgerApiErrorMessage(err, 'Could not update the pending transaction date.'),
+            );
+          },
+        });
+    });
   }
 
   openDeleteConfirm(tx: PendingTransactionObject): void {

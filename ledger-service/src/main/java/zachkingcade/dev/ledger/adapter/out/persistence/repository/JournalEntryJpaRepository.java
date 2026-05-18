@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalEntryEntity;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +23,7 @@ public interface JournalEntryJpaRepository extends JpaRepository<JournalEntryEnt
 
     @EntityGraph(attributePaths = {"journalLines", "journalLines.account"})
     List<JournalEntryEntity> findAllByUserId(Long userId);
+
+    @EntityGraph(attributePaths = {"journalLines"})
+    List<JournalEntryEntity> findAllByUserIdAndEntryDateBetween(Long userId, Date startDate, Date endDate);
 }

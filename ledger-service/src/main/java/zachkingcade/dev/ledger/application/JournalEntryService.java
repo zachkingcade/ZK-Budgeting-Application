@@ -7,6 +7,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.AccountEntity;
 import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalEntryEntity;
+import zachkingcade.dev.ledger.application.account.AccountBalanceService;
+import zachkingcade.dev.ledger.application.accountingperiod.AccountingPeriodPostingGuard;
 import zachkingcade.dev.ledger.application.commands.journal.*;
 import zachkingcade.dev.ledger.application.port.in.journal.*;
 import zachkingcade.dev.ledger.application.port.out.journal.JournalEntryRepositoryPort;
@@ -28,16 +30,24 @@ import static zachkingcade.dev.ledger.adapter.out.persistence.specification.Jour
 public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJournalEntryUseCase, GetByIdJournalEntryUseCase, UpdateJournalEntryUseCase, RemoveByIdJournalEntryUseCase, GetBalanceForAccountUseCase {
 
     private final JournalEntryRepositoryPort journalEntryRepository;
+    private final AccountingPeriodPostingGuard accountingPeriodPostingGuard;
+    private final AccountBalanceService accountBalanceService;
     private static final Logger log = LoggerFactory.getLogger(JournalEntryService.class);
 
-    public JournalEntryService(JournalEntryRepositoryPort journalEntryRepository) {
+    public JournalEntryService(
+            JournalEntryRepositoryPort journalEntryRepository,
+            AccountingPeriodPostingGuard accountingPeriodPostingGuard,
+            AccountBalanceService accountBalanceService) {
         this.journalEntryRepository = journalEntryRepository;
+        this.accountingPeriodPostingGuard = accountingPeriodPostingGuard;
+        this.accountBalanceService = accountBalanceService;
     }
 
     @Override
     public JournalEntry createJournalEntry(CreateJournalEntryCommand command) {
         try {
             log.debug("Starting Create Journal Entry entryDate:[{}] description:[{}] journalLinesCount:[{}]",command.entryDate(),command.description(),command.journalLinesList().size());
+            accountingPeriodPostingGuard.assertEntryDateAllowed(command.userId(), command.entryDate());
             List<JournalLine> lineList = new ArrayList<>();
             for(JournalLineCommandObject line : command.journalLinesList()){
                 lineList.add(JournalLine.createNew(line.amount(), line.accountId(), line.direction(), line.notes().orElse("")));
@@ -120,6 +130,7 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
         try {
             log.debug("Starting Update Journal Entry jeId:[{}] description:[{}]",command.id(),command.description());
             JournalEntry entryToUpdate = journalEntryRepository.findById(command.userId(), command.id());
+            accountingPeriodPostingGuard.assertEntryDateAllowed(command.userId(), entryToUpdate.entryDate());
             List<JournalLine> updatedLineList;
 
             if(!command.journalLinesList().isEmpty()) {
@@ -177,6 +188,8 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
     public void removeJournalEntryById(RemoveByIdJournalEntryCommand command) {
         try {
             log.debug("Starting remove Journal Entry jeId:[{}]",command.id());
+            JournalEntry entryToRemove = journalEntryRepository.findById(command.userId(), command.id());
+            accountingPeriodPostingGuard.assertEntryDateAllowed(command.userId(), entryToRemove.entryDate());
             journalEntryRepository.removeJournalEntry(command.userId(), command.id());
             log.debug("Ending remove Journal Entry jeId:[{}]",command.id());
         } catch (RuntimeException ex) {
@@ -186,32 +199,7 @@ public class JournalEntryService implements CreateJournalEntryUseCase, GetAllJou
     }
 
     @Override
-    public Long getBalanceForAccount(Long userId, Long accountId, AccountClassification classification){
-        List<JournalLine> lineList = journalEntryRepository.findLinesByAccountId(userId, accountId);
-        Long credit = 0L;
-        Long debit = 0L;
-        for(JournalLine line : lineList){
-            if(line.direction() == 'C'){
-                credit += line.amount();
-            } else {
-                debit += line.amount();
-            }
-        }
-
-        long resultingTotal = 0L;
-
-        if(classification.creditEffect() == '+'){
-            resultingTotal += credit;
-        } else {
-            resultingTotal -= credit;
-        }
-
-        if(classification.debitEffect() == '+'){
-            resultingTotal += debit;
-        } else {
-            resultingTotal -= debit;
-        }
-
-        return resultingTotal;
+    public Long getBalanceForAccount(Long userId, Long accountId, AccountClassification classification) {
+        return accountBalanceService.currentBalance(userId, accountId, classification);
     }
 }

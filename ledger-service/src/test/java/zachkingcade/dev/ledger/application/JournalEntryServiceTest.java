@@ -3,6 +3,8 @@ package zachkingcade.dev.ledger.application;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import zachkingcade.dev.ledger.application.account.AccountBalanceService;
+import zachkingcade.dev.ledger.application.accountingperiod.AccountingPeriodPostingGuard;
 import zachkingcade.dev.ledger.application.commands.journal.CreateJournalEntryCommand;
 import zachkingcade.dev.ledger.application.commands.journal.JournalLineCommandObject;
 import zachkingcade.dev.ledger.application.commands.journal.JournalLineUpdateCommandObject;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class JournalEntryServiceTest {
 
@@ -78,6 +81,19 @@ class JournalEntryServiceTest {
         public List<JournalLine> findLinesByAccountId(Long userId, Long accountId) {
             return List.of();
         }
+
+        @Override
+        public List<JournalLine> findLiveLinesByAccountId(
+                Long userId,
+                Long accountId,
+                Optional<LocalDate> entryDateFrom,
+                Optional<LocalDate> entryDateTo) {
+            return findLinesByAccountId(userId, accountId);
+        }
+    }
+
+    private static AccountBalanceService mockAccountBalanceService() {
+        return mock(AccountBalanceService.class);
     }
 
     private static JournalLine lineById(JournalEntry entry, Long id) {
@@ -88,10 +104,18 @@ class JournalEntryServiceTest {
                 .orElseThrow();
     }
 
+    private static AccountingPeriodPostingGuard noopPostingGuard() {
+        return new AccountingPeriodPostingGuard(null, null, null) {
+            @Override
+            public void assertEntryDateAllowed(Long userId, LocalDate entryDate) {
+            }
+        };
+    }
+
     @Test
     void createJournalEntry_buildsJournalLinesAndSaves() {
         FakeJournalEntryRepositoryPort repo = new FakeJournalEntryRepositoryPort();
-        JournalEntryService service = new JournalEntryService(repo);
+        JournalEntryService service = new JournalEntryService(repo, noopPostingGuard(), mockAccountBalanceService());
 
         CreateJournalEntryCommand command = new CreateJournalEntryCommand(
                 1L,
@@ -136,7 +160,7 @@ class JournalEntryServiceTest {
 
         repo.whenFindById(existing);
 
-        JournalEntryService service = new JournalEntryService(repo);
+        JournalEntryService service = new JournalEntryService(repo, noopPostingGuard(), mockAccountBalanceService());
 
         UpdateJournalEntryCommand command = new UpdateJournalEntryCommand(
                 1L,

@@ -8,6 +8,10 @@ import { REMOVEPendingTransactionResponse } from '../dto/pending-transaction/REM
 import { POSTImportPendingTransactionsResponse } from '../dto/pending-transaction/POSTImportPendingTransactionsResponse';
 import { POSTApplyPendingTransactionsRequest } from '../dto/pending-transaction/apply/POSTApplyPendingTransactionsRequest';
 import { POSTApplyPendingTransactionsResponse } from '../dto/pending-transaction/apply/POSTApplyPendingTransactionsResponse';
+import {
+  IPATCHUpdatePendingTransactionDateRequest,
+  IPATCHUpdatePendingTransactionDateResponse,
+} from '../dto/pending-transaction/PATCHUpdatePendingTransactionDateRequest';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +38,33 @@ export class PendingTransactionsApi {
         return throwError(() => error);
       }),
     );
+  }
+
+  updateDate(
+    transactionNumber: number,
+    body: IPATCHUpdatePendingTransactionDateRequest,
+  ): Observable<ApiResponse<IPATCHUpdatePendingTransactionDateResponse>> {
+    const operation = 'PendingTransactionsApi.updateDate /pendingtransactions/{id}/date';
+    const startTime = Date.now();
+    const context = { transactionNumber, body };
+    this.logger.debug(`Starting ${operation}`, context);
+    return this.ledgerClient
+      .patch<ApiResponse<IPATCHUpdatePendingTransactionDateResponse>>(
+        `/pendingtransactions/${transactionNumber}/date`,
+        body,
+      )
+      .pipe(
+        tap((response) => {
+          this.logger.debug(`Ending ${operation} (${Date.now() - startTime}ms)`, {
+            statusMessage: response.statusMessage,
+            metaData: response.metaData,
+          });
+        }),
+        catchError((error) => {
+          this.logger.error(`Failed ${operation} (${Date.now() - startTime}ms)`, error, context);
+          return throwError(() => error);
+        }),
+      );
   }
 
   removeById(transactionNumber: number): Observable<ApiResponse<REMOVEPendingTransactionResponse>> {

@@ -6,8 +6,20 @@ import { AuthManagerService } from '../../application/auth/auth-manager.service'
 
 const USER_SERVICE_BASE_URL: string = 'http://localhost:8082';
 
-function isUserServiceRequest(request: HttpRequest<unknown>): boolean {
-  return request.url.startsWith(USER_SERVICE_BASE_URL) && request.url.includes('/user/');
+const USER_SERVICE_PUBLIC_PATHS = [
+  '/user/register',
+  '/user/login',
+  '/user/logout',
+  '/user/refresh',
+  '/user/service/login',
+] as const;
+
+function isUserServicePublicRequest(request: HttpRequest<unknown>): boolean {
+  if (!request.url.startsWith(USER_SERVICE_BASE_URL)) {
+    return false;
+  }
+  const path = request.url.substring(USER_SERVICE_BASE_URL.length).split('?')[0];
+  return USER_SERVICE_PUBLIC_PATHS.some((publicPath) => path === publicPath);
 }
 
 function getRetryCount(request: HttpRequest<unknown>): number {
@@ -50,7 +62,7 @@ export const authHttpInterceptor: HttpInterceptorFn = (
   const authManager: AuthManagerService = inject(AuthManagerService);
   const router: Router = inject(Router);
 
-  if (isUserServiceRequest(initialRequest)) {
+  if (isUserServicePublicRequest(initialRequest)) {
     return next(initialRequest);
   }
 

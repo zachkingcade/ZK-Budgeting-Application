@@ -2,7 +2,7 @@
 
 **Purpose**: Describe how `ledger-service` data is stored and why it is structured this way.
 <br>
-Last updated: 2026-05-11
+Last updated: 2026-05-18
 
 Back to: [Ledger service guide](../guide-ledger-service.md)
 
@@ -39,6 +39,8 @@ Migrations live in [`../../ledger-service/src/main/resources/db/migration/`](../
 - `V6__Pending_transactions_and_import_formats.sql`: pending transactions + import formats
 - `V7__Update_USAA_import_date_format.sql`: import format adjustments
 - `V9__Budget_planning.sql`: user-owned budget plans, incomes, recurring payables, budgets, and funding lines (see below)
+- `V11__Closed_accounting_periods.sql`: closed accounting period headers and archived journal entries/lines
+- `V12__Closed_period_account_balances.sql`: per-account signed balances at each period close
 
 ## Tables
 
@@ -71,6 +73,35 @@ Indexes: `budget_plan_id` on child plan tables; `bp_budget_id` and `bp_income_id
   - FK: `account_id -> accounts.account_id`
   - Check constraints: `direction` in `D`/`C`, `amount > 0`
 
+### Closed accounting periods (`V11__Closed_accounting_periods.sql`)
+
+When a user closes the oldest unclosed period, live `journal_entries` / `journal_lines` in that inclusive date range are **moved** into archive tables:
+
+- **`closed_accounting_periods`**: `user_id`, `start_date`, `end_date`, `transaction_count`; unique per user date range
+- **`archived_journal_entries`**: mirror of posted journal entry columns plus `closed_accounting_period_id`
+- **`archived_journal_lines`**: mirror of journal line columns, FK to archived entries
+
+Close is blocked while pending transactions exist in the period or before the period end date. Posted activity in closed ranges (or before the oldest unclosed start) is rejected at the API layer.
+
+### Period-end account balances (`V12__Closed_period_account_balances.sql`)
+
+At close, the service persists one row per user account before archiving live journal activity:
+
+- **`closed_period_account_balances`**: `closed_accounting_period_id`, `user_id`, `account_id`, `balance` (signed minor units, same semantics as the balance API). Unique per `(closed_accounting_period_id, account_id)`; FKs to `closed_accounting_periods` and `accounts` with **ON DELETE RESTRICT**.
+
+**Balance formula** (shared by the balance API and close):
+
+`balance = periodBaseline + liveLineEffect`
+
+| Use | `periodBaseline` | `liveLineEffect` |
+|-----|------------------|------------------|
+| Current balance API | Snapshot from the **most recent** closed period (0 if none) | All **live** `journal_lines` (no date filter) |
+| Snapshot at close | Snapshot from the **prior** closed period (0 on first close) | Live lines whose parent `journal_entries.entry_date` is in the inclusive closing range |
+
+Archived lines are never used for current balance. After close, current balance equals the new snapshot plus any remaining live lines (open-period activity only).
+
+Historical rows are immutable; `GET /accounting-periods/closed/{id}/account-balances` returns `{ accountId, balance }` for a closed period.
+
 ## Indexing
 
 Indexes exist to make common joins fast:
@@ -79,4 +110,5 @@ Indexes exist to make common joins fast:
 - Account/type relationships
 - Line-to-entry and line-to-account lookups
 - Budget planning: `user_id` on `budgeting_plans`; `budget_plan_id` on `bp_incomes`, `bp_recurring_payables`, and `bp_budgets`; `bp_budget_id` / `bp_income_id` on `bp_funding_lines`
+- Closed period balances: `(user_id, closed_accounting_period_id)` and `(closed_accounting_period_id)` on `closed_period_account_balances`
 

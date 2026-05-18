@@ -22,6 +22,9 @@ import zachkingcade.dev.ledger.adapter.in.web.dto.pendingtransaction.apply.Apply
 import zachkingcade.dev.ledger.application.port.in.pendingtransaction.ImportPendingTransactionsUseCase;
 import zachkingcade.dev.ledger.application.port.in.pendingtransaction.GetAllPendingTransactionsUseCase;
 import zachkingcade.dev.ledger.application.port.in.pendingtransaction.RemovePendingTransactionUseCase;
+import zachkingcade.dev.ledger.application.port.in.pendingtransaction.UpdatePendingTransactionDateUseCase;
+import zachkingcade.dev.ledger.adapter.in.web.dto.pendingtransaction.UpdatePendingTransactionDateRequest;
+import zachkingcade.dev.ledger.adapter.in.web.dto.pendingtransaction.UpdatePendingTransactionDateResponse;
 import zachkingcade.dev.ledger.application.pendingtransaction.ImportPendingTransactionsResult;
 import zachkingcade.dev.ledger.application.exception.ApplicationException;
 import zachkingcade.dev.ledger.application.pendingtransaction.apply.ApplyPendingTransactionsCommand;
@@ -44,17 +47,20 @@ public class PendingTransactionController {
     private final RemovePendingTransactionUseCase removePendingTransactionUseCase;
     private final ImportPendingTransactionsUseCase importPendingTransactionsUseCase;
     private final ApplyPendingTransactionsUseCase applyPendingTransactionsUseCase;
+    private final UpdatePendingTransactionDateUseCase updatePendingTransactionDateUseCase;
 
     public PendingTransactionController(
             GetAllPendingTransactionsUseCase getAllPendingTransactionsUseCase,
             RemovePendingTransactionUseCase removePendingTransactionUseCase,
             ImportPendingTransactionsUseCase importPendingTransactionsUseCase,
-            ApplyPendingTransactionsUseCase applyPendingTransactionsUseCase
+            ApplyPendingTransactionsUseCase applyPendingTransactionsUseCase,
+            UpdatePendingTransactionDateUseCase updatePendingTransactionDateUseCase
     ) {
         this.getAllPendingTransactionsUseCase = getAllPendingTransactionsUseCase;
         this.removePendingTransactionUseCase = removePendingTransactionUseCase;
         this.importPendingTransactionsUseCase = importPendingTransactionsUseCase;
         this.applyPendingTransactionsUseCase = applyPendingTransactionsUseCase;
+        this.updatePendingTransactionDateUseCase = updatePendingTransactionDateUseCase;
     }
 
     @GetMapping("/all")
@@ -85,6 +91,48 @@ public class PendingTransactionController {
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         } catch (RuntimeException ex) {
             log.error("PendingTransactionController.getAll failed", ex);
+            throw ex;
+        }
+    }
+
+    @PatchMapping(value = "/{transactionNumber}/date", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<UpdatePendingTransactionDateResponse>> updateDate(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long transactionNumber,
+            @RequestBody UpdatePendingTransactionDateRequest request
+    ) {
+        try {
+            log.debug(
+                    "Starting Rest Controller /pendingtransactions endpoint PATCH /{}/date",
+                    transactionNumber);
+            Long userId = JwtPrincipalUserIdExtractor.extractEffectiveUserId(jwt);
+
+            if (request == null || request.transactionDate() == null || request.transactionDate().isBlank()) {
+                throw new IllegalArgumentException("transactionDate is required.");
+            }
+
+            LocalDate transactionDate;
+            try {
+                transactionDate = LocalDate.parse(request.transactionDate());
+            } catch (Exception ex) {
+                throw new IllegalArgumentException(
+                        String.format("Invalid transactionDate [%s].", request.transactionDate()));
+            }
+
+            updatePendingTransactionDateUseCase.updatePendingTransactionDate(userId, transactionNumber, transactionDate);
+
+            UpdatePendingTransactionDateResponse response =
+                    new UpdatePendingTransactionDateResponse(transactionNumber, transactionDate.toString());
+            ApiResponse<UpdatePendingTransactionDateResponse> apiResponse = new ApiResponse<>(
+                    String.format("Updated pending transaction date for id [%s]", transactionNumber),
+                    new MetaData(0L),
+                    response);
+            log.debug(
+                    "Ending Rest Controller /pendingtransactions endpoint PATCH /{}/date",
+                    transactionNumber);
+            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        } catch (RuntimeException ex) {
+            log.error("PendingTransactionController.updateDate failed for id:[{}]", transactionNumber, ex);
             throw ex;
         }
     }

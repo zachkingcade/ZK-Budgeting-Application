@@ -15,6 +15,7 @@ import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -121,7 +122,25 @@ public class JournalEntryPersistenceAdapter implements JournalEntryRepositoryPor
 
     @Override
     public List<JournalLine> findLinesByAccountId(Long userId, Long accountId) {
-        return mapToDomain(journalLinesJpaRepository.findByAccountIdAndJournalEntryUserId(accountId, userId));
+        return findLiveLinesByAccountId(userId, accountId, Optional.empty(), Optional.empty());
+    }
+
+    @Override
+    public List<JournalLine> findLiveLinesByAccountId(
+            Long userId,
+            Long accountId,
+            Optional<LocalDate> entryDateFrom,
+            Optional<LocalDate> entryDateTo) {
+        List<JournalLineEntity> entities;
+        if (entryDateFrom.isEmpty() && entryDateTo.isEmpty()) {
+            entities = journalLinesJpaRepository.findByAccountIdAndJournalEntryUserId(accountId, userId);
+        } else {
+            LocalDate from = entryDateFrom.orElse(LocalDate.MIN);
+            LocalDate to = entryDateTo.orElse(LocalDate.MAX);
+            entities = journalLinesJpaRepository.findByAccountIdAndUserIdAndEntryDateBetween(
+                    accountId, userId, Date.valueOf(from), Date.valueOf(to));
+        }
+        return mapToDomain(entities);
     }
 
     private JournalEntry mapToDomain(JournalEntryEntity entity){

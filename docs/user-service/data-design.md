@@ -33,6 +33,7 @@ Migrations live in [`../../user-service/src/main/resources/db/migration/`](../..
 - `V1__Init.sql`: users + sessions baseline
 - `V2__Service_Permissions.sql`: service permissions table + initial seed
 - `V3__Fix_reporting_service_secret_hash.sql`: secret hash fix/rotation for `reporting-service`
+- `V4__User_settings.sql`: per-user key/value settings (accounting period configuration and future preferences)
 
 ## Tables
 
@@ -71,4 +72,10 @@ Stores internal-service authentication and authorization boundaries:
 - `may_act_for_user` (boolean)
 
 `reporting-service` is seeded by Flyway for local/dev flows and can be rotated via future migrations (see `V3__Fix_reporting_service_secret_hash.sql`).
+
+### `user_settings`
+
+Source: `V4__User_settings.sql`
+
+Generic EAV settings per user (`setting_name`, `setting_value`), unique per `(user_id, setting_name)`. Used for accounting period configuration keys such as `accounting_period.frequency_unit`, `accounting_period.frequency_count`, and `accounting_period.first_start_date`.
 

@@ -6,7 +6,9 @@ import zachkingcade.dev.ledger.adapter.out.persistence.jpa.JournalEntryEntity;
 import zachkingcade.dev.ledger.domain.journal.JournalEntry;
 import zachkingcade.dev.ledger.domain.journal.JournalLine;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface JournalEntryRepositoryPort {
 
@@ -25,4 +27,9 @@ public interface JournalEntryRepositoryPort {
     JournalEntry save(JournalEntry journalEntryToSave);
 
     List<JournalLine> findLinesByAccountId(Long userId, Long accountId);
+
+    /**
+     * Live journal lines for an account. When both dates are empty, returns all live lines for the account.
+     */
+    List<JournalLine> findLiveLinesByAccountId(Long userId, Long accountId, Optional<LocalDate> entryDateFrom, Optional<LocalDate> entryDateTo);
 }

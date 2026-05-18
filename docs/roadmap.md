@@ -11,8 +11,8 @@ Last updated: 2026-05-04
 
 ## Features List
 
-- Implement accounting period close functionality
-- Restrict or manage edits to closed periods
+- ~~Implement accounting period close functionality~~ (done: settings in user-service, close/archive in ledger-service, UI pages)
+- ~~Restrict or manage edits to closed periods~~ (done: posting guards + archive on close)
 - Store/snapshot account balances at period close
 - Build historical period reporting
 - Implement revenue allocation / budgeting tool

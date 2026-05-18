@@ -18,6 +18,7 @@ import zachkingcade.dev.user.application.port.in.user.RegisterUserUseCase;
 import zachkingcade.dev.user.application.results.LogInUserResult;
 import zachkingcade.dev.user.application.results.RefreshSessionResult;
 import zachkingcade.dev.user.application.results.ServiceLoginResult;
+import zachkingcade.dev.user.config.JwtDecoderConfig;
 import zachkingcade.dev.user.config.SecurityConfig;
 import zachkingcade.dev.user.domain.user.User;
 
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-@Import({GlobalExceptionHandler.class, SecurityConfig.class})
+@Import({GlobalExceptionHandler.class, SecurityConfig.class, JwtDecoderConfig.class})
 class UserControllerWebMvcTest {
 
     @Autowired

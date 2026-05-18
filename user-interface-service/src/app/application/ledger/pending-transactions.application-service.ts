@@ -7,6 +7,10 @@ import { POSTImportPendingTransactionsResponse } from '../../adapter/ledger-serv
 import { REMOVEPendingTransactionResponse } from '../../adapter/ledger-service/dto/pending-transaction/REMOVEPendingTransactionResponse';
 import { POSTApplyPendingTransactionsRequest } from '../../adapter/ledger-service/dto/pending-transaction/apply/POSTApplyPendingTransactionsRequest';
 import { POSTApplyPendingTransactionsResponse } from '../../adapter/ledger-service/dto/pending-transaction/apply/POSTApplyPendingTransactionsResponse';
+import {
+  IPATCHUpdatePendingTransactionDateRequest,
+  IPATCHUpdatePendingTransactionDateResponse,
+} from '../../adapter/ledger-service/dto/pending-transaction/PATCHUpdatePendingTransactionDateRequest';
 import { LedgerApplicationLoggerService } from './ledger-application-logger.service';
 
 @Injectable({
@@ -31,6 +35,28 @@ export class PendingTransactionsApplicationService {
       }),
       catchError((error) => {
         this.logger.error(`Failed ${operation} (${Date.now() - startTime}ms)`, error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  updateDate(
+    transactionNumber: number,
+    request: IPATCHUpdatePendingTransactionDateRequest,
+  ): Observable<ApiResponse<IPATCHUpdatePendingTransactionDateResponse>> {
+    const operation = 'PendingTransactionsApplicationService.updateDate';
+    const startTime = Date.now();
+    const context = { transactionNumber, request };
+    this.logger.debug(`Starting ${operation}`, context);
+    return this.api.updateDate(transactionNumber, request).pipe(
+      tap((response) => {
+        this.logger.debug(`Ending ${operation} (${Date.now() - startTime}ms)`, {
+          statusMessage: response.statusMessage,
+          metaData: response.metaData,
+        });
+      }),
+      catchError((error) => {
+        this.logger.error(`Failed ${operation} (${Date.now() - startTime}ms)`, error, context);
         return throwError(() => error);
       }),
     );
