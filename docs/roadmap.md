@@ -7,14 +7,6 @@ Last updated: 2026-05-04
 
 - change add journal entry modal sizing
 
-## Stack List
-
-- Make GitHub repository look professional
-- Add code coverage reporting (JaCoCo)
-- Implement environment-based configuration (profiles/env vars)
-- Add API documentation (README + examples)
-- Add basic architecture documentation
-
 ## Roadmap post IMVP
 
 ## Features List

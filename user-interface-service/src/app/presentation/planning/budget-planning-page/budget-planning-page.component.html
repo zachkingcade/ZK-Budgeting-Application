@@ -1,0 +1,1080 @@
+<app-page-cage pageName="Budget planning" subText="Plan incomes, recurring payables, and budgets (30/365 basis).">
+  @if (actionError()) {
+    <p class="bp__bannerError" role="alert">{{ actionError() }}</p>
+  }
+
+  @if (!editor()) {
+    <section class="bp__section">
+      <div class="bp__toolbar">
+        <h2 class="bp__h2">Your plans</h2>
+        <button mat-flat-button color="primary" type="button" (click)="openAddPlan()">
+          <mat-icon>add</mat-icon>
+          Add plan
+        </button>
+      </div>
+
+      <div class="bp__scrollY">
+      @if (addPlanOpen()) {
+        <div class="bp__panel">
+          <mat-form-field appearance="outline" class="bp__fieldGrow">
+            <mat-label>New plan name</mat-label>
+            <input matInput name="newPlanName" [ngModel]="newPlanName()" (ngModelChange)="newPlanName.set($event)" />
+          </mat-form-field>
+          <div class="bp__panelActions">
+            <button mat-button type="button" (click)="cancelAddPlan()">Cancel</button>
+            <button mat-flat-button color="primary" type="button" (click)="submitAddPlan()">Create</button>
+          </div>
+        </div>
+      }
+
+      @if (listError()) {
+        <p class="bp__error" role="alert">{{ listError() }}</p>
+      }
+
+      @if (listLoading() && plans().length === 0) {
+        <mat-progress-spinner diameter="40" mode="indeterminate" />
+      } @else {
+        <div class="bp__tableWrap">
+          <table mat-table [dataSource]="plans()" class="bp__table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+            </ng-container>
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef>Created</th>
+              <td mat-cell *matCellDef="let row">{{ row.createdAt | date: 'medium' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="lastEdited">
+              <th mat-header-cell *matHeaderCellDef>Last edited</th>
+              <td mat-cell *matCellDef="let row">{{ row.lastEditedAt | date: 'medium' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef aria-hidden="true"></th>
+              <td mat-cell *matCellDef="let row">
+                <app-table-row-actions-menu
+                  [actions]="buildPlanRowActions(row)"
+                  (actionSelected)="onPlanRowAction($event, row)"
+                />
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="planColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: planColumns"></tr>
+          </table>
+          @if (!listLoading() && plans().length === 0) {
+            <p class="bp__empty">No budget plans yet. Create one to get started.</p>
+          }
+        </div>
+      }
+      </div>
+    </section>
+  } @else {
+    <section class="bp__section">
+      @if (editorLoading()) {
+        <mat-progress-spinner diameter="40" mode="indeterminate" />
+      } @else if (editor(); as ed) {
+        <div class="bp__editorHeader">
+          <button mat-icon-button type="button" aria-label="Back to plan list" (click)="unloadPlan()">
+            <mat-icon>keyboard_return</mat-icon>
+          </button>
+          <div class="bp__editorTitle">
+            <h2 class="bp__h2">{{ ed.plan.name }}</h2>
+            <p class="bp__muted">Plan #{{ ed.plan.budgetPlanId }}</p>
+          </div>
+        </div>
+
+        @if (editorError()) {
+          <p class="bp__error" role="alert">{{ editorError() }}</p>
+        }
+
+        <div class="bp__scrollY">
+        <mat-tab-group>
+          <mat-tab label="Overview">
+            <div class="bp__tabPad">
+              <p class="bp__muted bp__mbSm">
+                Monthly equivalents (30-day basis). Hover a pie slice for its label, amount, and share. Swatches match
+                slice colors.
+              </p>
+
+              <section class="bp__ovSection" aria-labelledby="bp-ov-inc">
+                <h3 class="bp__h3" id="bp-ov-inc">Planned income</h3>
+                <div class="bp__ovRow">
+                  <div class="bp__ovPieWrap">
+                    <svg viewBox="0 0 200 200" class="bp__ovPieSvg" role="img" aria-hidden="true">
+                      @if (overviewIncomePaths().length === 0) {
+                        <circle cx="100" cy="100" r="88" class="bp__ovPieEmpty" />
+                      }
+                      @for (p of overviewIncomePaths(); track $index) {
+                        <path
+                          class="bp__ovPiePath"
+                          [attr.d]="p.pathD"
+                          [attr.fill]="p.color"
+                          stroke="#fff"
+                          stroke-width="1.5"
+                          [matTooltip]="overviewPieTooltip(p)"
+                          matTooltipPosition="above"
+                        />
+                      }
+                    </svg>
+                  </div>
+                  <div class="bp__ovTableWrap">
+                    <table class="bp__ovTable">
+                      <thead>
+                        <tr>
+                          <th scope="col" aria-label="Color" class="bp__ovThSwatch"></th>
+                          <th scope="col">Account</th>
+                          <th scope="col">Per month (30d)</th>
+                          <th scope="col">Share</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (s of overviewIncomeSlices(); track $index) {
+                          <tr>
+                            <td class="bp__ovTdSwatch">
+                              <span class="bp__ovSwatch" [style.background]="s.color" aria-hidden="true"></span>
+                            </td>
+                            <td>{{ s.label }}</td>
+                            <td>{{ formatMoney(s.amountMinor) }}</td>
+                            <td>{{ s.percent | number: '1.1-1' }}%</td>
+                          </tr>
+                        } @empty {
+                          <tr>
+                            <td colspan="4" class="bp__ovEmpty">No income lines on this plan.</td>
+                          </tr>
+                        }
+                      </tbody>
+                      @if (overviewIncomeSlices().length > 0) {
+                        <tfoot>
+                          <tr>
+                            <td></td>
+                            <th scope="row">Total</th>
+                            <td>{{ formatMoney(overviewTotalMinor(overviewIncomeSlices())) }}</td>
+                            <td>100%</td>
+                          </tr>
+                        </tfoot>
+                      }
+                    </table>
+                  </div>
+                </div>
+              </section>
+
+              <section class="bp__ovSection" aria-labelledby="bp-ov-bud">
+                <h3 class="bp__h3" id="bp-ov-bud">Budgeted amounts</h3>
+                <p class="bp__muted bp__mbSm">By budget account — funding lines per month.</p>
+                <div class="bp__ovRow">
+                  <div class="bp__ovPieWrap">
+                    <svg viewBox="0 0 200 200" class="bp__ovPieSvg" role="img" aria-hidden="true">
+                      @if (overviewBudgetedPaths().length === 0) {
+                        <circle cx="100" cy="100" r="88" class="bp__ovPieEmpty" />
+                      }
+                      @for (p of overviewBudgetedPaths(); track $index) {
+                        <path
+                          class="bp__ovPiePath"
+                          [attr.d]="p.pathD"
+                          [attr.fill]="p.color"
+                          stroke="#fff"
+                          stroke-width="1.5"
+                          [matTooltip]="overviewPieTooltip(p)"
+                          matTooltipPosition="above"
+                        />
+                      }
+                    </svg>
+                  </div>
+                  <div class="bp__ovTableWrap">
+                    <table class="bp__ovTable">
+                      <thead>
+                        <tr>
+                          <th scope="col" aria-label="Color" class="bp__ovThSwatch"></th>
+                          <th scope="col">Budget account</th>
+                          <th scope="col">Budgeted / month</th>
+                          <th scope="col">Share</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (s of overviewBudgetedSlices(); track $index) {
+                          <tr>
+                            <td class="bp__ovTdSwatch">
+                              <span class="bp__ovSwatch" [style.background]="s.color" aria-hidden="true"></span>
+                            </td>
+                            <td>{{ s.label }}</td>
+                            <td>{{ formatMoney(s.amountMinor) }}</td>
+                            <td>{{ s.percent | number: '1.1-1' }}%</td>
+                          </tr>
+                        } @empty {
+                          <tr>
+                            <td colspan="4" class="bp__ovEmpty">No funding on this plan yet.</td>
+                          </tr>
+                        }
+                      </tbody>
+                      @if (overviewBudgetedSlices().length > 0) {
+                        <tfoot>
+                          <tr>
+                            <td></td>
+                            <th scope="row">Total</th>
+                            <td>{{ formatMoney(overviewTotalMinor(overviewBudgetedSlices())) }}</td>
+                            <td>100%</td>
+                          </tr>
+                        </tfoot>
+                      }
+                    </table>
+                  </div>
+                </div>
+              </section>
+
+              <section class="bp__ovSection" aria-labelledby="bp-ov-type">
+                <h3 class="bp__h3" id="bp-ov-type">Budgets by account type</h3>
+                <p class="bp__muted bp__mbSm">Budgeted / month grouped by chart account type.</p>
+                <div class="bp__ovRow">
+                  <div class="bp__ovPieWrap">
+                    <svg viewBox="0 0 200 200" class="bp__ovPieSvg" role="img" aria-hidden="true">
+                      @if (overviewTypePaths().length === 0) {
+                        <circle cx="100" cy="100" r="88" class="bp__ovPieEmpty" />
+                      }
+                      @for (p of overviewTypePaths(); track $index) {
+                        <path
+                          class="bp__ovPiePath"
+                          [attr.d]="p.pathD"
+                          [attr.fill]="p.color"
+                          stroke="#fff"
+                          stroke-width="1.5"
+                          [matTooltip]="overviewPieTooltip(p)"
+                          matTooltipPosition="above"
+                        />
+                      }
+                    </svg>
+                  </div>
+                  <div class="bp__ovTableWrap">
+                    <table class="bp__ovTable">
+                      <thead>
+                        <tr>
+                          <th scope="col" aria-label="Color" class="bp__ovThSwatch"></th>
+                          <th scope="col">Account type</th>
+                          <th scope="col">Budgeted / month</th>
+                          <th scope="col">Share</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (s of overviewTypeSlices(); track $index) {
+                          <tr>
+                            <td class="bp__ovTdSwatch">
+                              <span class="bp__ovSwatch" [style.background]="s.color" aria-hidden="true"></span>
+                            </td>
+                            <td>{{ s.label }}</td>
+                            <td>{{ formatMoney(s.amountMinor) }}</td>
+                            <td>{{ s.percent | number: '1.1-1' }}%</td>
+                          </tr>
+                        } @empty {
+                          <tr>
+                            <td colspan="4" class="bp__ovEmpty">No funding on this plan yet.</td>
+                          </tr>
+                        }
+                      </tbody>
+                      @if (overviewTypeSlices().length > 0) {
+                        <tfoot>
+                          <tr>
+                            <td></td>
+                            <th scope="row">Total</th>
+                            <td>{{ formatMoney(overviewTotalMinor(overviewTypeSlices())) }}</td>
+                            <td>100%</td>
+                          </tr>
+                        </tfoot>
+                      }
+                    </table>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </mat-tab>
+          <mat-tab label="Incomes">
+            <div class="bp__tabPad">
+              <div class="bp__toolbar">
+                <button mat-stroked-button type="button" (click)="openAddIncome()">
+                  <mat-icon>add</mat-icon>
+                  Add income
+                </button>
+              </div>
+
+              @if (incomeForm(); as inf) {
+                <div class="bp__panel">
+                  <h3 class="bp__h3">{{ inf.editingId == null ? 'Add income' : 'Edit income' }}</h3>
+                  <div class="bp__formGrid">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Amount (USD)</mat-label>
+                      <input
+                        matInput
+                        name="incAmt"
+                        [ngModel]="inf.amountDollars"
+                        (input)="onIncomeAmountInput($event)"
+                        (blur)="onIncomeAmountBlur()"
+                        (keydown)="moneyKeydown($event)"
+                      />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Every</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="1"
+                        name="incFn"
+                        [ngModel]="inf.frequencyNumber"
+                        (ngModelChange)="patchIncomeForm({ frequencyNumber: +$event })"
+                      />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Unit</mat-label>
+                      <mat-select
+                        name="incFu"
+                        [ngModel]="inf.frequencyUnit"
+                        (ngModelChange)="patchIncomeForm({ frequencyUnit: $event })"
+                      >
+                        @for (u of frequencyUnits; track u) {
+                          <mat-option [value]="u">{{ u }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="bp__span2">
+                      <mat-label>Revenue account</mat-label>
+                      <mat-select
+                        name="incAcc"
+                        [ngModel]="inf.accountId"
+                        (ngModelChange)="patchIncomeForm({ accountId: $event })"
+                      >
+                        <mat-option [value]="null" disabled>Select account</mat-option>
+                        @for (opt of revenueAccountOptions(); track opt.id) {
+                          <mat-option [value]="opt.id">{{ opt.label }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  @if (inf.error) {
+                    <p class="bp__error" role="alert">{{ inf.error }}</p>
+                  }
+                  <div class="bp__panelActions">
+                    <button mat-button type="button" (click)="cancelIncomeForm()">Cancel</button>
+                    <button mat-flat-button color="primary" type="button" (click)="submitIncomeForm()">Save</button>
+                  </div>
+                </div>
+              }
+
+              <div class="bp__incomeList">
+                <div class="bp__incomeListHead" aria-hidden="true">
+                  <span class="bp__incomeHeadExpand"></span>
+                  <span>Account</span>
+                  <span>Stated amount</span>
+                  <span>Frequency</span>
+                  <span>Per day</span>
+                  <span>Per week</span>
+                  <span>Per month (30d)</span>
+                  <span>Per year (365d)</span>
+                  <span class="bp__incomeHeadActions"></span>
+                </div>
+
+                @for (row of ed.incomes; track row.bpIncomeId) {
+                  <div class="bp__incomeCard">
+                    <div class="bp__incomeSummary">
+                      <button
+                        mat-icon-button
+                        type="button"
+                        class="bp__incomeExpandBtn"
+                        [attr.aria-expanded]="incomeExpanded(row.bpIncomeId)"
+                        [attr.aria-label]="
+                          incomeExpanded(row.bpIncomeId) ? 'Collapse budget allocations' : 'Expand budget allocations'
+                        "
+                        (click)="toggleIncomeExpand(row.bpIncomeId)"
+                      >
+                        <mat-icon>{{ incomeExpanded(row.bpIncomeId) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                      </button>
+                      <span class="bp__incomeCell bp__incomeCell--account">{{ row.accountDescription }}</span>
+                      <span class="bp__incomeCell">{{ formatMoney(row.amountMinor) }}</span>
+                      <span class="bp__incomeCell">{{ incomePayPeriodLabel(row) }}</span>
+                      <span class="bp__incomeCell bp__incomeCell--num">{{ formatMoney(row.amountPerDayMinor) }}</span>
+                      <span class="bp__incomeCell bp__incomeCell--num">{{ formatMoney(row.amountPerWeekMinor) }}</span>
+                      <span class="bp__incomeCell bp__incomeCell--num">{{ formatMoney(row.amountPerMonthMinor) }}</span>
+                      <span class="bp__incomeCell bp__incomeCell--num">{{ formatMoney(row.amountPerYearMinor) }}</span>
+                      <span class="bp__incomeCell bp__incomeCell--actions">
+                        <button mat-icon-button type="button" aria-label="Edit" (click)="openEditIncome(row)">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button type="button" aria-label="Delete" (click)="deleteIncome(row)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </span>
+                    </div>
+
+                    @if (incomeExpanded(row.bpIncomeId)) {
+                      @let allocs = fundingAllocationsForIncome(row, ed);
+                      @let allocTotal = totalAllocatedPerIncomePayPeriod(allocs);
+                      <div class="bp__incomeBody">
+                        <h4 class="bp__h4">Budget allocations per income payment</h4>
+                        <p class="bp__muted bp__mbSm">
+                          How much to move from this income ({{ incomePayPeriodLabel(row) }},
+                          {{ formatMoney(row.amountMinor) }}) into each budget when you receive it. Funding lines may
+                          use a different stated frequency; amounts below are converted to this income’s pay period.
+                        </p>
+                        @if (allocs.length > 0) {
+                          <div class="bp__nestedTableWrap">
+                            <table class="bp__nestedTable">
+                              <thead>
+                                <tr>
+                                  <th>Budget account</th>
+                                  <th>Per income payment</th>
+                                  <th>Funding line (stated)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (a of allocs; track a.budgetAccountDescription) {
+                                  <tr>
+                                    <td>{{ a.budgetAccountDescription }}</td>
+                                    <td>{{ formatMoney(a.amountPerIncomePayPeriodMinor) }}</td>
+                                    <td>
+                                      {{ formatMoney(a.fundingStatedAmountMinor) }}
+                                      {{ a.fundingFrequencyLabel }}
+                                    </td>
+                                  </tr>
+                                }
+                              </tbody>
+                              <tfoot>
+                                <tr>
+                                  <td>Total allocated</td>
+                                  <td>{{ formatMoney(allocTotal) }}</td>
+                                  <td>
+                                    Income payment: {{ formatMoney(row.amountMinor) }}
+                                    @if (allocTotal > row.amountMinor + 1) {
+                                      <span class="bp__warnInline"> (over income by
+                                      {{ formatMoney(allocTotal - row.amountMinor) }})</span>
+                                    } @else if (allocTotal < row.amountMinor - 1) {
+                                      <span class="bp__muted">
+                                        · Unallocated {{ formatMoney(row.amountMinor - allocTotal) }}</span
+                                      >
+                                    }
+                                  </td>
+                                </tr>
+                              </tfoot>
+                            </table>
+                          </div>
+                        } @else {
+                          <p class="bp__muted">No budgets have funding from this income yet. Add funding lines on the Budgets tab.</p>
+                        }
+                      </div>
+                    }
+                  </div>
+                } @empty {
+                  <p class="bp__empty">No incomes on this plan.</p>
+                }
+              </div>
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Recurring payables">
+            <div class="bp__tabPad">
+              <div class="bp__toolbar">
+                <button mat-stroked-button type="button" (click)="openAddPayable()">
+                  <mat-icon>add</mat-icon>
+                  Add payable
+                </button>
+              </div>
+
+              @if (payableForm(); as pf) {
+                <div class="bp__panel">
+                  <h3 class="bp__h3">{{ pf.editingId == null ? 'Add recurring payable' : 'Edit recurring payable' }}</h3>
+                  <div class="bp__formGrid">
+                    <mat-form-field appearance="outline" class="bp__span2">
+                      <mat-label>Description</mat-label>
+                      <input
+                        matInput
+                        name="payDesc"
+                        [ngModel]="pf.description"
+                        (ngModelChange)="patchPayableForm({ description: $event })"
+                      />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Amount (USD)</mat-label>
+                      <input
+                        matInput
+                        name="payAmt"
+                        [ngModel]="pf.amountDollars"
+                        (input)="onPayableAmountInput($event)"
+                        (blur)="onPayableAmountBlur()"
+                        (keydown)="moneyKeydown($event)"
+                      />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Every</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="1"
+                        name="payFn"
+                        [ngModel]="pf.frequencyNumber"
+                        (ngModelChange)="patchPayableForm({ frequencyNumber: +$event })"
+                      />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Unit</mat-label>
+                      <mat-select
+                        name="payFu"
+                        [ngModel]="pf.frequencyUnit"
+                        (ngModelChange)="patchPayableForm({ frequencyUnit: $event })"
+                      >
+                        @for (u of frequencyUnits; track u) {
+                          <mat-option [value]="u">{{ u }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="bp__span2">
+                      <mat-label>Budget account</mat-label>
+                      <mat-select
+                        name="payAcc"
+                        [ngModel]="pf.budgetAccountId"
+                        (ngModelChange)="patchPayableForm({ budgetAccountId: $event })"
+                      >
+                        <mat-option [value]="null" disabled>Select account</mat-option>
+                        @for (opt of budgetAccountOptions(); track opt.id) {
+                          <mat-option [value]="opt.id">{{ opt.label }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  @if (pf.error) {
+                    <p class="bp__error" role="alert">{{ pf.error }}</p>
+                  }
+                  <div class="bp__panelActions">
+                    <button mat-button type="button" (click)="cancelPayableForm()">Cancel</button>
+                    <button mat-flat-button color="primary" type="button" (click)="submitPayableForm()">Save</button>
+                  </div>
+                </div>
+              }
+
+              <table mat-table [dataSource]="ed.recurringPayables" class="bp__table">
+                <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef>Description</th>
+                  <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+                </ng-container>
+                <ng-container matColumnDef="account">
+                  <th mat-header-cell *matHeaderCellDef>Budget account</th>
+                  <td mat-cell *matCellDef="let row">{{ row.budgetAccountDescription }}</td>
+                </ng-container>
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef>Amount</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.amountMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="frequency">
+                  <th mat-header-cell *matHeaderCellDef>Frequency</th>
+                  <td mat-cell *matCellDef="let row">every {{ row.frequencyNumber }} {{ row.frequencyUnit }}</td>
+                </ng-container>
+                <ng-container matColumnDef="perDay">
+                  <th mat-header-cell *matHeaderCellDef>Per day</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.amountPerDayMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="perWeek">
+                  <th mat-header-cell *matHeaderCellDef>Per week</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.amountPerWeekMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="perMonth">
+                  <th mat-header-cell *matHeaderCellDef>Per month (30d)</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.amountPerMonthMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="perYear">
+                  <th mat-header-cell *matHeaderCellDef>Per year (365d)</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.amountPerYearMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef></th>
+                  <td mat-cell *matCellDef="let row">
+                    <button mat-icon-button type="button" (click)="openEditPayable(row)"><mat-icon>edit</mat-icon></button>
+                    <button mat-icon-button type="button" (click)="deletePayable(row)"><mat-icon>delete</mat-icon></button>
+                  </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="payableColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: payableColumns"></tr>
+              </table>
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Budgets">
+            <div class="bp__tabPad">
+              @if (recurringPayablesWithoutBudgetOnPlan(ed).length > 0) {
+                <div class="bp__warnPanel bp__mb" role="region" aria-labelledby="bp-missing-budgets-heading">
+                  <h3 class="bp__h3" id="bp-missing-budgets-heading">Recurring payables without a plan budget</h3>
+                  <p class="bp__muted bp__mbSm">
+                    These lines use budget accounts that do not yet have a budget on this plan. Add a budget for each
+                    account below so funding can line up with recurring payables.
+                  </p>
+                  <div class="bp__nestedTableWrap">
+                    <table class="bp__nestedTable">
+                      <thead>
+                        <tr>
+                          <th>Description</th>
+                          <th>Budget account</th>
+                          <th>Amount</th>
+                          <th>Frequency</th>
+                          <th>Per day</th>
+                          <th>Per week</th>
+                          <th>Per month (30d)</th>
+                          <th>Per year (365d)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (p of recurringPayablesWithoutBudgetOnPlan(ed); track p.bpRecurringPayableId) {
+                          <tr>
+                            <td>{{ p.description }}</td>
+                            <td>{{ p.budgetAccountDescription }}</td>
+                            <td>{{ formatMoney(p.amountMinor) }}</td>
+                            <td>every {{ p.frequencyNumber }} {{ p.frequencyUnit }}</td>
+                            <td>{{ formatMoney(p.amountPerDayMinor) }}</td>
+                            <td>{{ formatMoney(p.amountPerWeekMinor) }}</td>
+                            <td>{{ formatMoney(p.amountPerMonthMinor) }}</td>
+                            <td>{{ formatMoney(p.amountPerYearMinor) }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              }
+
+              <h3 class="bp__h3">Income funding summary</h3>
+              <table mat-table [dataSource]="ed.incomeFundingSummaries" class="bp__table bp__tableSummary bp__mb">
+                <ng-container matColumnDef="account">
+                  <th mat-header-cell *matHeaderCellDef>Income</th>
+                  <td mat-cell *matCellDef="let row">{{ row.incomeAccountDescription }}</td>
+                </ng-container>
+                <ng-container matColumnDef="incDay">
+                  <th mat-header-cell *matHeaderCellDef>Income / day</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.incomeAmountPerDayMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="incWeek">
+                  <th mat-header-cell *matHeaderCellDef>Income / week</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.incomeAmountPerWeekMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="incMonth">
+                  <th mat-header-cell *matHeaderCellDef>Income / month (30d)</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.incomeAmountPerMonthMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="incYear">
+                  <th mat-header-cell *matHeaderCellDef>Income / year (365d)</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.incomeAmountPerYearMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="remainingBar">
+                  <th mat-header-cell *matHeaderCellDef>Remaining / day</th>
+                  <td mat-cell *matCellDef="let row">
+                    <div
+                      class="bp__fundMeter bp__fundMeter--compact"
+                      aria-label="Income remaining per day after allocations"
+                    >
+                      <div class="bp__fundMeterTrack">
+                        <div
+                          class="bp__fundMeterFill"
+                          [style.width.%]="incomeRemainingProgress(row) * 100"
+                          [style.background]="incomeRemainingBarColor(row)"
+                        ></div>
+                      </div>
+                      <span class="bp__muted bp__fundMeterLabel">
+                        {{ formatMoney(row.remainingPerDayMinor) }} /
+                        {{ formatMoney(row.incomeAmountPerDayMinor) }}
+                      </span>
+                    </div>
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="allocDay">
+                  <th mat-header-cell *matHeaderCellDef>Allocated / day</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.allocatedPerDayMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="allocWeek">
+                  <th mat-header-cell *matHeaderCellDef>Allocated / week</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.allocatedPerWeekMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="allocMonth">
+                  <th mat-header-cell *matHeaderCellDef>Allocated / month (30d)</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.allocatedPerMonthMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="allocYear">
+                  <th mat-header-cell *matHeaderCellDef>Allocated / year (365d)</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.allocatedPerYearMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="remWeek">
+                  <th mat-header-cell *matHeaderCellDef>Remaining / week</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.remainingPerWeekMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="remMonth">
+                  <th mat-header-cell *matHeaderCellDef>Remaining / month (30d)</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.remainingPerMonthMinor) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="remYear">
+                  <th mat-header-cell *matHeaderCellDef>Remaining / year (365d)</th>
+                  <td mat-cell *matCellDef="let row">{{ formatMoney(row.remainingPerYearMinor) }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="summaryColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: summaryColumns"></tr>
+              </table>
+
+              <div class="bp__toolbar">
+                <button mat-stroked-button type="button" (click)="openAddBudget()">
+                  <mat-icon>add</mat-icon>
+                  Add budget
+                </button>
+              </div>
+
+              @if (budgetForm(); as bf) {
+                <div class="bp__panel">
+                  <h3 class="bp__h3">{{ bf.editingId == null ? 'Add budget' : 'Edit budget' }}</h3>
+                  <p class="bp__muted bp__mbSm">
+                    Choose the account this line tracks. A minimal stored plan amount is sent to the API from recurring
+                    payables on that account (or $1 if none); budgeted amounts come from your funding lines below.
+                  </p>
+                  <div class="bp__formGrid">
+                    <mat-form-field appearance="outline" class="bp__span2">
+                      <mat-label>Budget account</mat-label>
+                      <mat-select
+                        name="budAcc"
+                        [ngModel]="bf.accountId"
+                        (ngModelChange)="patchBudgetForm({ accountId: $event })"
+                      >
+                        <mat-option [value]="null" disabled>Select account</mat-option>
+                        @for (opt of budgetAccountOptionsForBudgetForm(); track opt.id) {
+                          <mat-option [value]="opt.id">{{ opt.label }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  @if (bf.error) {
+                    <p class="bp__error" role="alert">{{ bf.error }}</p>
+                  }
+                  <div class="bp__panelActions">
+                    <button mat-button type="button" (click)="cancelBudgetForm()">Cancel</button>
+                    <button mat-flat-button color="primary" type="button" (click)="submitBudgetForm()">Save</button>
+                  </div>
+                </div>
+              }
+
+              @for (b of ed.budgets; track b.budget.bpBudgetId) {
+                <div class="bp__budgetCard">
+                  <div class="bp__budgetHeader">
+                    <button
+                      mat-icon-button
+                      type="button"
+                      [attr.aria-expanded]="budgetExpanded(b.budget.bpBudgetId)"
+                      (click)="toggleBudgetExpand(b.budget.bpBudgetId)"
+                    >
+                      <mat-icon>{{ budgetExpanded(b.budget.bpBudgetId) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </button>
+                    <div class="bp__budgetMeta">
+                      <strong>{{ b.budget.accountDescription }}</strong>
+                      <div class="bp__fundMeter" aria-label="Budgeted versus required per day">
+                        <div class="bp__fundMeterTrack">
+                          <div
+                            class="bp__fundMeterFill"
+                            [style.width.%]="budgetFundedProgress(b, ed) * 100"
+                            [style.background]="budgetFundedBarColor(b, ed)"
+                          ></div>
+                        </div>
+                      </div>
+                      <table class="bp__budgetSummary" aria-label="Budgeted and required amounts by period">
+                        <thead>
+                          <tr>
+                            <th class="bp__budgetSummaryCorner" scope="col"></th>
+                            <th scope="col">/ day</th>
+                            <th scope="col">/ week</th>
+                            <th scope="col">/ month (30d)</th>
+                            <th scope="col">/ year (365d)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <th scope="row">Budgeted</th>
+                            <td>{{ formatMoney(budgetFundedPerDayMinor(b)) }}</td>
+                            <td>{{ formatMoney(budgetFundedPerWeekMinor(b)) }}</td>
+                            <td>{{ formatMoney(budgetFundedPerMonthMinor(b)) }}</td>
+                            <td>{{ formatMoney(budgetFundedPerYearMinor(b)) }}</td>
+                          </tr>
+                          @let req = recurringPayablesTotalsForBudget(b, ed);
+                          <tr [class]="budgetRequiredRowClass(b, ed)">
+                            <th scope="row">Required</th>
+                            <td>{{ formatMoney(req.perDay) }}</td>
+                            <td>{{ formatMoney(req.perWeek) }}</td>
+                            <td>{{ formatMoney(req.perMonth) }}</td>
+                            <td>{{ formatMoney(req.perYear) }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <span class="bp__spacer"></span>
+                    <button mat-icon-button type="button" (click)="openEditBudget(b)"><mat-icon>edit</mat-icon></button>
+                    <button mat-icon-button type="button" (click)="deleteBudget(b)"><mat-icon>delete</mat-icon></button>
+                  </div>
+
+                  @if (budgetExpanded(b.budget.bpBudgetId)) {
+                    <div class="bp__budgetBody">
+                      @if (!budgetRequiredMetPerDay(b, ed) && recurringPayablesPerDaySumMinor(b, ed) > 0) {
+                        <p class="bp__warn" role="alert">
+                          Budgeted funding per day is below recurring payables on this account. Add or increase funding
+                          lines, or adjust recurring payables.
+                        </p>
+                      }
+
+                      @if (recurringPayablesForBudgetAccount(b, ed).length > 0) {
+                        <h4 class="bp__h4">Recurring payables on this account</h4>
+                        <p class="bp__muted bp__mbSm">
+                          Stated amount and per-day / week / month / year equivalents (30/365 basis).
+                        </p>
+                        <div class="bp__nestedTableWrap">
+                          <table class="bp__nestedTable">
+                            <thead>
+                              <tr>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Frequency</th>
+                                <th>Per day</th>
+                                <th>Per week</th>
+                                <th>Per month (30d)</th>
+                                <th>Per year (365d)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (p of recurringPayablesForBudgetAccount(b, ed); track p.bpRecurringPayableId) {
+                                <tr>
+                                  <td>{{ p.description }}</td>
+                                  <td>{{ formatMoney(p.amountMinor) }}</td>
+                                  <td>every {{ p.frequencyNumber }} {{ p.frequencyUnit }}</td>
+                                  <td>{{ formatMoney(p.amountPerDayMinor) }}</td>
+                                  <td>{{ formatMoney(p.amountPerWeekMinor) }}</td>
+                                  <td>{{ formatMoney(p.amountPerMonthMinor) }}</td>
+                                  <td>{{ formatMoney(p.amountPerYearMinor) }}</td>
+                                </tr>
+                              }
+                            </tbody>
+                            <tfoot>
+                              @let t = recurringPayablesTotalsForBudget(b, ed);
+                              <tr>
+                                <td>Total</td>
+                                <td>{{ formatMoney(t.amountMinor) }}</td>
+                                <td>—</td>
+                                <td>{{ formatMoney(t.perDay) }}</td>
+                                <td>{{ formatMoney(t.perWeek) }}</td>
+                                <td>{{ formatMoney(t.perMonth) }}</td>
+                                <td>{{ formatMoney(t.perYear) }}</td>
+                              </tr>
+                            </tfoot>
+                          </table>
+                        </div>
+                      } @else {
+                        <p class="bp__muted bp__mbSm">No recurring payables are linked to this budget account.</p>
+                      }
+
+                      <div class="bp__toolbar bp__toolbarTight">
+                        <button mat-stroked-button type="button" (click)="openAddFunding(b.budget.bpBudgetId)">
+                          <mat-icon>add</mat-icon>
+                          Add funding line
+                        </button>
+                      </div>
+
+                      @if (fundingForm(); as ff) {
+                        @if (ff.budgetId === b.budget.bpBudgetId) {
+                          <div class="bp__panel bp__panelNested">
+                            <h4 class="bp__h4">{{ ff.editingId == null ? 'Add funding line' : 'Edit funding line' }}</h4>
+                            <div class="bp__formGrid">
+                              <mat-form-field appearance="outline" class="bp__span2">
+                                <mat-label>Income source</mat-label>
+                                <mat-select
+                                  name="fInc"
+                                  [ngModel]="ff.bpIncomeId"
+                                  (ngModelChange)="patchFundingForm({ bpIncomeId: $event })"
+                                >
+                                  <mat-option [value]="null" disabled>Select income</mat-option>
+                                  @for (opt of incomeOptionsForFunding(); track opt.id) {
+                                    <mat-option [value]="opt.id">{{ opt.label }}</mat-option>
+                                  }
+                                </mat-select>
+                              </mat-form-field>
+                              <mat-form-field appearance="outline">
+                                <mat-label>Amount (USD)</mat-label>
+                                <input
+                                  matInput
+                                  name="fAmt"
+                                  [ngModel]="ff.amountDollars"
+                                  (input)="onFundingAmountInput($event)"
+                                  (blur)="onFundingAmountBlur()"
+                                  (keydown)="moneyKeydown($event)"
+                                />
+                              </mat-form-field>
+                              <mat-form-field appearance="outline">
+                                <mat-label>Every</mat-label>
+                                <input
+                                  matInput
+                                  type="number"
+                                  min="1"
+                                  name="fFn"
+                                  [ngModel]="ff.frequencyNumber"
+                                  (ngModelChange)="patchFundingForm({ frequencyNumber: +$event })"
+                                />
+                              </mat-form-field>
+                              <mat-form-field appearance="outline">
+                                <mat-label>Unit</mat-label>
+                                <mat-select
+                                  name="fFu"
+                                  [ngModel]="ff.frequencyUnit"
+                                  (ngModelChange)="patchFundingForm({ frequencyUnit: $event })"
+                                >
+                                  @for (u of frequencyUnits; track u) {
+                                    <mat-option [value]="u">{{ u }}</mat-option>
+                                  }
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                            @if (ff.error) {
+                              <p class="bp__error" role="alert">{{ ff.error }}</p>
+                            }
+                            <div class="bp__panelActions">
+                              <button mat-button type="button" (click)="cancelFundingForm()">Cancel</button>
+                              <button mat-flat-button color="primary" type="button" (click)="submitFundingForm()">Save</button>
+                            </div>
+                          </div>
+                        }
+                      }
+
+                      <table mat-table [dataSource]="b.fundingLines" class="bp__table">
+                        <ng-container matColumnDef="income">
+                          <th mat-header-cell *matHeaderCellDef>Income</th>
+                          <td mat-cell *matCellDef="let row">{{ row.incomeAccountDescription }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="amount">
+                          <th mat-header-cell *matHeaderCellDef>Amount</th>
+                          <td mat-cell *matCellDef="let row">{{ formatMoney(row.amountMinor) }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="frequency">
+                          <th mat-header-cell *matHeaderCellDef>Frequency</th>
+                          <td mat-cell *matCellDef="let row">every {{ row.frequencyNumber }} {{ row.frequencyUnit }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="perDay">
+                          <th mat-header-cell *matHeaderCellDef>Per day</th>
+                          <td mat-cell *matCellDef="let row">{{ formatMoney(row.amountPerDayMinor) }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="actions">
+                          <th mat-header-cell *matHeaderCellDef></th>
+                          <td mat-cell *matCellDef="let row">
+                            <button mat-icon-button type="button" (click)="openEditFunding(b.budget.bpBudgetId, row)">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button type="button" (click)="deleteFunding(b.budget.bpBudgetId, row)">
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="fundingColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: fundingColumns"></tr>
+                      </table>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+        </div>
+      }
+    </section>
+  }
+
+  <app-confirmation-modal
+    [open]="deletePlanTarget() !== null"
+    header="Delete budget plan"
+    [message]="'Delete plan ' + (deletePlanTarget()?.name ?? '') + '? This removes all incomes, payables, budgets, and funding lines.'"
+    [errorMessage]="null"
+    confirmLabel="Delete"
+    (confirmed)="confirmDeletePlan()"
+    (cancelled)="cancelDeletePlan()"
+  />
+
+  @if (duplicateTarget(); as src) {
+    <div class="bp__overlay" role="presentation" (click)="cancelDuplicate()">
+      <div
+        class="bp__dialog bp__dialogWide"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bp-dup-title"
+        (click)="$event.stopPropagation()"
+      >
+        <h2 id="bp-dup-title" class="bp__h2">Duplicate plan</h2>
+        <p class="bp__muted bp__mbSm">Create a copy of <strong>{{ src.name }}</strong>.</p>
+        <mat-form-field appearance="outline" class="bp__fieldGrow">
+          <mat-label>New plan name</mat-label>
+          <input
+            matInput
+            name="dupName"
+            [ngModel]="duplicateName()"
+            (ngModelChange)="duplicateName.set($event)"
+            [disabled]="duplicateSubmitting()"
+          />
+        </mat-form-field>
+
+        <button
+          type="button"
+          class="bp__advancedToggle"
+          [attr.aria-expanded]="duplicateAdvancedOpen()"
+          (click)="toggleDuplicateAdvanced()"
+        >
+          <mat-icon>{{ duplicateAdvancedOpen() ? 'expand_less' : 'expand_more' }}</mat-icon>
+          Advanced options
+        </button>
+
+        @if (duplicateAdvancedOpen()) {
+          <div class="bp__dupAdvanced">
+            <p class="bp__muted bp__mbSm">Choose what to copy into the new plan (all selected by default).</p>
+            <mat-checkbox [checked]="duplicateCopyIncomes()" (change)="duplicateCopyIncomes.set($event.checked)">
+              Incomes
+            </mat-checkbox>
+            <mat-checkbox
+              [checked]="duplicateCopyRecurringPayables()"
+              (change)="duplicateCopyRecurringPayables.set($event.checked)"
+            >
+              Recurring payables
+            </mat-checkbox>
+            <mat-checkbox
+              [checked]="duplicateCopyBudgetAmounts()"
+              (change)="duplicateCopyBudgetAmounts.set($event.checked)"
+            >
+              Budget amounts
+            </mat-checkbox>
+            <p class="bp__muted bp__dupHint">
+              Funding lines between budgets and incomes are copied when both incomes and budget amounts are included.
+            </p>
+          </div>
+        }
+
+        @if (duplicateError()) {
+          <p class="bp__error" role="alert">{{ duplicateError() }}</p>
+        }
+
+        <div class="bp__panelActions">
+          <button mat-button type="button" (click)="cancelDuplicate()" [disabled]="duplicateSubmitting()">
+            Cancel
+          </button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            (click)="submitDuplicate()"
+            [disabled]="duplicateSubmitting()"
+          >
+            Duplicate
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (renameTarget()) {
+    <div class="bp__overlay" role="presentation" (click)="cancelRename()">
+      <div class="bp__dialog" role="dialog" aria-modal="true" aria-labelledby="bp-rename-title" (click)="$event.stopPropagation()">
+        <h2 id="bp-rename-title" class="bp__h2">Rename plan</h2>
+        <mat-form-field appearance="outline" class="bp__fieldGrow">
+          <mat-label>Plan name</mat-label>
+          <input matInput name="renameDraft" [ngModel]="renameDraft()" (ngModelChange)="renameDraft.set($event)" />
+        </mat-form-field>
+        <div class="bp__panelActions">
+          <button mat-button type="button" (click)="cancelRename()">Cancel</button>
+          <button mat-flat-button color="primary" type="button" (click)="submitRename()">Save</button>
+        </div>
+      </div>
+    </div>
+  }
+</app-page-cage>

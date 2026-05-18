@@ -61,6 +61,25 @@
         <button
           type="button"
           class="nav-section-toggle"
+          [attr.aria-expanded]="isNavSectionExpanded('planning')"
+          [attr.aria-controls]="isNavSectionExpanded('planning') ? 'nav-section-planning' : null"
+          id="nav-section-planning-heading"
+          (click)="toggleNavSection('planning')"
+        >
+          <span class="nav-section-chevron" [class.nav-section-chevron--open]="isNavSectionExpanded('planning')" aria-hidden="true"></span>
+          <span class="nav-section-label">Planning</span>
+        </button>
+        @if (isNavSectionExpanded('planning')) {
+          <div class="nav-section-links" id="nav-section-planning" role="group" aria-labelledby="nav-section-planning-heading">
+            <a routerLink="/budget-planning" routerLinkActive="active" class="nav-link nav-link--nested">Budget planning</a>
+          </div>
+        }
+      </div>
+
+      <div class="nav-section">
+        <button
+          type="button"
+          class="nav-section-toggle"
           [attr.aria-expanded]="isNavSectionExpanded('reporting')"
           [attr.aria-controls]="isNavSectionExpanded('reporting') ? 'nav-section-reporting' : null"
           id="nav-section-reporting-heading"

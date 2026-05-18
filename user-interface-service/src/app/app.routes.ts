@@ -7,6 +7,7 @@ import { LoginPageComponent } from './presentation/auth/login-page/login-page.co
 import { RegisterPageComponent } from './presentation/auth/register-page/register-page.component';
 import { authGuard } from './presentation/auth/auth.guard';
 import { PendingJournalEntriesPageComponent } from './presentation/ledger/pending/pending-journal-entries-page/pending-journal-entries-page.component';
+import { BudgetPlanningPageComponent } from './presentation/planning/budget-planning-page/budget-planning-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'ledger' },
@@ -17,4 +18,5 @@ export const routes: Routes = [
   { path: 'accounts', component: AccountsPageComponent, canMatch: [authGuard] },
   { path: 'account-types', component: AccountTypesPageComponent, canMatch: [authGuard] },
   { path: 'reports', component: ReportsPageComponent, canMatch: [authGuard] },
+  { path: 'budget-planning', component: BudgetPlanningPageComponent, canMatch: [authGuard] },
 ];

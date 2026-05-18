@@ -54,6 +54,15 @@ public class GlobalExceptionHandler {
                 .body(new ApiErrorResponse("BAD_REQUEST", ex.getMessage()));
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNotFound(NotFoundException ex) {
+        log.error("Unhandled exception", ex);
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ApiErrorResponse("NOT_FOUND", ex.getMessage()));
+    }
+
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<ApiErrorResponse> handleUApplication(ApplicationException ex) {
         log.error("Unhandled exception", ex);
@@ -69,15 +78,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(new ApiErrorResponse("FORBIDDEN", ex.getMessage()));
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handleNotFound(NotFoundException ex) {
-        log.error("Unhandled exception", ex);
-
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ApiErrorResponse("NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

@@ -95,6 +95,15 @@ export function dollarsStringToMinorUnits(amountDollars: string): number | null 
   return minorUnits;
 }
 
+/** Dollars string for editing amounts derived from fractional minor units (e.g. budget per-day target). */
+export function minorUnitsToDollarsEditString(minorUnits: number): string {
+  if (!Number.isFinite(minorUnits)) {
+    return '';
+  }
+  const s = (minorUnits / 100).toFixed(8).replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1').replace(/\.$/, '');
+  return s.length > 0 ? s : '0';
+}
+
 /** Fixed two-decimal dollars string for a whole minor-units amount (e.g. journal presets). */
 export function minorUnitsToDollarsString(minorUnits: number): string {
   if (!Number.isFinite(minorUnits)) {

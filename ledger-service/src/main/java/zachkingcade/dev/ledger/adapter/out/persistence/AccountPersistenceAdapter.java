@@ -13,6 +13,7 @@ import zachkingcade.dev.ledger.application.port.out.account.AccountRepositoryPor
 import zachkingcade.dev.ledger.domain.account.Account;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,5 +108,20 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
         AccountEntity savedEntity = accountJpaRepository.save(entity);
 
         return accountToSave.withId(savedEntity.getId());
+    }
+
+    @Override
+    public boolean accountHasClassification(Long userId, Long accountId, String classificationDescription) {
+        return accountJpaRepository.isAccountWithClassification(accountId, userId, classificationDescription);
+    }
+
+    @Override
+    public boolean accountHasTypeDescription(Long userId, Long accountId, String typeDescription) {
+        return accountJpaRepository.isAccountWithTypeDescription(accountId, userId, typeDescription);
+    }
+
+    @Override
+    public boolean accountHasAnyOfTypeDescriptions(Long userId, Long accountId, Collection<String> typeDescriptions) {
+        return accountJpaRepository.isAccountWithAnyTypeDescription(accountId, userId, typeDescriptions);
     }
 }

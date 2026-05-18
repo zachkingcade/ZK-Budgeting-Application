@@ -8,7 +8,7 @@ import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { filter } from 'rxjs';
 import { AuthManagerService } from '../../application/auth/auth-manager.service';
 
-type PageCageNavSectionId = 'master-ledger' | 'accounts' | 'reporting';
+type PageCageNavSectionId = 'master-ledger' | 'accounts' | 'planning' | 'reporting';
 
 @Component({
   selector: 'app-page-cage',
@@ -72,6 +72,10 @@ export class PageCage {
     }
     if (path === '/reports' || path.startsWith('/reports/')) {
       this.expandedNavSection.set('reporting');
+      return;
+    }
+    if (path === '/budget-planning' || path.startsWith('/budget-planning/')) {
+      this.expandedNavSection.set('planning');
       return;
     }
   }

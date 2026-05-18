@@ -17,6 +17,7 @@ import zachkingcade.dev.ledger.domain.account.AccountClassification;
 import zachkingcade.dev.ledger.domain.account.AccountType;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -94,6 +95,22 @@ class AccountServiceTest {
             saveCalls++;
             this.saved = accountToSave;
             return accountToSave.withId(nextId++);
+        }
+
+        @Override
+        public boolean accountHasClassification(Long userId, Long accountId, String classificationDescription) {
+            return false;
+        }
+
+        @Override
+        public boolean accountHasTypeDescription(Long userId, Long accountId, String typeDescription) {
+            return false;
+        }
+
+        @Override
+        public boolean accountHasAnyOfTypeDescriptions(
+                Long userId, Long accountId, Collection<String> typeDescriptions) {
+            return false;
         }
     }
 

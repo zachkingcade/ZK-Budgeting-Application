@@ -12,21 +12,14 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component("USAABankDefault")
 public class USAABankDefault implements ImportType {
-
-    private static final Path DEBUG_LOG_PATH = Path.of("/home/zacharykingcade/Documents/code_projects/ZK-Budgeting-Application/.cursor/debug-ee0c2b.log");
 
     @Override
     public List<PendingTransactionDraft> parse(InputStream inputStream, ImportFormatDetails details) {
@@ -74,7 +67,7 @@ public class USAABankDefault implements ImportType {
                     continue;
                 }
 
-                LocalDate txDate = parseDateWithFallback(rawDate, i + 1, details.dateFormat(), dateFormatter);
+                LocalDate txDate = parseDateWithFallback(rawDate, i + 1, dateFormatter);
 
                 String description = (rawDesc == null ? "" : rawDesc.trim());
                 if (description.isBlank()) {
@@ -96,102 +89,23 @@ public class USAABankDefault implements ImportType {
         }
     }
 
-    private static LocalDate parseDateWithFallback(String rawDate, int csvRowNumber, String configuredFormat, DateTimeFormatter configuredFormatter) {
+    private static LocalDate parseDateWithFallback(String rawDate, int csvRowNumber, DateTimeFormatter configuredFormatter) {
         String trimmed = rawDate == null ? "" : rawDate.trim();
         if (trimmed.isBlank()) {
             throw new ApplicationException(String.format("Missing Date on CSV row [%s].", csvRowNumber));
         }
 
         try {
-            LocalDate parsed = LocalDate.parse(trimmed, configuredFormatter);
-            debugLog("Parsed date using configured format", Map.of(
-                    "csvRowNumber", csvRowNumber,
-                    "rawDate", trimmed,
-                    "configuredFormat", configuredFormat,
-                    "parsed", parsed.toString(),
-                    "used", "configured"
-            ));
-            return parsed;
+            return LocalDate.parse(trimmed, configuredFormatter);
         } catch (DateTimeParseException ex) {
-            debugLog("Configured date parse failed; trying ISO_LOCAL_DATE", Map.of(
-                    "csvRowNumber", csvRowNumber,
-                    "rawDate", trimmed,
-                    "configuredFormat", configuredFormat,
-                    "used", "configured_failed"
-            ));
+            // try ISO fallback below
         }
 
         try {
-            LocalDate parsed = LocalDate.parse(trimmed, DateTimeFormatter.ISO_LOCAL_DATE);
-            debugLog("Parsed date using ISO_LOCAL_DATE fallback", Map.of(
-                    "csvRowNumber", csvRowNumber,
-                    "rawDate", trimmed,
-                    "configuredFormat", configuredFormat,
-                    "parsed", parsed.toString(),
-                    "used", "iso_local_date"
-            ));
-            return parsed;
+            return LocalDate.parse(trimmed, DateTimeFormatter.ISO_LOCAL_DATE);
         } catch (DateTimeParseException ex) {
-            debugLog("ISO_LOCAL_DATE fallback failed", Map.of(
-                    "csvRowNumber", csvRowNumber,
-                    "rawDate", trimmed,
-                    "configuredFormat", configuredFormat,
-                    "used", "iso_failed"
-            ));
             throw new ApplicationException(String.format("Invalid date [%s] on CSV row [%s].", rawDate, csvRowNumber));
         }
-    }
-
-    private static void debugLog(String message, Map<String, Object> data) {
-        try {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("sessionId", "ee0c2b");
-            payload.put("runId", "pre-fix");
-            payload.put("hypothesisId", "H1");
-            payload.put("location", "USAABankDefault.java");
-            payload.put("message", message);
-            payload.put("timestamp", System.currentTimeMillis());
-            payload.put("data", data);
-
-            String json = toJson(payload) + "\n";
-            Files.writeString(DEBUG_LOG_PATH, json, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        } catch (Exception _ignored) {
-            // intentionally ignore debug logging failures
-        }
-    }
-
-    private static String toJson(Map<String, Object> map) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        boolean first = true;
-        for (Map.Entry<String, Object> e : map.entrySet()) {
-            if (!first) sb.append(",");
-            first = false;
-            sb.append("\"").append(escapeJson(e.getKey())).append("\":");
-            sb.append(valueToJson(e.getValue()));
-        }
-        sb.append("}");
-        return sb.toString();
-    }
-
-    private static String valueToJson(Object value) {
-        if (value == null) return "null";
-        if (value instanceof Number || value instanceof Boolean) return value.toString();
-        if (value instanceof Map<?, ?> m) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> cast = (Map<String, Object>) m;
-            return toJson(cast);
-        }
-        return "\"" + escapeJson(String.valueOf(value)) + "\"";
-    }
-
-    private static String escapeJson(String s) {
-        return s
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
     }
 
     private static int indexOf(List<String> headerArray, String value) {
