@@ -8,6 +8,7 @@ import { RegisterPageComponent } from './presentation/auth/register-page/registe
 import { authGuard } from './presentation/auth/auth.guard';
 import { PendingJournalEntriesPageComponent } from './presentation/ledger/pending/pending-journal-entries-page/pending-journal-entries-page.component';
 import { BudgetPlanningPageComponent } from './presentation/planning/budget-planning-page/budget-planning-page.component';
+import { ReplayableJournalEntriesPageComponent } from './presentation/planning/replayable-journal-entries-page/replayable-journal-entries-page.component';
 import { AccountingPeriodsPageComponent } from './presentation/ledger/accounting-periods-page/accounting-periods-page.component';
 import { SettingsPageComponent } from './presentation/user-account/settings-page/settings-page.component';
 
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: 'account-types', component: AccountTypesPageComponent, canMatch: [authGuard] },
   { path: 'reports', component: ReportsPageComponent, canMatch: [authGuard] },
   { path: 'budget-planning', component: BudgetPlanningPageComponent, canMatch: [authGuard] },
+  { path: 'replayable-journal-entries', component: ReplayableJournalEntriesPageComponent, canMatch: [authGuard] },
   { path: 'accounting-periods', component: AccountingPeriodsPageComponent, canMatch: [authGuard] },
   { path: 'settings', component: SettingsPageComponent, canMatch: [authGuard] },
 ];

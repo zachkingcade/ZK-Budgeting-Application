@@ -27,6 +27,14 @@ import {
   ChangePendingDateDialogComponent,
   ChangePendingDateDialogResult,
 } from '../change-pending-date-dialog.component';
+import {
+  SaveAsReplayableDialogComponent,
+  SaveAsReplayableDialogData,
+} from '../save-as-replayable-dialog.component';
+import {
+  LoadReplayableJournalEntryDialogComponent,
+  LoadReplayableJournalEntryDialogResult,
+} from '../../../shared/load-replayable-journal-entry-dialog/load-replayable-journal-entry-dialog.component';
 
 type SelectOption<T extends string | number> = { id: T; label: string };
 
@@ -205,6 +213,58 @@ export class PendingJournalEntriesPageComponent implements OnInit {
           this.importing.set(false);
           this.toast.showError('Import failed. Make sure the format and CSV headers match.');
         },
+      });
+  }
+
+  openSaveAsReplayable(tx: PendingTransactionObject): void {
+    const draft = this.draftsById().get(tx.transactionNumber);
+    if (!draft) {
+      this.toast.showError('No journal lines to save.');
+      return;
+    }
+    const validation = this.validateDraftForTx(tx, draft);
+    if (!validation.valid) {
+      this.toast.showError(validation.message ?? 'Complete and balance journal lines before saving as a replay.');
+      return;
+    }
+    const data: SaveAsReplayableDialogData = {
+      defaultName: (draft.description ?? tx.description).trim() || tx.description,
+      lines: draft.lines,
+    };
+    this.dialog
+      .open(SaveAsReplayableDialogComponent, { data, width: '28rem' })
+      .afterClosed()
+      .subscribe((saved) => {
+        if (saved) {
+          this.toast.showSuccess('Saved as replayable journal entry.');
+        }
+      });
+  }
+
+  openLoadReplayable(tx: PendingTransactionObject): void {
+    this.dialog
+      .open(LoadReplayableJournalEntryDialogComponent, { width: '36rem' })
+      .afterClosed()
+      .subscribe((lines: LoadReplayableJournalEntryDialogResult | undefined) => {
+        if (!lines || lines.length === 0) {
+          return;
+        }
+        const draft = this.draftsById().get(tx.transactionNumber);
+        if (!draft) {
+          return;
+        }
+        this.draftsById.update((prev) => {
+          const next = new Map(prev);
+          next.set(tx.transactionNumber, { ...draft, lines });
+          return next;
+        });
+        const debit = this.draftDebitTotalMinor({ ...draft, lines });
+        const credit = this.draftCreditTotalMinor({ ...draft, lines });
+        if (debit !== tx.amount || credit !== tx.amount) {
+          this.toast.showError(
+            'Loaded amounts were copied from the template and may not match this pending transaction amount.',
+          );
+        }
       });
   }
 

@@ -64,6 +64,8 @@ export class PendingTransactionsTableComponent {
 
   readonly deleteRequested = output<PendingTransactionObject>();
   readonly changeDateRequested = output<PendingTransactionObject>();
+  readonly saveAsReplayableRequested = output<PendingTransactionObject>();
+  readonly loadReplayableRequested = output<PendingTransactionObject>();
   readonly draftChanged = output<{ transactionNumber: number; draft: IPendingDraft }>();
 
   readonly displayedColumns = [
@@ -83,6 +85,18 @@ export class PendingTransactionsTableComponent {
   buildPendingRowActionsMenu(row: PendingTransactionObject): ITableRowAction[] {
     return [
       {
+        id: 'loadReplayable',
+        label: 'Load replayable',
+        icon: 'playlist_play',
+        disabled: this.removingTransactionNumber() === row.transactionNumber,
+      },
+      {
+        id: 'saveAsReplayable',
+        label: 'Save as replayable',
+        icon: 'bookmark_add',
+        disabled: this.removingTransactionNumber() === row.transactionNumber,
+      },
+      {
         id: 'changeDate',
         label: 'Change date',
         icon: 'event',
@@ -99,6 +113,12 @@ export class PendingTransactionsTableComponent {
 
   onPendingRowMenuAction(selection: { id: string }, row: PendingTransactionObject): void {
     switch (selection.id) {
+      case 'loadReplayable':
+        this.loadReplayableRequested.emit(row);
+        break;
+      case 'saveAsReplayable':
+        this.saveAsReplayableRequested.emit(row);
+        break;
       case 'changeDate':
         this.changeDateRequested.emit(row);
         break;

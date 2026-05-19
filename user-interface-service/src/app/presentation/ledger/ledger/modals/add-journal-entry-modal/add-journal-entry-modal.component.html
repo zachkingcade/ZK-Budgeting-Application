@@ -64,11 +64,21 @@
 
           <div class="linesHeader">
             <h3 class="sectionTitle">Journal Lines</h3>
-            <button mat-button type="button" (click)="addRow()" [disabled]="submitting()">
-              <mat-icon>add</mat-icon>
-              Add row
-            </button>
+            <div class="linesHeader__actions">
+              <button mat-button type="button" (click)="openLoadReplayable()" [disabled]="submitting()">
+                <mat-icon>playlist_play</mat-icon>
+                Load replayable
+              </button>
+              <button mat-button type="button" (click)="addRow()" [disabled]="submitting()">
+                <mat-icon>add</mat-icon>
+                Add row
+              </button>
+            </div>
           </div>
+
+          @if (replayLoadHint()) {
+            <p class="replayHint">{{ replayLoadHint() }}</p>
+          }
 
           <div class="linesTableWrap">
             <table class="linesTable">

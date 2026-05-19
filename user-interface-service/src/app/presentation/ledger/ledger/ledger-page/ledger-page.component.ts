@@ -11,7 +11,14 @@ import { GETAllJournalEntrysRequest } from '../../../../adapter/ledger-service/d
 import { JournalEntryFilters } from '../../../../adapter/ledger-service/dto/journal-entry/JournalEntryFilters';
 import { SortObject } from '../../../../adapter/ledger-service/dto/SortObject';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { ToastService } from '../../../../application/toast.service';
+import {
+  SaveAsReplayableDialogComponent,
+  SaveAsReplayableDialogData,
+} from '../../pending/save-as-replayable-dialog.component';
+import { enrichedJournalLinesToDrafts } from '../../../../domain/replayable-journal-entry/replayable-journal-entry.mapper';
 import { ConfirmationModalComponent } from '../../../shared/confirmation-modal/confirmation-modal.component';
 import { AddJournalEntryModalComponent } from '../modals/add-journal-entry-modal/add-journal-entry-modal.component';
 import { EditJournalEntryModalComponent } from '../modals/edit-journal-entry-modal/edit-journal-entry-modal.component';
@@ -70,6 +77,8 @@ function cloneFilterSortState(state: ILedgerFilterSortState): ILedgerFilterSortS
 export class LedgerPage implements OnInit {
   constructor(
     private readonly journalEntries: JournalEntryApplicationService,
+    private readonly dialog: MatDialog,
+    private readonly toast: ToastService,
     private readonly destroyRef: DestroyRef,
   ) {}
 
@@ -140,6 +149,27 @@ export class LedgerPage implements OnInit {
 
   closeAddModal(): void {
     this.addModalOpen.set(false);
+  }
+
+  openSaveAsReplayable(entry: JournalEntryDTOEnrichedResponse): void {
+    const lines = entry.journalLines ?? [];
+    if (lines.length === 0) {
+      this.toast.showError('This journal entry has no lines to save.');
+      return;
+    }
+    const data: SaveAsReplayableDialogData = {
+      defaultName: entry.description?.trim() || `Journal entry ${entry.id}`,
+      lines: enrichedJournalLinesToDrafts(lines),
+      requireBalanced: true,
+    };
+    this.dialog
+      .open(SaveAsReplayableDialogComponent, { data, width: '28rem' })
+      .afterClosed()
+      .subscribe((saved) => {
+        if (saved) {
+          this.toast.showSuccess('Saved as replayable journal entry.');
+        }
+      });
   }
 
   openEditModal(entry: JournalEntryDTOEnrichedResponse): void {

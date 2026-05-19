@@ -21,6 +21,8 @@
       [draftsById]="draftsById()"
       (deleteRequested)="openDeleteConfirm($event)"
       (changeDateRequested)="openChangeDateDialog($event)"
+      (saveAsReplayableRequested)="openSaveAsReplayable($event)"
+      (loadReplayableRequested)="openLoadReplayable($event)"
       (draftChanged)="onDraftChanged($event)"
     />
 

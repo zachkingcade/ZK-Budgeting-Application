@@ -33,6 +33,7 @@ export class LedgerTable {
 
   readonly editRequested = output<JournalEntryDTOEnrichedResponse>();
   readonly deleteRequested = output<JournalEntryDTOEnrichedResponse>();
+  readonly saveAsReplayableRequested = output<JournalEntryDTOEnrichedResponse>();
 
   readonly displayedColumns = ['entryDate', 'description', 'amount', 'rowActions', 'expand'] as const;
   readonly expandedEntryIds = signal<Set<number>>(new Set<number>());
@@ -97,6 +98,7 @@ export class LedgerTable {
 
   buildLedgerRowActionsMenu(entry: JournalEntryDTOEnrichedResponse): ITableRowAction[] {
     return [
+      { id: 'saveAsReplayable', label: 'Save as replayable', icon: 'bookmark_add' },
       { id: 'edit', label: 'Edit', icon: 'edit' },
       {
         id: 'delete',
@@ -109,6 +111,9 @@ export class LedgerTable {
 
   onLedgerRowMenuAction(selection: { id: string }, entry: JournalEntryDTOEnrichedResponse): void {
     switch (selection.id) {
+      case 'saveAsReplayable':
+        this.saveAsReplayableRequested.emit(entry);
+        break;
       case 'edit':
         this.onEditEntry(entry);
         break;

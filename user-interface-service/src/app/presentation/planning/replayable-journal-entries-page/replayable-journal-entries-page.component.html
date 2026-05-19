@@ -1,0 +1,179 @@
+<app-page-cage
+  pageName="Replayable journal entries"
+  subText="Save and reuse journal line patterns (amount, account, direction)."
+>
+  @if (actionError() && !inEditor()) {
+    <p class="rje__bannerError" role="alert">{{ actionError() }}</p>
+  }
+
+  @if (!inEditor()) {
+    <section class="rje__section">
+      <div class="rje__toolbar">
+        <h2 class="rje__h2">Your replays</h2>
+        <button mat-flat-button color="primary" type="button" (click)="openNew()">
+          <mat-icon>add</mat-icon>
+          New replayable entry
+        </button>
+      </div>
+
+      @if (listError()) {
+        <p class="rje__error" role="alert">{{ listError() }}</p>
+      }
+
+      @if (listLoading() && items().length === 0) {
+        <mat-progress-spinner diameter="40" mode="indeterminate" />
+      } @else {
+        <div class="rje__tableWrap">
+          <table mat-table [dataSource]="items()" class="rje__table">
+            <ng-container matColumnDef="replayName">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let row">{{ row.replayName }}</td>
+            </ng-container>
+            <ng-container matColumnDef="replayLineCount">
+              <th mat-header-cell *matHeaderCellDef>Lines</th>
+              <td mat-cell *matCellDef="let row">{{ row.replayLineCount }}</td>
+            </ng-container>
+            <ng-container matColumnDef="lastEditedAt">
+              <th mat-header-cell *matHeaderCellDef>Last edited</th>
+              <td mat-cell *matCellDef="let row">{{ row.lastEditedAt | date: 'medium' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef aria-hidden="true"></th>
+              <td mat-cell *matCellDef="let row">
+                <app-table-row-actions-menu
+                  [actions]="buildRowActions(row)"
+                  (actionSelected)="onRowAction($event, row)"
+                />
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="listColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: listColumns"></tr>
+          </table>
+          @if (!listLoading() && items().length === 0) {
+            <p class="rje__empty">No replayable journal entries yet.</p>
+          }
+        </div>
+      }
+    </section>
+  } @else {
+    <section class="rje__section">
+      <div class="rje__editorHeader">
+        <button mat-icon-button type="button" aria-label="Back to list" (click)="closeEditor()">
+          <mat-icon>keyboard_return</mat-icon>
+        </button>
+        <h2 class="rje__h2">{{ editorId() === 'new' ? 'New replayable entry' : 'Edit replayable entry' }}</h2>
+      </div>
+
+      @if (editorLoading()) {
+        <mat-progress-spinner diameter="40" mode="indeterminate" />
+      } @else {
+        @if (actionError()) {
+          <p class="rje__error" role="alert">{{ actionError() }}</p>
+        }
+
+        <mat-form-field appearance="outline" class="rje__nameField">
+          <mat-label>Replay name</mat-label>
+          <input matInput [ngModel]="editorName()" (ngModelChange)="editorName.set($event)" name="replayName" />
+        </mat-form-field>
+
+        <div class="rje__totals" aria-live="polite">
+          <span>Debits: <strong>{{ formatMoneyMinor(debitTotalMinor()) }}</strong></span>
+          <span>Credits: <strong>{{ formatMoneyMinor(creditTotalMinor()) }}</strong></span>
+        </div>
+
+        <div class="rje__linesHeader">
+          <h3 class="rje__h3">Journal lines</h3>
+          <button mat-button type="button" (click)="addLineRow()">
+            <mat-icon>add</mat-icon>
+            Add row
+          </button>
+        </div>
+
+        <div class="rje__linesWrap">
+          <table class="rje__linesTable">
+            <thead>
+              <tr>
+                <th>Amount</th>
+                <th>Account</th>
+                <th>Direction</th>
+                <th>Effect</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of editorLines(); track $index) {
+                <tr>
+                  <td>
+                    <mat-form-field appearance="outline" class="rje__cellField">
+                      <input
+                        matInput
+                        inputmode="decimal"
+                        [ngModel]="line.amountDollars"
+                        (input)="onLineAmountInput($index, $event)"
+                        (blur)="onLineAmountBlur($index)"
+                        (keydown)="onMoneyKeydown($event)"
+                      />
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="outline" class="rje__cellField">
+                      <mtx-select
+                        [items]="accountOptions()"
+                        bindLabel="label"
+                        bindValue="id"
+                        [ngModel]="line.accountId"
+                        (ngModelChange)="patchLine($index, { accountId: $event })"
+                        placeholder="Account"
+                      />
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="outline" class="rje__cellField">
+                      <mtx-select
+                        [items]="directionOptions"
+                        bindLabel="label"
+                        bindValue="id"
+                        [ngModel]="line.direction"
+                        (ngModelChange)="patchLine($index, { direction: $event })"
+                        placeholder="Dir"
+                      />
+                    </mat-form-field>
+                  </td>
+                  <td>{{ lineAffectLabel(line) }}</td>
+                  <td>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      aria-label="Remove line"
+                      [disabled]="editorLines().length <= 2"
+                      (click)="removeLineRow($index)"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rje__editorActions">
+          <button mat-button type="button" (click)="closeEditor()">Cancel</button>
+          <button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="saveEditor()">
+            Save
+          </button>
+        </div>
+      }
+    </section>
+  }
+</app-page-cage>
+
+<app-confirmation-modal
+  [open]="deleteConfirmOpen()"
+  [header]="'Confirm delete'"
+  [message]="deleteConfirmMessage()"
+  [errorMessage]="modalError()"
+  [confirmLabel]="'Delete'"
+  (cancelled)="closeDeleteConfirm()"
+  (confirmed)="onDeleteConfirmed()"
+></app-confirmation-modal>

@@ -35,6 +35,7 @@
           [loadError]="loadError()"
           [removingEntryId]="removingEntryId()"
           (editRequested)="openEditModal($event)"
+          (saveAsReplayableRequested)="openSaveAsReplayable($event)"
           (deleteRequested)="openDeleteConfirm($event)"
         ></app-ledger-table>
     </div>

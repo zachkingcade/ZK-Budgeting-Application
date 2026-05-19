@@ -41,6 +41,8 @@ Migrations live in [`../../ledger-service/src/main/resources/db/migration/`](../
 - `V9__Budget_planning.sql`: user-owned budget plans, incomes, recurring payables, budgets, and funding lines (see below)
 - `V11__Closed_accounting_periods.sql`: closed accounting period headers and archived journal entries/lines
 - `V12__Closed_period_account_balances.sql`: per-account signed balances at each period close
+- `V13__Replayable_journal_entries.sql`: user-owned reusable journal line templates (no line notes)
+- `V14__Replayable_journal_entries_min_one_line.sql`: allow single-line (partial) templates
 
 ## Tables
 
@@ -55,6 +57,13 @@ These tables support **what-if** budgeting per user (not posted journal activity
 - **`bp_funding_lines`**: links a budget to an income with its own recurring amount/frequency; `bp_budget_id` → `bp_budgets` **CASCADE**; `bp_income_id` → `bp_incomes` **RESTRICT** (cannot delete an income row still referenced by a funding line).
 
 Indexes: `budget_plan_id` on child plan tables; `bp_budget_id` and `bp_income_id` on `bp_funding_lines`.
+
+### Replayable journal entries (`V13__Replayable_journal_entries.sql`)
+
+User-owned templates for repeating journal **line patterns** (amount, account, direction only—no line notes). Used when creating journal entries from Pending JE or the Ledger add-entry flow.
+
+- **`replayable_journal_entries`**: `replay_name`, denormalized `replay_line_count`, `created_at`, `last_edited_at`. Unique per `(user_id, replay_name)`; at least one line required. Create requests default to **balanced** templates (≥2 lines, debits = credits); `requireBalanced: false` allows partial templates (e.g. a single debit from budget income).
+- **`replayable_journal_entry_lines`**: `line_order`, `amount` (minor units, &gt; 0), `account_id`, `direction` (`D`/`C`). FK to header **ON DELETE CASCADE**; FK to `accounts` **ON DELETE RESTRICT**.
 
 ## Core accounting tables
 

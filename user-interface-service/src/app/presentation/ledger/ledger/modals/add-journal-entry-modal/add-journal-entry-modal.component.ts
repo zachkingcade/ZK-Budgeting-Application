@@ -14,7 +14,12 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import {
+  LoadReplayableJournalEntryDialogComponent,
+  LoadReplayableJournalEntryDialogResult,
+} from '../../../../shared/load-replayable-journal-entry-dialog/load-replayable-journal-entry-dialog.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -57,6 +62,7 @@ export class AddJournalEntryModalComponent implements OnInit, OnChanges {
     private readonly journalEntryApplicationService: JournalEntryApplicationService,
     private readonly destroyRef: DestroyRef,
     private readonly router: Router,
+    private readonly dialog: MatDialog,
   ) {}
 
   @Input() open: boolean = false;
@@ -79,6 +85,7 @@ export class AddJournalEntryModalComponent implements OnInit, OnChanges {
     { amountDollars: '', accountId: null, direction: '', notes: '' },
     { amountDollars: '', accountId: null, direction: '', notes: '' },
   ]);
+  readonly replayLoadHint = signal<string | null>(null);
 
   readonly directionOptions: LedgerOption<'C' | 'D'>[] = [
     { id: 'D', label: 'Debit' },
@@ -148,6 +155,19 @@ export class AddJournalEntryModalComponent implements OnInit, OnChanges {
     this.resetForm();
     void this.router.navigate(['/accounts']);
     this.cancelled.emit();
+  }
+
+  openLoadReplayable(): void {
+    this.dialog
+      .open(LoadReplayableJournalEntryDialogComponent, { width: '36rem' })
+      .afterClosed()
+      .subscribe((loaded: LoadReplayableJournalEntryDialogResult | undefined) => {
+        if (!loaded || loaded.length === 0) {
+          return;
+        }
+        this.lines.set(loaded);
+        this.replayLoadHint.set('Line amounts and accounts were loaded from the template. Line notes were not copied.');
+      });
   }
 
   addRow(): void {
@@ -302,6 +322,7 @@ export class AddJournalEntryModalComponent implements OnInit, OnChanges {
       { amountDollars: '', accountId: null, direction: '', notes: '' },
       { amountDollars: '', accountId: null, direction: '', notes: '' },
     ]);
+    this.replayLoadHint.set(null);
   }
 
   private toIsoDate(d: Date): string {

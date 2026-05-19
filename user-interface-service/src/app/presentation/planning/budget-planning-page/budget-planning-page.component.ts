@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,6 +39,12 @@ import {
   onMoneyDollarsKeydown,
   sanitizeMoneyDollarsInput,
 } from '../../../domain/journal-entry/journal-entry.validation';
+import { ToastService } from '../../../application/toast.service';
+import {
+  SaveAsReplayableDialogComponent,
+  SaveAsReplayableDialogData,
+} from '../../ledger/pending/save-as-replayable-dialog.component';
+import { incomeFundingAllocationsToReplayableDebitDrafts } from '../../../domain/replayable-journal-entry/replayable-journal-entry.mapper';
 import { PageCage } from '../../page-cage/page-cage.component';
 import { ConfirmationModalComponent } from '../../shared/confirmation-modal/confirmation-modal.component';
 import { TableRowActionsMenuComponent } from '../../shared/table-row-actions-menu/table-row-actions-menu.component';
@@ -85,6 +92,8 @@ export class BudgetPlanningPageComponent implements OnInit {
   constructor(
     private readonly budgetPlanningApplicationService: BudgetPlanningApplicationService,
     private readonly accountsApplicationService: AccountsApplicationService,
+    private readonly dialog: MatDialog,
+    private readonly toast: ToastService,
     private readonly destroyRef: DestroyRef,
   ) {}
 
@@ -612,6 +621,98 @@ export class BudgetPlanningPageComponent implements OnInit {
     }
   }
 
+  buildIncomeRowActions(row: IBpIncomeResponse): ITableRowAction[] {
+    const ed = this.editor();
+    const hasFunding =
+      ed != null && this.fundingAllocationsForIncome(row, ed).length > 0;
+    return [
+      {
+        id: 'saveReplayable',
+        label: 'Save as replayable JE',
+        icon: 'bookmark_add',
+        disabled: !hasFunding,
+      },
+      { id: 'edit', label: 'Edit', icon: 'edit' },
+      { id: 'delete', label: 'Delete', icon: 'delete' },
+    ];
+  }
+
+  onIncomeRowAction(sel: { id: string }, row: IBpIncomeResponse): void {
+    switch (sel.id) {
+      case 'saveReplayable':
+        this.openSaveIncomeAsReplayable(row);
+        break;
+      case 'edit':
+        this.openEditIncome(row);
+        break;
+      case 'delete':
+        this.deleteIncome(row);
+        break;
+      default:
+        break;
+    }
+  }
+
+  buildPayableRowActions(_row: IBpRecurringPayableResponse): ITableRowAction[] {
+    return [
+      { id: 'edit', label: 'Edit', icon: 'edit' },
+      { id: 'delete', label: 'Delete', icon: 'delete' },
+    ];
+  }
+
+  onPayableRowAction(sel: { id: string }, row: IBpRecurringPayableResponse): void {
+    switch (sel.id) {
+      case 'edit':
+        this.openEditPayable(row);
+        break;
+      case 'delete':
+        this.deletePayable(row);
+        break;
+      default:
+        break;
+    }
+  }
+
+  buildBudgetRowActions(_b: IBpBudgetWithFundingResponse): ITableRowAction[] {
+    return [
+      { id: 'edit', label: 'Edit', icon: 'edit' },
+      { id: 'delete', label: 'Delete', icon: 'delete' },
+    ];
+  }
+
+  onBudgetRowAction(sel: { id: string }, b: IBpBudgetWithFundingResponse): void {
+    switch (sel.id) {
+      case 'edit':
+        this.openEditBudget(b);
+        break;
+      case 'delete':
+        this.deleteBudget(b);
+        break;
+      default:
+        break;
+    }
+  }
+
+  buildFundingRowActions(_line: IBpFundingLineResponse): ITableRowAction[] {
+    return [
+      { id: 'edit', label: 'Edit', icon: 'edit' },
+      { id: 'delete', label: 'Delete', icon: 'delete' },
+    ];
+  }
+
+  onFundingRowAction(sel: { id: string }, budgetId: number, line: IBpFundingLineResponse): void {
+    switch (sel.id) {
+      case 'edit':
+        this.openEditFunding(budgetId, line);
+        break;
+      case 'delete':
+        this.deleteFunding(budgetId, line);
+        break;
+      default:
+        break;
+    }
+  }
+
   openDuplicate(plan: IBudgetPlanListItem): void {
     this.duplicateTarget.set(plan);
     this.duplicateName.set(`Copy of ${plan.name}`);
@@ -726,6 +827,7 @@ export class BudgetPlanningPageComponent implements OnInit {
           ),
         );
         rows.push({
+          accountId: b.budget.accountId,
           budgetAccountDescription: b.budget.accountDescription,
           amountPerIncomePayPeriodMinor: perPayment,
           fundingStatedAmountMinor: line.amountMinor,
@@ -803,6 +905,42 @@ export class BudgetPlanningPageComponent implements OnInit {
         });
       },
     });
+  }
+
+  openSaveIncomeAsReplayable(row: IBpIncomeResponse): void {
+    const ed = this.editor();
+    if (!ed) {
+      return;
+    }
+    const allocations = this.fundingAllocationsForIncome(row, ed);
+    if (allocations.length === 0) {
+      this.toast.showError(
+        'Add funding lines on budgets for this income before saving as a replayable entry.',
+      );
+      return;
+    }
+    const lines = incomeFundingAllocationsToReplayableDebitDrafts(allocations);
+    if (lines.length === 0) {
+      this.toast.showError('Funding amounts are all zero; nothing to save.');
+      return;
+    }
+    const periodLabel = this.incomePayPeriodLabel(row);
+    const data: SaveAsReplayableDialogData = {
+      defaultName: `${row.accountDescription} – ${periodLabel}`,
+      lines,
+      requireBalanced: false,
+      hint:
+        `Saves one debit line per funded budget account (amount per ${periodLabel.toLowerCase()} payment from ${row.accountDescription}). ` +
+        'Add matching credit line(s) when you load this replayable entry.',
+    };
+    this.dialog
+      .open(SaveAsReplayableDialogComponent, { data, width: '32rem' })
+      .afterClosed()
+      .subscribe((saved) => {
+        if (saved) {
+          this.toast.showSuccess('Saved income as replayable journal entry.');
+        }
+      });
   }
 
   deleteIncome(row: IBpIncomeResponse): void {
@@ -1149,6 +1287,7 @@ export class BudgetPlanningPageComponent implements OnInit {
 }
 
 interface IIncomeFundingAllocationView {
+  accountId: number;
   budgetAccountDescription: string;
   amountPerIncomePayPeriodMinor: number;
   fundingStatedAmountMinor: number;

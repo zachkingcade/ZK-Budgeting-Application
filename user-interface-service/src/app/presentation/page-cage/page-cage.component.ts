@@ -78,7 +78,12 @@ export class PageCage {
       this.expandedNavSection.set('reporting');
       return;
     }
-    if (path === '/budget-planning' || path.startsWith('/budget-planning/')) {
+    if (
+      path === '/budget-planning' ||
+      path.startsWith('/budget-planning/') ||
+      path === '/replayable-journal-entries' ||
+      path.startsWith('/replayable-journal-entries/')
+    ) {
       this.expandedNavSection.set('planning');
       return;
     }

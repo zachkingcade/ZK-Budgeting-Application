@@ -112,6 +112,18 @@
   margin: 0.5rem 0 0.75rem 0;
 }
 
+.linesHeader__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.replayHint {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: #b45309;
+}
+
 .sectionTitle {
   margin: 0;
   font-size: 1.05rem;

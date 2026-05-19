@@ -2,7 +2,7 @@
 
 **Purpose**: Explain how to talk to `ledger-service` over HTTP and what conventions it follows.
 <br>
-Last updated: 2026-04-22
+Last updated: 2026-05-18
 
 ## Canonical sources
 
@@ -86,6 +86,17 @@ The primary resource groups are:
 | DELETE | `/pendingtransactions/remove/{transactionNumber}` | Remove pending transaction | — | [`RemovePendingTransactionResponse`](../../ledger-service/src/main/java/zachkingcade/dev/ledger/adapter/in/web/dto/pendingtransaction/RemovePendingTransactionResponse.java) | 200 |
 | POST | `/pendingtransactions/import` | Import pending transactions (file upload) | multipart form (`formatId`, `file`) | [`ImportPendingTransactionsResponse`](../../ledger-service/src/main/java/zachkingcade/dev/ledger/adapter/in/web/dto/pendingtransaction/ImportPendingTransactionsResponse.java) | 201 |
 | POST | `/pendingtransactions/apply` | Apply pending transactions to journal entries | [`ApplyPendingTransactionsRequest`](../../ledger-service/src/main/java/zachkingcade/dev/ledger/adapter/in/web/dto/pendingtransaction/apply/ApplyPendingTransactionsRequest.java) | [`ApplyPendingTransactionsResponse`](../../ledger-service/src/main/java/zachkingcade/dev/ledger/adapter/in/web/dto/pendingtransaction/apply/ApplyPendingTransactionsResponse.java) | 200 |
+| PATCH | `/pendingtransactions/{transactionNumber}/date` | Update pending transaction date | [`UpdatePendingTransactionDateRequest`](../../ledger-service/src/main/java/zachkingcade/dev/ledger/adapter/in/web/dto/pendingtransaction/UpdatePendingTransactionDateRequest.java) | [`UpdatePendingTransactionDateResponse`](../../ledger-service/src/main/java/zachkingcade/dev/ledger/adapter/in/web/dto/pendingtransaction/UpdatePendingTransactionDateResponse.java) | 200 |
+
+### Replayable journal entries
+
+| Method | Path | Summary | Request DTO | Response DTO | Status |
+|---|---|---|---|---|---|
+| GET | `/replayable-journal-entries` | List replayable templates (headers) | — | `List<ReplayableJournalEntryListItem>` (views) | 200 |
+| GET | `/replayable-journal-entries/{id}` | Get template with lines | — | `ReplayableJournalEntryDetailView` | 200 |
+| POST | `/replayable-journal-entries` | Create template | [`SaveReplayableJournalEntryRequest`](../../ledger-service/src/main/java/zachkingcade/dev/ledger/adapter/in/web/dto/replayablejournal/ReplayableJournalEntryRequests.java) | `ReplayableJournalEntryDetailView` | 201 |
+| PUT | `/replayable-journal-entries/{id}` | Update template (replace lines) | [`SaveReplayableJournalEntryRequest`](../../ledger-service/src/main/java/zachkingcade/dev/ledger/adapter/in/web/dto/replayablejournal/ReplayableJournalEntryRequests.java) | `ReplayableJournalEntryDetailView` | 200 |
+| DELETE | `/replayable-journal-entries/{id}` | Delete template | — | — | 200 |
 
 ### Import formats
 
