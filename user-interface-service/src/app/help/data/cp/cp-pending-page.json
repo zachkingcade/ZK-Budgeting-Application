@@ -1,0 +1,15 @@
+{
+  "id": "cp-pending-page",
+  "title": "Pending journal entries",
+  "seeMoreHelpId": "pending-import-workflow",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "This is your staging area—bank activity lands here first, before it becomes part of the real ledger. You can import a file, tidy up descriptions and accounts, and only when you are comfortable hit Apply to post."
+    },
+    {
+      "type": "p",
+      "text": "Nothing on this page affects your balances until you apply. That gives you room to fix mistakes, assign the right accounts, and check dates against your accounting periods."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "settings-defaults",
+  "slug": "settings-defaults",
+  "title": "Settings and defaults",
+  "summary": "Periods, page defaults, themes, and Save.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Settings is where bookkeeping rhythm meets personal preference. Accounting periods define how you close; ledger and accounts panels set which filters open first; style picks your theme."
+    },
+    {
+      "type": "p",
+      "text": "Changes stick when you Save. Clear resets the form on the page without navigating away—useful if you started tweaking and want to back out."
+    }
+  ]
+}

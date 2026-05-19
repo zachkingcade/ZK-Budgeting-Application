@@ -1,0 +1,16 @@
+.context-help-dialog__content {
+  min-width: min(22rem, calc(100vw - 3rem));
+  max-width: min(28rem, calc(100vw - 2rem));
+  overflow-x: hidden;
+}
+
+.context-help-dialog__actions {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.context-help-dialog__more {
+  margin-right: auto;
+  font-weight: 400;
+  font-size: 0.875rem;
+}

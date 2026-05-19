@@ -1,0 +1,20 @@
+.help-body__p {
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+  color: var(--mat-sys-on-surface, inherit);
+}
+
+.help-body__p:last-child {
+  margin-bottom: 0;
+}
+
+.help-body__ul {
+  margin: 0 0 0.75rem 1.25rem;
+  padding: 0;
+  line-height: 1.5;
+  color: var(--mat-sys-on-surface, inherit);
+}
+
+.help-body__ul:last-child {
+  margin-bottom: 0;
+}

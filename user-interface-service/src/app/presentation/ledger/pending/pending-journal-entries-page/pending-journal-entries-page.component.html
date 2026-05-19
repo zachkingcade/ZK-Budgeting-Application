@@ -1,4 +1,4 @@
-<app-page-cage pageName="Pending Journal Entries" subText="Import bank transactions and convert them to journal entries.">
+<app-page-cage pageName="Pending Journal Entries" subText="Import bank transactions and convert them to journal entries." pageHelpId="cp-pending-page">
   <div class="cageContents">
     <app-pending-import-bar
       [formats]="formats()"
@@ -10,6 +10,7 @@
       (importClicked)="onImportClicked()"
     />
 
+    <div class="help-toolbar-row"><app-context-help-button helpId="cp-pending-table" /></div>
     <app-pending-transactions-table
       class="table"
       [transactions]="txs()"
@@ -39,7 +40,7 @@
       </div>
     }
 
-    <div class="applyBar">
+    <div class="applyBar help-toolbar-row"><app-context-help-button helpId="cp-pending-apply" />
       <button mat-raised-button type="button" class="applyBar__button" (click)="onApplyClicked()" [disabled]="applyDisabled()">
         <mat-icon>check</mat-icon>
         @if (applying()) {

@@ -20,6 +20,10 @@
 >
   <ng-template matMenuContent>
   <div class="notification-bell__panel" (click)="$event.stopPropagation()">
+    <div class="notification-bell__panelHeader">
+      <span>Notifications</span>
+      <app-context-help-button helpId="cp-notification-bell" />
+    </div>
     @if (notifications.previewNotifications().length === 0) {
       <p class="notification-bell__empty">No notifications</p>
     } @else {

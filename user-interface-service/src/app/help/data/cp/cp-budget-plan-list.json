@@ -1,0 +1,15 @@
+{
+  "id": "cp-budget-plan-list",
+  "title": "Budget plans",
+  "seeMoreHelpId": "budget-planning",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Each plan is a what-if scenario: incomes, bills, and budget targets you can shuffle without touching the real ledger. Open a plan to work in the tabs, or duplicate one when you want a copy to experiment with."
+    },
+    {
+      "type": "p",
+      "text": "When you open a plan, use the ? buttons on each tab if you want a quick explanation of that part of the editor."
+    }
+  ]
+}

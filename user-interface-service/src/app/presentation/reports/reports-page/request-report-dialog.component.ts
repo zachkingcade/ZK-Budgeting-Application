@@ -16,11 +16,13 @@ import { ICatalogReport, ICatalogField } from '../../../adapter/reporting-servic
 import { AccountEnrichedObject } from '../../../adapter/ledger-service/dto/account/AccountEnrichedObject';
 import { AccountTypeObject } from '../../../adapter/ledger-service/dto/account-types/AccountTypeObject';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ContextHelpButtonComponent } from '../../../help/components/context-help-button/context-help-button.component';
 
 @Component({
   selector: 'app-request-report-dialog',
   standalone: true,
   imports: [
+    ContextHelpButtonComponent,
     CommonModule,
     FormsModule,
     MatDialogModule,

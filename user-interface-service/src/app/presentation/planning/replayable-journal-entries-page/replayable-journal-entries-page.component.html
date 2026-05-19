@@ -1,6 +1,7 @@
 <app-page-cage
   pageName="Replayable journal entries"
   subText="Save and reuse journal line patterns (amount, account, direction)."
+  pageHelpId="cp-replayable-page"
 >
   @if (actionError() && !inEditor()) {
     <p class="rje__bannerError" role="alert">{{ actionError() }}</p>

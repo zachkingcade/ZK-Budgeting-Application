@@ -1,0 +1,15 @@
+{
+  "id": "cp-replayable-page",
+  "title": "Replayable entries",
+  "seeMoreHelpId": "replayable-templates",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Replayables are named shortcuts for journal line patterns. Create one when you are tired of typing the same split every month; load it from the ledger or pending when you post."
+    },
+    {
+      "type": "p",
+      "text": "A balanced template has debits and credits that match; partial templates are fine when you only want to pre-fill one side."
+    }
+  ]
+}

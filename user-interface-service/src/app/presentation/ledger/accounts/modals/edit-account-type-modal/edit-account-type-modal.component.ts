@@ -10,10 +10,11 @@ import { AccountTypesApplicationService } from '../../../../../application/ledge
 import { POSTUpdateAccountTypeRequest } from '../../../../../adapter/ledger-service/dto/account-types/POSTUpdateAccountTypeRequest';
 import { AccountTypeRowView } from '../../account-types-filter-state';
 
+import { ContextHelpButtonComponent } from '../../../../../help/components/context-help-button/context-help-button.component';
 @Component({
   selector: 'app-edit-account-type-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [ContextHelpButtonComponent, CommonModule, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
   templateUrl: './edit-account-type-modal.component.html',
   styleUrl: './edit-account-type-modal.component.scss',
 })

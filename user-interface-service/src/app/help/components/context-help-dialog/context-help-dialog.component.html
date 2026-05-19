@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>{{ data.content.title }}</h2>
+<mat-dialog-content class="context-help-dialog__content">
+  <app-help-body [paragraphs]="data.content.paragraphs" />
+</mat-dialog-content>
+<mat-dialog-actions class="context-help-dialog__actions" align="end">
+  @if (data.content.seeMoreHelpId) {
+    <a mat-stroked-button class="context-help-dialog__more" [routerLink]="helpPageLink()" (click)="close()">
+      See more help
+    </a>
+  }
+  <button mat-button type="button" (click)="close()">Close</button>
+</mat-dialog-actions>

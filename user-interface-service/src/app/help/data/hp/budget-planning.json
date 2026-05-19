@@ -1,0 +1,16 @@
+{
+  "id": "budget-planning",
+  "slug": "budget-planning",
+  "title": "Budget planning",
+  "summary": "Scenarios, tabs, and the 30-day / 365-day basis.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Budget plans are “what if” workspaces. Incomes, recurring payables, and budget targets live here; nothing posts to the ledger until you record it separately."
+    },
+    {
+      "type": "p",
+      "text": "Overview uses pie charts for a monthly feel (30-day month). Incomes tie to revenue accounts; payables and budgets use budget accounts; funding lines connect income to budgets. The app converts frequencies to daily, weekly, monthly, and yearly figures on a 30/365 basis so you can compare apples to apples."
+    }
+  ]
+}

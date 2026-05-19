@@ -12,6 +12,8 @@ import { ReplayableJournalEntriesPageComponent } from './presentation/planning/r
 import { AccountingPeriodsPageComponent } from './presentation/ledger/accounting-periods-page/accounting-periods-page.component';
 import { SettingsPageComponent } from './presentation/user-account/settings-page/settings-page.component';
 import { NotificationsPageComponent } from './presentation/user-account/notifications-page/notifications-page.component';
+import { HelpIndexComponent } from './help/components/help-index/help-index.component';
+import { HelpPageComponent } from './help/components/help-page/help-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'ledger' },
@@ -27,4 +29,6 @@ export const routes: Routes = [
   { path: 'accounting-periods', component: AccountingPeriodsPageComponent, canMatch: [authGuard] },
   { path: 'settings', component: SettingsPageComponent, canMatch: [authGuard] },
   { path: 'notifications', component: NotificationsPageComponent, canMatch: [authGuard] },
+  { path: 'help', component: HelpIndexComponent, canMatch: [authGuard] },
+  { path: 'help/:slug', component: HelpPageComponent, canMatch: [authGuard] },
 ];

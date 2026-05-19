@@ -1,0 +1,15 @@
+{
+  "id": "cp-accounting-periods-page",
+  "title": "Accounting periods",
+  "seeMoreHelpId": "accounting-periods-closing",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Here you see which periods you have already closed and, for a closed period, the archived journal entries that were locked in at close."
+    },
+    {
+      "type": "p",
+      "text": "Closing is how you “tie a bow” on a slice of time: activity moves to archive, and you cannot post new entries into that date range unless you handle pending items first."
+    }
+  ]
+}

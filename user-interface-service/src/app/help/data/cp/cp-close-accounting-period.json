@@ -1,0 +1,15 @@
+{
+  "id": "cp-close-accounting-period",
+  "title": "Close accounting period",
+  "seeMoreHelpId": "accounting-periods-closing",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "You close periods in order—oldest open period first. Before this dialog will let you close, settings must be configured, pending transactions in the range must be cleared, and the period end date must have passed."
+    },
+    {
+      "type": "p",
+      "text": "Once closed, a period cannot be reopened. Treat close as permanent housekeeping, not a casual undo."
+    }
+  ]
+}

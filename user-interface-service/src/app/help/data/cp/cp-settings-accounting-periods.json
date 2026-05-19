@@ -1,0 +1,15 @@
+{
+  "id": "cp-settings-accounting-periods",
+  "title": "Accounting periods settings",
+  "seeMoreHelpId": "accounting-periods-closing",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Tell the app how long each period runs (every N days, weeks, or months) and the date your first period begins. That anchor is what closing and posting rules use from then on."
+    },
+    {
+      "type": "p",
+      "text": "Set this before you start closing periods or importing a lot of history—it is painful to change once you have closed periods behind you."
+    }
+  ]
+}

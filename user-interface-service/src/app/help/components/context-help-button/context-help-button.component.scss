@@ -1,0 +1,8 @@
+.context-help-button {
+  color: var(--app-text-muted, var(--mat-sys-on-surface-variant, #6b7280));
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--app-text-primary, var(--mat-sys-on-surface, inherit));
+  }
+}

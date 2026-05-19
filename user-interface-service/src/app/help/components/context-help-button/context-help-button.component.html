@@ -1,0 +1,11 @@
+<button
+  mat-icon-button
+  type="button"
+  class="context-help-button"
+  [attr.aria-label]="tooltip()"
+  [matTooltip]="tooltip()"
+  matTooltipPosition="above"
+  (click)="openHelp($event)"
+>
+  <mat-icon fontIcon="help_outline" />
+</button>

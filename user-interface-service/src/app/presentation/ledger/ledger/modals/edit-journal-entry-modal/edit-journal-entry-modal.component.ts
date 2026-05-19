@@ -18,10 +18,11 @@ interface ILineNoteDraft {
   amount: number;
 }
 
+import { ContextHelpButtonComponent } from '../../../../../help/components/context-help-button/context-help-button.component';
 @Component({
   selector: 'app-edit-journal-entry-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [ContextHelpButtonComponent, CommonModule, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
   templateUrl: './edit-journal-entry-modal.component.html',
   styleUrl: './edit-journal-entry-modal.component.scss',
 })

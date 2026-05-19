@@ -1,0 +1,15 @@
+{
+  "id": "cp-notification-bell",
+  "title": "Notification menu",
+  "seeMoreHelpId": "notifications",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "The badge is unread count. This menu is a quick peek; open See all for the full list and bulk actions."
+    },
+    {
+      "type": "p",
+      "text": "Clear removes only what you see in this preview, not necessarily every notification on your account."
+    }
+  ]
+}

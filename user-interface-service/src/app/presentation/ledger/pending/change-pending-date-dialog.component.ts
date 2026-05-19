@@ -7,6 +7,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { PendingTransactionObject } from '../../../adapter/ledger-service/dto/pending-transaction/PendingTransactionObject';
+import { ContextHelpButtonComponent } from '../../../help/components/context-help-button/context-help-button.component';
 
 export interface ChangePendingDateDialogData {
   transaction: PendingTransactionObject;
@@ -27,9 +28,10 @@ export interface ChangePendingDateDialogResult {
     MatDatepickerModule,
     MatNativeDateModule,
     FormsModule,
+    ContextHelpButtonComponent,
   ],
   template: `
-    <h2 mat-dialog-title>Change pending date</h2>
+    <h2 mat-dialog-title class="help-modal-title">Change pending date <app-context-help-button helpId="cp-change-pending-date" /></h2>
     <mat-dialog-content>
       <p class="txLabel">
         <strong>{{ data.transaction.description }}</strong>

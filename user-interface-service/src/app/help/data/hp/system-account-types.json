@@ -1,0 +1,16 @@
+{
+  "id": "system-account-types",
+  "slug": "system-account-types",
+  "title": "System account types",
+  "summary": "Built-in types versus yours, and when to hide them.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Some account types ship with the app and belong to the system user—they cover common cases like core balance sheet categories. You cannot edit or delete those, but you can hide them on the Account types page when they clutter the list."
+    },
+    {
+      "type": "p",
+      "text": "Your own types are fully yours. For budget planning, types named Budget, Fund, Savings, or Investment are the ones the planner expects when you assign budget and revenue accounts."
+    }
+  ]
+}

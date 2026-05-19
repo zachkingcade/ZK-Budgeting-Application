@@ -40,10 +40,12 @@ import {
 
 type LedgerOption<TId extends string | number> = { id: TId; label: string };
 
+import { ContextHelpButtonComponent } from '../../../../../help/components/context-help-button/context-help-button.component';
 @Component({
   selector: 'app-add-journal-entry-modal',
   standalone: true,
   imports: [
+    ContextHelpButtonComponent,
     CommonModule,
     FormsModule,
     MatButtonModule,

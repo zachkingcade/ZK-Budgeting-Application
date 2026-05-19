@@ -8,6 +8,7 @@ import { readLedgerApiErrorMessage } from '../../../adapter/ledger-service/ledge
 import { ReplayableJournalEntryApplicationService } from '../../../application/planning/replayable-journal-entry.application-service';
 import { draftsToReplayableLines } from '../../../domain/replayable-journal-entry/replayable-journal-entry.mapper';
 import { IJournalEntryLineDraft } from '../../../domain/journal-entry/journal-entry.validation';
+import { ContextHelpButtonComponent } from '../../../help/components/context-help-button/context-help-button.component';
 
 export interface SaveAsReplayableDialogData {
   defaultName: string;
@@ -20,9 +21,9 @@ export interface SaveAsReplayableDialogData {
 @Component({
   selector: 'app-save-as-replayable-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, FormsModule],
+  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, FormsModule, ContextHelpButtonComponent],
   template: `
-    <h2 mat-dialog-title>Save as replayable journal entry</h2>
+    <h2 mat-dialog-title class="help-modal-title">Save as replayable journal entry <app-context-help-button helpId="cp-save-as-replayable" /></h2>
     <mat-dialog-content>
       <p class="hint">{{ data.hint ?? 'Stores the current journal lines (amount, account, direction). Line notes are not saved.' }}</p>
       <mat-form-field appearance="outline" class="nameField">

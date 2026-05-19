@@ -1,0 +1,16 @@
+<app-page-cage pageName="Help" subText="Guides and concepts for using your books">
+  <div class="help-index">
+    <p class="help-index__intro">
+      These articles explain workflows and accounting ideas in plain language. On most screens, use the
+      question-mark button for a short tip about that screen.
+    </p>
+    <mat-nav-list class="help-index__list">
+      @for (entry of entries; track entry.slug) {
+        <a mat-list-item [routerLink]="['/help', entry.slug]">
+          <span matListItemTitle>{{ entry.title }}</span>
+          <span matListItemLine>{{ entry.summary }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </div>
+</app-page-cage>

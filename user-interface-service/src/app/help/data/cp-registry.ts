@@ -1,0 +1,74 @@
+import { ContextHelpContent } from '../models/help-content.model';
+import cp_accounting_periods_page from './cp/cp-accounting-periods-page.json';
+import cp_accounts_page from './cp/cp-accounts-page.json';
+import cp_account_types_page from './cp/cp-account-types-page.json';
+import cp_add_account from './cp/cp-add-account.json';
+import cp_add_account_type from './cp/cp-add-account-type.json';
+import cp_add_journal_entry from './cp/cp-add-journal-entry.json';
+import cp_budget_budgets_tab from './cp/cp-budget-budgets-tab.json';
+import cp_budget_incomes_tab from './cp/cp-budget-incomes-tab.json';
+import cp_budget_overview_tab from './cp/cp-budget-overview-tab.json';
+import cp_budget_payables_tab from './cp/cp-budget-payables-tab.json';
+import cp_budget_plan_list from './cp/cp-budget-plan-list.json';
+import cp_change_pending_date from './cp/cp-change-pending-date.json';
+import cp_close_accounting_period from './cp/cp-close-accounting-period.json';
+import cp_edit_account from './cp/cp-edit-account.json';
+import cp_edit_account_type from './cp/cp-edit-account-type.json';
+import cp_edit_journal_entry from './cp/cp-edit-journal-entry.json';
+import cp_ledger_page from './cp/cp-ledger-page.json';
+import cp_load_replayable from './cp/cp-load-replayable.json';
+import cp_notification_bell from './cp/cp-notification-bell.json';
+import cp_notifications_page from './cp/cp-notifications-page.json';
+import cp_pending_apply from './cp/cp-pending-apply.json';
+import cp_pending_import from './cp/cp-pending-import.json';
+import cp_pending_page from './cp/cp-pending-page.json';
+import cp_pending_table from './cp/cp-pending-table.json';
+import cp_replayable_page from './cp/cp-replayable-page.json';
+import cp_report_detail from './cp/cp-report-detail.json';
+import cp_reports_page from './cp/cp-reports-page.json';
+import cp_request_report from './cp/cp-request-report.json';
+import cp_save_as_replayable from './cp/cp-save-as-replayable.json';
+import cp_settings_accounting_periods from './cp/cp-settings-accounting-periods.json';
+import cp_settings_accounts from './cp/cp-settings-accounts.json';
+import cp_settings_account_types from './cp/cp-settings-account-types.json';
+import cp_settings_ledger from './cp/cp-settings-ledger.json';
+import cp_settings_page from './cp/cp-settings-page.json';
+import cp_settings_style from './cp/cp-settings-style.json';
+
+export const CP_BY_ID: Record<string, ContextHelpContent> = {
+  'cp-accounting-periods-page': cp_accounting_periods_page as ContextHelpContent,
+  'cp-accounts-page': cp_accounts_page as ContextHelpContent,
+  'cp-account-types-page': cp_account_types_page as ContextHelpContent,
+  'cp-add-account': cp_add_account as ContextHelpContent,
+  'cp-add-account-type': cp_add_account_type as ContextHelpContent,
+  'cp-add-journal-entry': cp_add_journal_entry as ContextHelpContent,
+  'cp-budget-budgets-tab': cp_budget_budgets_tab as ContextHelpContent,
+  'cp-budget-incomes-tab': cp_budget_incomes_tab as ContextHelpContent,
+  'cp-budget-overview-tab': cp_budget_overview_tab as ContextHelpContent,
+  'cp-budget-payables-tab': cp_budget_payables_tab as ContextHelpContent,
+  'cp-budget-plan-list': cp_budget_plan_list as ContextHelpContent,
+  'cp-change-pending-date': cp_change_pending_date as ContextHelpContent,
+  'cp-close-accounting-period': cp_close_accounting_period as ContextHelpContent,
+  'cp-edit-account': cp_edit_account as ContextHelpContent,
+  'cp-edit-account-type': cp_edit_account_type as ContextHelpContent,
+  'cp-edit-journal-entry': cp_edit_journal_entry as ContextHelpContent,
+  'cp-ledger-page': cp_ledger_page as ContextHelpContent,
+  'cp-load-replayable': cp_load_replayable as ContextHelpContent,
+  'cp-notification-bell': cp_notification_bell as ContextHelpContent,
+  'cp-notifications-page': cp_notifications_page as ContextHelpContent,
+  'cp-pending-apply': cp_pending_apply as ContextHelpContent,
+  'cp-pending-import': cp_pending_import as ContextHelpContent,
+  'cp-pending-page': cp_pending_page as ContextHelpContent,
+  'cp-pending-table': cp_pending_table as ContextHelpContent,
+  'cp-replayable-page': cp_replayable_page as ContextHelpContent,
+  'cp-report-detail': cp_report_detail as ContextHelpContent,
+  'cp-reports-page': cp_reports_page as ContextHelpContent,
+  'cp-request-report': cp_request_report as ContextHelpContent,
+  'cp-save-as-replayable': cp_save_as_replayable as ContextHelpContent,
+  'cp-settings-accounting-periods': cp_settings_accounting_periods as ContextHelpContent,
+  'cp-settings-accounts': cp_settings_accounts as ContextHelpContent,
+  'cp-settings-account-types': cp_settings_account_types as ContextHelpContent,
+  'cp-settings-ledger': cp_settings_ledger as ContextHelpContent,
+  'cp-settings-page': cp_settings_page as ContextHelpContent,
+  'cp-settings-style': cp_settings_style as ContextHelpContent,
+};

@@ -1,0 +1,16 @@
+{
+  "id": "reports",
+  "slug": "reports",
+  "title": "Reports",
+  "summary": "Requesting PDFs and waiting for them to finish.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Reports run asynchronously—you submit a job, and the list shows queued, running, or completed. Refresh or watch the notification bell; when a report is ready, open it and download the PDF."
+    },
+    {
+      "type": "p",
+      "text": "Each report type asks for different parameters (dates, accounts, etc.). If a job fails, try again with a narrower range or check that your chart of accounts has what that report needs."
+    }
+  ]
+}

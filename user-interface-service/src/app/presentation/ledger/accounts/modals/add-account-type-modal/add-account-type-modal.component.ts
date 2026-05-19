@@ -13,10 +13,12 @@ import { POSTCreateAccountTypeRequest } from '../../../../../adapter/ledger-serv
 
 type Option = { id: number; label: string };
 
+import { ContextHelpButtonComponent } from '../../../../../help/components/context-help-button/context-help-button.component';
 @Component({
   selector: 'app-add-account-type-modal',
   standalone: true,
   imports: [
+    ContextHelpButtonComponent,
     CommonModule,
     FormsModule,
     MatButtonModule,

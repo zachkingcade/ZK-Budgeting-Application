@@ -1,0 +1,15 @@
+{
+  "id": "cp-add-journal-entry",
+  "title": "Add journal entry",
+  "seeMoreHelpId": "journal-entries-double-entry",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Every entry needs at least two lines, and debits must equal credits before you can save. Pick accounts, enter amounts, and choose debit or credit for each line."
+    },
+    {
+      "type": "p",
+      "text": "Load replayable if you have a template; the totals at the bottom tell you when the entry balances."
+    }
+  ]
+}

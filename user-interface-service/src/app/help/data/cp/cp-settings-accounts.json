@@ -1,0 +1,11 @@
+{
+  "id": "cp-settings-accounts",
+  "title": "Accounts defaults",
+  "seeMoreHelpId": "settings-defaults",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Optionally limit which account types appear when you first open the accounts page, and pick a default sort. Handy if you mostly work with a subset of your chart."
+    }
+  ]
+}

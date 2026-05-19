@@ -1,0 +1,15 @@
+{
+  "id": "cp-budget-incomes-tab",
+  "title": "Incomes",
+  "seeMoreHelpId": "budget-planning",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "List the money you expect coming in, tied to revenue accounts from your chart. Enter how often each income arrives—the app works out daily, weekly, monthly, and yearly equivalents for you."
+    },
+    {
+      "type": "p",
+      "text": "Expand a row later to see how its funding is allocated to budget accounts on this plan."
+    }
+  ]
+}

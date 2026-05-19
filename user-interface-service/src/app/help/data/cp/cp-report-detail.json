@@ -1,0 +1,11 @@
+{
+  "id": "cp-report-detail",
+  "title": "Report details",
+  "seeMoreHelpId": "reports",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "This shows how far the job got and when it finished. Download is only available once status is completed—if it failed or is still running, wait or request again from the reports list."
+    }
+  ]
+}

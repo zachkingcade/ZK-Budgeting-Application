@@ -1,4 +1,4 @@
-import { Component, DestroyRef, HostListener, Input, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, HostListener, Input, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -9,19 +9,23 @@ import { filter } from 'rxjs';
 import { AuthManagerService } from '../../application/auth/auth-manager.service';
 import { NotificationsPollingService } from '../../application/notifications/notifications-polling.service';
 import { NotificationBellComponent } from '../shared/notification-bell/notification-bell.component';
+import { HelpContentService } from '../../help/help-content.service';
+import { ContextHelpButtonComponent } from '../../help/components/context-help-button/context-help-button.component';
 
-type PageCageNavSectionId = 'master-ledger' | 'accounts' | 'planning' | 'reporting' | 'user-account';
+type PageCageNavSectionId = 'master-ledger' | 'accounts' | 'planning' | 'reporting' | 'user-account' | 'help';
 
 @Component({
   selector: 'app-page-cage',
   standalone: true,
-  imports: [FontAwesomeModule, RouterLink, RouterLinkActive, NotificationBellComponent],
+  imports: [FontAwesomeModule, RouterLink, RouterLinkActive, NotificationBellComponent, ContextHelpButtonComponent],
   templateUrl: './page-cage.component.html',
   styleUrl: './page-cage.component.scss',
 })
 export class PageCage implements OnInit {
   @Input() pageName: string = 'Unnamed Page';
   @Input() subText: string = 'Contact admin and report this error';
+  /** When set, shows a context-help button in the top bar for this whole page. */
+  @Input() pageHelpId: string | null = null;
   sidebarOpen: boolean = false;
   faGithub: IconDefinition = faGithub;
   faLinkedin: IconDefinition = faLinkedin;
@@ -29,6 +33,7 @@ export class PageCage implements OnInit {
 
   /** At most one section expanded; synced from route on navigation. */
   protected readonly expandedNavSection = signal<PageCageNavSectionId | null>(null);
+  protected readonly helpNavEntries = inject(HelpContentService).getIndex().entries;
 
   constructor(
     private readonly authManager: AuthManagerService,
@@ -100,6 +105,10 @@ export class PageCage implements OnInit {
     }
     if (path === '/notifications' || path.startsWith('/notifications/')) {
       this.expandedNavSection.set('user-account');
+      return;
+    }
+    if (path === '/help' || path.startsWith('/help/')) {
+      this.expandedNavSection.set('help');
       return;
     }
   }

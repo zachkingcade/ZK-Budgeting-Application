@@ -8,11 +8,12 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { NotificationsApplicationService } from '../../../application/notifications/notifications.application-service';
 import { NotificationModel } from '../../../domain/notification/notification.model';
+import { ContextHelpButtonComponent } from '../../../help/components/context-help-button/context-help-button.component';
 
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
-  imports: [FontAwesomeModule, MatMenuModule, MatButtonModule, RouterLink, DatePipe],
+  imports: [FontAwesomeModule, MatMenuModule, MatButtonModule, RouterLink, DatePipe, ContextHelpButtonComponent],
   templateUrl: './notification-bell.component.html',
   styleUrl: './notification-bell.component.scss',
 })

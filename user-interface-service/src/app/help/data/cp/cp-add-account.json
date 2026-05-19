@@ -1,0 +1,15 @@
+{
+  "id": "cp-add-account",
+  "title": "Add account",
+  "seeMoreHelpId": "chart-of-accounts",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Choose the account type that best matches what this account is for, then give it a clear description. Notes are optional reminders for yourself."
+    },
+    {
+      "type": "p",
+      "text": "If you are unsure which type to pick, open Help for chart of accounts—it walks through how types and classifications fit together."
+    }
+  ]
+}

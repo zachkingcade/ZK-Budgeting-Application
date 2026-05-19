@@ -1,0 +1,33 @@
+.help-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.help-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.help-modal-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.settingsPanel__titleWithHelp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.notification-bell__panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem 0.25rem;
+  font-weight: 600;
+}

@@ -1,4 +1,4 @@
-<app-page-cage pageName="Settings" subText="User account preferences">
+<app-page-cage pageName="Settings" subText="User account preferences" pageHelpId="cp-settings-page">
   <div class="settingsPage">
     @if (loadError()) {
       <p class="settingsPage__error">{{ loadError() }}</p>
@@ -6,7 +6,12 @@
 
     <mat-expansion-panel class="settingsPanel" [expanded]="false">
       <mat-expansion-panel-header>
-        <mat-panel-title>Accounting Periods</mat-panel-title>
+        <mat-panel-title>
+          <span class="settingsPanel__titleWithHelp">
+            Accounting Periods
+            <app-context-help-button helpId="cp-settings-accounting-periods" />
+          </span>
+        </mat-panel-title>
       </mat-expansion-panel-header>
 
       <p class="settingsPanel__rules">
@@ -39,7 +44,12 @@
 
     <mat-expansion-panel class="settingsPanel" [expanded]="false">
       <mat-expansion-panel-header>
-        <mat-panel-title>Ledger</mat-panel-title>
+        <mat-panel-title>
+          <span class="settingsPanel__titleWithHelp">
+            Ledger
+            <app-context-help-button helpId="cp-settings-ledger" />
+          </span>
+        </mat-panel-title>
         <mat-panel-description>Default filters when opening the ledger</mat-panel-description>
       </mat-expansion-panel-header>
 
@@ -72,7 +82,12 @@
 
     <mat-expansion-panel class="settingsPanel" [expanded]="false">
       <mat-expansion-panel-header>
-        <mat-panel-title>Accounts</mat-panel-title>
+        <mat-panel-title>
+          <span class="settingsPanel__titleWithHelp">
+            Accounts
+            <app-context-help-button helpId="cp-settings-accounts" />
+          </span>
+        </mat-panel-title>
         <mat-panel-description>Default filters when opening accounts</mat-panel-description>
       </mat-expansion-panel-header>
 
@@ -101,7 +116,12 @@
 
     <mat-expansion-panel class="settingsPanel" [expanded]="false">
       <mat-expansion-panel-header>
-        <mat-panel-title>Account Types</mat-panel-title>
+        <mat-panel-title>
+          <span class="settingsPanel__titleWithHelp">
+            Account Types
+            <app-context-help-button helpId="cp-settings-account-types" />
+          </span>
+        </mat-panel-title>
         <mat-panel-description>Default sort when opening account types</mat-panel-description>
       </mat-expansion-panel-header>
 
@@ -120,7 +140,12 @@
 
     <mat-expansion-panel class="settingsPanel" [expanded]="false">
       <mat-expansion-panel-header>
-        <mat-panel-title>Style</mat-panel-title>
+        <mat-panel-title>
+          <span class="settingsPanel__titleWithHelp">
+            Style
+            <app-context-help-button helpId="cp-settings-style" />
+          </span>
+        </mat-panel-title>
         <mat-panel-description>Color theme</mat-panel-description>
       </mat-expansion-panel-header>
 

@@ -9,15 +9,16 @@ import { IReplayableJournalEntryListItem } from '../../../adapter/ledger-service
 import { readLedgerApiErrorMessage } from '../../../adapter/ledger-service/ledger-http-error.util';
 import { IJournalEntryLineDraft } from '../../../domain/journal-entry/journal-entry.validation';
 import { replayableDetailToDrafts } from '../../../domain/replayable-journal-entry/replayable-journal-entry.mapper';
+import { ContextHelpButtonComponent } from '../../../help/components/context-help-button/context-help-button.component';
 
 export type LoadReplayableJournalEntryDialogResult = IJournalEntryLineDraft[];
 
 @Component({
   selector: 'app-load-replayable-journal-entry-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, MatTableModule, MatProgressSpinnerModule, DatePipe],
+  imports: [MatDialogModule, MatButtonModule, MatTableModule, MatProgressSpinnerModule, DatePipe, ContextHelpButtonComponent],
   template: `
-    <h2 mat-dialog-title>Load replayable journal entry</h2>
+    <h2 mat-dialog-title class="help-modal-title">Load replayable journal entry <app-context-help-button helpId="cp-load-replayable" /></h2>
     <mat-dialog-content>
       @if (loading()) {
         <mat-spinner diameter="36"></mat-spinner>

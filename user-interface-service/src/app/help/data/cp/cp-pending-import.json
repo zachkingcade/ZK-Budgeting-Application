@@ -1,0 +1,15 @@
+{
+  "id": "cp-pending-import",
+  "title": "Import",
+  "seeMoreHelpId": "pending-import-workflow",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Pick the format that matches your bank or export file, choose the file, and import. Each row becomes a draft transaction you can review in the table below."
+    },
+    {
+      "type": "p",
+      "text": "If the import fails, double-check the format and that the file is not still open in another program. You can always import again after fixing the file."
+    }
+  ]
+}

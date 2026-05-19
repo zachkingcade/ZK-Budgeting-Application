@@ -1,0 +1,11 @@
+{
+  "id": "cp-settings-style",
+  "title": "Style",
+  "seeMoreHelpId": "settings-defaults",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Pick a light or dark theme that is comfortable for you. The choice is saved with your other settings when you hit Save on the settings page."
+    }
+  ]
+}

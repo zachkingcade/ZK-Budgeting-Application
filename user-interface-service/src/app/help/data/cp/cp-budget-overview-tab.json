@@ -1,0 +1,15 @@
+{
+  "id": "cp-budget-overview-tab",
+  "title": "Overview",
+  "seeMoreHelpId": "budget-planning",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "This tab is the big picture—pie charts and tables that show how income and budgeted amounts spread across accounts, all converted to a monthly equivalent using a 30-day month."
+    },
+    {
+      "type": "p",
+      "text": "Hover a slice to see the label and share. It is a sanity check: does the plan feel balanced before you drill into individual incomes or budgets?"
+    }
+  ]
+}

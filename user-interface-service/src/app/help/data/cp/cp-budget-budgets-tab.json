@@ -1,0 +1,15 @@
+{
+  "id": "cp-budget-budgets-tab",
+  "title": "Budgets",
+  "seeMoreHelpId": "budget-planning",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "A budget here is a target for a budget account, funded by lines that pull from your incomes. The summary table shows whether income still has room after allocations."
+    },
+    {
+      "type": "p",
+      "text": "If recurring payables reference an account that does not have a budget yet, the warning at the top nudges you to add one so funding can line up."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "cp-edit-account-type",
+  "title": "Edit account type",
+  "seeMoreHelpId": "system-account-types",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "You can adjust your own account types here. Built-in system types are read-only; if you need a category the system does not provide, add a new type instead of trying to change a locked one."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+@for (block of paragraphs; track $index) {
+  @if (block.type === 'p') {
+    <p class="help-body__p">{{ block.text }}</p>
+  } @else {
+    <ul class="help-body__ul">
+      @for (item of block.items; track $index) {
+        <li>{{ item }}</li>
+      }
+    </ul>
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "replayable-templates",
+  "slug": "replayable-templates",
+  "title": "Replayable journal entries",
+  "summary": "Saving and reusing line patterns.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Replayables are named shortcuts: amounts, accounts, and debit/credit directions without retyping. Save from the ledger or pending; load when you add or edit an entry."
+    },
+    {
+      "type": "p",
+      "text": "A balanced template is ready to post as-is. Partial templates are fine when you only want one side filled in—you complete the rest manually."
+    }
+  ]
+}

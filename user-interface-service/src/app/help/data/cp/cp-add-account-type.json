@@ -1,0 +1,11 @@
+{
+  "id": "cp-add-account-type",
+  "title": "Add account type",
+  "seeMoreHelpId": "system-account-types",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Pick the classification first—that drives how reports and balances treat anything under this type. Then name the type something you will recognize when creating accounts."
+    }
+  ]
+}

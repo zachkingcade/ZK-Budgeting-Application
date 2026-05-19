@@ -1,0 +1,11 @@
+{
+  "id": "cp-budget-payables-tab",
+  "title": "Recurring payables",
+  "seeMoreHelpId": "budget-planning",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "These are the outflows you expect on a schedule—rent, subscriptions, loan payments—linked to budget accounts. They help you see what each budget account needs to cover."
+    }
+  ]
+}

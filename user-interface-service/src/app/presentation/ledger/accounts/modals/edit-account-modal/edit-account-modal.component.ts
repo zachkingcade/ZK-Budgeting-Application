@@ -11,10 +11,11 @@ import { AccountEnrichedObject } from '../../../../../adapter/ledger-service/dto
 import { POSTUpdateAccountRequest } from '../../../../../adapter/ledger-service/dto/account/POSTUpdateAccountRequest';
 import { readLedgerApiErrorMessage } from '../../../../../adapter/ledger-service/ledger-http-error.util';
 
+import { ContextHelpButtonComponent } from '../../../../../help/components/context-help-button/context-help-button.component';
 @Component({
   selector: 'app-edit-account-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [ContextHelpButtonComponent, CommonModule, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
   templateUrl: './edit-account-modal.component.html',
   styleUrl: './edit-account-modal.component.scss',
 })

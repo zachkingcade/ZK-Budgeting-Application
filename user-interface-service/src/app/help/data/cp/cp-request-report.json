@@ -1,0 +1,11 @@
+{
+  "id": "cp-request-report",
+  "title": "Request a report",
+  "seeMoreHelpId": "reports",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Choose the report type first; the fields below change based on what that report needs—date ranges, accounts, and so on. Fill them in and submit; you do not need to stay on this screen while it runs."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "cp-save-as-replayable",
+  "title": "Save as replayable",
+  "seeMoreHelpId": "replayable-templates",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Give the pattern a name you will recognize later—something like “Monthly rent” or “Paycheck split.” The app stores the accounts, amounts, and debit/credit directions so you can load them into a new entry."
+    },
+    {
+      "type": "p",
+      "text": "Line notes on the journal entry are not saved in the template, only the money lines themselves."
+    }
+  ]
+}

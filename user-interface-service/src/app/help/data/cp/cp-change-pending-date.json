@@ -1,0 +1,15 @@
+{
+  "id": "cp-change-pending-date",
+  "title": "Change pending date",
+  "seeMoreHelpId": "pending-import-workflow",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "The date on a pending row matters because your books only accept entries in open accounting periods. Change it when the bank date is wrong or when you intentionally want the entry in a different period."
+    },
+    {
+      "type": "p",
+      "text": "Keep in mind you are overriding what the import file said. Only change the date if you mean to."
+    }
+  ]
+}

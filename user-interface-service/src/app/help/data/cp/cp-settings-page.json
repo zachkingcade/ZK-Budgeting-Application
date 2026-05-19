@@ -1,0 +1,15 @@
+{
+  "id": "cp-settings-page",
+  "title": "Settings",
+  "seeMoreHelpId": "settings-defaults",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Defaults and bookkeeping rules live here—how long your accounting periods are, which filters open first on ledger and accounts pages, and which color theme you prefer."
+    },
+    {
+      "type": "p",
+      "text": "Expand a section for the details, then Save when you are done. Clear resets the form without leaving the page."
+    }
+  ]
+}

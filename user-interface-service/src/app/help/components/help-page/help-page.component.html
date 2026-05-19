@@ -1,0 +1,15 @@
+@if (page; as p) {
+  <app-page-cage [pageName]="p.title" [subText]="p.summary">
+    <article class="help-page">
+      <app-help-body [paragraphs]="p.paragraphs" />
+      <div class="help-page__footer">
+        <a mat-stroked-button routerLink="/help">Back to Help</a>
+      </div>
+    </article>
+  </app-page-cage>
+} @else if (notFound) {
+  <app-page-cage pageName="Help" subText="Article not found">
+    <p class="help-page__missing">That help article could not be found.</p>
+    <a mat-stroked-button routerLink="/help">Back to Help</a>
+  </app-page-cage>
+}

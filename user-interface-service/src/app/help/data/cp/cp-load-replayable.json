@@ -1,0 +1,15 @@
+{
+  "id": "cp-load-replayable",
+  "title": "Load replayable",
+  "seeMoreHelpId": "replayable-templates",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Pick a saved template from the list and its lines fill into your entry. You can still adjust amounts or accounts before you save."
+    },
+    {
+      "type": "p",
+      "text": "Templates live under Planning → Replayable journal entries if you want to create or rename them outside of this dialog."
+    }
+  ]
+}

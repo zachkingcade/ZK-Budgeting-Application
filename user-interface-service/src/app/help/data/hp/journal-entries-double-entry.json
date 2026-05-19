@@ -1,0 +1,16 @@
+{
+  "id": "journal-entries-double-entry",
+  "slug": "journal-entries-double-entry",
+  "title": "Journal entries and double entry",
+  "summary": "Why every entry has debits and credits, and what posted means.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Double entry means every transaction is recorded as balanced debits and credits across accounts—not as a single “amount” floating on its own. Before an entry saves, those sides must match."
+    },
+    {
+      "type": "p",
+      "text": "The entry date matters for accounting periods: you cannot post into a closed range. Pending items let you import first and post when you are ready; budget plans never post to the ledger until you deliberately record something there."
+    }
+  ]
+}

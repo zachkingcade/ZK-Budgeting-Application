@@ -1,0 +1,15 @@
+{
+  "id": "cp-ledger-page",
+  "title": "Ledger",
+  "seeMoreHelpId": "journal-entries-double-entry",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Think of this as your official checkbook register—everything here has already been posted to your books. When you need to record something by hand, use Add; when something looks wrong, open the row menu to edit or remove it."
+    },
+    {
+      "type": "p",
+      "text": "If you find yourself entering the same kind of entry over and over (rent, paycheck split, transfer between accounts), save the line pattern as a replayable template so you can drop it in next time instead of retyping."
+    }
+  ]
+}

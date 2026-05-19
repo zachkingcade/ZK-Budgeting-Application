@@ -1,0 +1,25 @@
+{
+  "id": "daily-workflow",
+  "slug": "daily-workflow",
+  "title": "A typical month-end workflow",
+  "summary": "One narrative from import through reports.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Month-end is mostly about catching up and closing the loop. A common rhythm looks like this:"
+    },
+    {
+      "type": "ul",
+      "items": [
+        "Import and review pending bank activity; fix accounts and dates, then apply to the ledger.",
+        "Scan the ledger for anything that still looks wrong.",
+        "Close the oldest open accounting period when pending in that range is clear.",
+        "Request the reports you need and download them when notifications say they are ready."
+      ]
+    },
+    {
+      "type": "p",
+      "text": "Budget plans can run in parallel—they do not block close—but many people tweak the plan after they see how the month actually landed."
+    }
+  ]
+}

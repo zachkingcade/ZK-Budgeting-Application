@@ -26,10 +26,12 @@ import { EMPTY_UI_PREFERENCES, UiPreferencesForm } from '../../../domain/ui-pref
 import { UI_DARK_THEME_IDS, UI_LIGHT_THEME_IDS, UiThemeId } from '../../../domain/ui-preferences/ui-theme-settings';
 import { ThemeSwatchComponent } from '../../shared/theme-swatch/theme-swatch.component';
 import { AccountTypesApplicationService } from '../../../application/ledger/account-types.application-service';
+import { ContextHelpButtonComponent } from '../../../help/components/context-help-button/context-help-button.component';
 @Component({
   selector: 'app-settings-page',
   standalone: true,
   imports: [
+    ContextHelpButtonComponent,
     PageCage,
     ReactiveFormsModule,
     MatExpansionModule,

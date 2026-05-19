@@ -1,0 +1,15 @@
+{
+  "id": "cp-accounts-page",
+  "title": "Accounts",
+  "seeMoreHelpId": "chart-of-accounts",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "These are the actual names you post to—Checking, Visa, Groceries, and so on. Each account sits under an account type, which in turn sits under a classification like Asset or Expense."
+    },
+    {
+      "type": "p",
+      "text": "You can deactivate an account you no longer use; the app may ask you to move its balance first so your books stay consistent."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "getting-started",
+  "slug": "getting-started",
+  "title": "Getting started",
+  "summary": "What this app is for and a friendly order to set things up.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Welcome—you are looking at a personal double-entry ledger with budgeting and reporting built in. The idea is simple: you define where money lives (accounts), record what happened (journal entries), and optionally plan ahead (budget plans) without mixing plans into posted history."
+    },
+    {
+      "type": "p",
+      "text": "If you are setting up for the first time, most people go in this order:"
+    },
+    {
+      "type": "ul",
+      "items": [
+        "Open Settings and set accounting periods—how long each period is and when your books begin.",
+        "Skim Account types, then create the Accounts you will actually post to.",
+        "Import bank activity on Pending journal entries, or post directly on the Ledger.",
+        "Try Budget planning when you want a forward-looking picture that stays separate from the ledger."
+      ]
+    },
+    {
+      "type": "p",
+      "text": "Whenever you are stuck, look for the ? in the top bar or beside a section. Short tips open in a popup; longer guides live under Help in the menu."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+.help-page {
+  max-width: 48rem;
+  line-height: 1.55;
+}
+
+.help-page__footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--app-border, #e5e7eb);
+}
+
+.help-page__missing {
+  margin-bottom: 1rem;
+  color: var(--app-text-muted, #6b7280);
+}

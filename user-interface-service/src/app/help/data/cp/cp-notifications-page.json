@@ -1,0 +1,15 @@
+{
+  "id": "cp-notifications-page",
+  "title": "Notifications",
+  "seeMoreHelpId": "notifications",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Everything the app wanted you to know shows up here—especially when a report finishes. Mark items seen as you read them, or clear them when you are done."
+    },
+    {
+      "type": "p",
+      "text": "Reload pulls the latest from the server if you think something new should be there."
+    }
+  ]
+}

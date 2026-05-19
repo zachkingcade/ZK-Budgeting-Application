@@ -1,0 +1,11 @@
+{
+  "id": "cp-settings-account-types",
+  "title": "Account types defaults",
+  "seeMoreHelpId": "settings-defaults",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Pick how the account types list should be sorted when you land on that page. Leave on page default if you do not have a strong preference."
+    }
+  ]
+}

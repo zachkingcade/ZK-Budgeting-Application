@@ -1,0 +1,16 @@
+{
+  "id": "notifications",
+  "slug": "notifications",
+  "title": "Notifications",
+  "summary": "Bell, list page, and report-ready alerts.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Notifications are how the app taps you on the shoulder—especially when a report completes. The bell shows a badge and a short preview; the full page lets you mark seen, delete, or clear in bulk."
+    },
+    {
+      "type": "p",
+      "text": "While you are logged in and active, the app polls for new items so you do not have to refresh constantly."
+    }
+  ]
+}

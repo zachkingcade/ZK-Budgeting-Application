@@ -1,4 +1,8 @@
-<app-page-cage pageName="Budget planning" subText="Plan incomes, recurring payables, and budgets (30/365 basis).">
+<app-page-cage
+  pageName="Budget planning"
+  subText="Plan incomes, recurring payables, and budgets (30/365 basis)."
+  [pageHelpId]="editor() ? null : 'cp-budget-plan-list'"
+>
   @if (actionError()) {
     <p class="bp__bannerError" role="alert">{{ actionError() }}</p>
   }
@@ -90,6 +94,7 @@
         <mat-tab-group>
           <mat-tab label="Overview">
             <div class="bp__tabPad">
+              <div class="help-toolbar-row"><app-context-help-button helpId="cp-budget-overview-tab" /></div>
               <p class="bp__muted bp__mbSm">
                 Monthly equivalents (30-day basis). Hover a pie slice for its label, amount, and share. Swatches match
                 slice colors.
@@ -286,6 +291,7 @@
           </mat-tab>
           <mat-tab label="Incomes">
             <div class="bp__tabPad">
+              <div class="help-toolbar-row"><app-context-help-button helpId="cp-budget-incomes-tab" /></div>
               <div class="bp__toolbar">
                 <button mat-stroked-button type="button" (click)="openAddIncome()">
                   <mat-icon>add</mat-icon>
@@ -464,6 +470,7 @@
 
           <mat-tab label="Recurring payables">
             <div class="bp__tabPad">
+              <div class="help-toolbar-row"><app-context-help-button helpId="cp-budget-payables-tab" /></div>
               <div class="bp__toolbar">
                 <button mat-stroked-button type="button" (click)="openAddPayable()">
                   <mat-icon>add</mat-icon>
@@ -592,6 +599,7 @@
 
           <mat-tab label="Budgets">
             <div class="bp__tabPad">
+              <div class="help-toolbar-row"><app-context-help-button helpId="cp-budget-budgets-tab" /></div>
               @if (recurringPayablesWithoutBudgetOnPlan(ed).length > 0) {
                 <div class="bp__warnPanel bp__mb" role="region" aria-labelledby="bp-missing-budgets-heading">
                   <h3 class="bp__h3" id="bp-missing-budgets-heading">Recurring payables without a plan budget</h3>

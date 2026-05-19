@@ -1,0 +1,64 @@
+{
+  "entries": [
+    {
+      "slug": "getting-started",
+      "title": "Getting started",
+      "summary": "What this app does and the recommended order to set up your books."
+    },
+    {
+      "slug": "chart-of-accounts",
+      "title": "Chart of accounts",
+      "summary": "How classifications, account types, and accounts fit together."
+    },
+    {
+      "slug": "system-account-types",
+      "title": "System account types",
+      "summary": "Built-in account types you cannot change, and how they differ from yours."
+    },
+    {
+      "slug": "journal-entries-double-entry",
+      "title": "Journal entries and double entry",
+      "summary": "How posted transactions work and why debits must equal credits."
+    },
+    {
+      "slug": "pending-import-workflow",
+      "title": "Pending journal entries",
+      "summary": "Import bank activity, review it, then post to the ledger."
+    },
+    {
+      "slug": "replayable-templates",
+      "title": "Replayable journal entries",
+      "summary": "Save line patterns you use often and load them when posting."
+    },
+    {
+      "slug": "accounting-periods-closing",
+      "title": "Accounting periods and closing",
+      "summary": "Set period length, close periods in order, and view archived activity."
+    },
+    {
+      "slug": "budget-planning",
+      "title": "Budget planning",
+      "summary": "Build what-if plans for income, payables, and budgets without posting to the ledger."
+    },
+    {
+      "slug": "reports",
+      "title": "Reports",
+      "summary": "Request PDF reports and download them when processing finishes."
+    },
+    {
+      "slug": "settings-defaults",
+      "title": "Settings and defaults",
+      "summary": "Accounting period setup, default filters, and appearance."
+    },
+    {
+      "slug": "notifications",
+      "title": "Notifications",
+      "summary": "Alerts such as when a report is ready to download."
+    },
+    {
+      "slug": "daily-workflow",
+      "title": "A typical month-end workflow",
+      "summary": "A practical sequence from import through close and reporting."
+    }
+  ]
+}

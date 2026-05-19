@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { ReportsApplicationService } from '../../../application/reports/reports.application-service';
 import { IReportJobMetadata } from '../../../adapter/reporting-service/dto/IReportJobMetadata';
 import { AuthManagerService } from '../../../application/auth/auth-manager.service';
+import { ContextHelpButtonComponent } from '../../../help/components/context-help-button/context-help-button.component';
 
 export interface ReportDetailDialogData {
   jobId: number;
@@ -13,7 +14,7 @@ export interface ReportDetailDialogData {
 @Component({
   selector: 'app-report-detail-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, ContextHelpButtonComponent],
   templateUrl: './report-detail-dialog.component.html',
 })
 export class ReportDetailDialogComponent implements OnInit {

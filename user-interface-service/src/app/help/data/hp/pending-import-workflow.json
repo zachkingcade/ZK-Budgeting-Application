@@ -1,0 +1,16 @@
+{
+  "id": "pending-import-workflow",
+  "slug": "pending-import-workflow",
+  "title": "Pending journal entries",
+  "summary": "From bank file to posted ledger, step by step.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Pending is the inbox between your bank and your books. Import a file, review each row, assign accounts so debits and credits make sense, then Apply when you are ready."
+    },
+    {
+      "type": "p",
+      "text": "Dates tie into period rules—if apply fails, often it is because a transaction sits in a closed period or before your oldest open period. Fix the date or clear pending in that range before you close."
+    }
+  ]
+}

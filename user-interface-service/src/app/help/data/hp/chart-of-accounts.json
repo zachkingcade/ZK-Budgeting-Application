@@ -1,0 +1,16 @@
+{
+  "id": "chart-of-accounts",
+  "slug": "chart-of-accounts",
+  "title": "Chart of accounts",
+  "summary": "How classifications, types, and accounts fit together.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Your chart is three layers deep, and each layer has a job. Classifications (Asset, Liability, Equity, Revenue, Expense) are fixed by the system—they tell reports how to treat balances. Account types sit in the middle; you might have “Bank” or “Credit card” under Asset. Accounts are the names you pick when you post—Checking, Groceries, and so on."
+    },
+    {
+      "type": "p",
+      "text": "Getting the structure right early makes reports and budget planning much less confusing later. You do not need dozens of types on day one; start with what you actually use and add more when a real account does not fit anywhere."
+    }
+  ]
+}

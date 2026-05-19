@@ -1,0 +1,11 @@
+{
+  "id": "cp-edit-account",
+  "title": "Edit account",
+  "seeMoreHelpId": "chart-of-accounts",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "You can rename the account or turn it off when you are done using it. Deactivating does not erase history; it just keeps new postings from using that account."
+    }
+  ]
+}

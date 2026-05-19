@@ -4,13 +4,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { readLedgerApiErrorMessage } from '../../../adapter/ledger-service/ledger-http-error.util';
 import { AccountingPeriodApplicationService } from '../../../application/accounting-period/accounting-period.application-service';
 import { INextToCloseView } from '../../../adapter/ledger-service/dto/accounting-period/accounting-period.dto';
+import { ContextHelpButtonComponent } from '../../../help/components/context-help-button/context-help-button.component';
 
 @Component({
   selector: 'app-close-accounting-period-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule, ContextHelpButtonComponent],
   template: `
-    <h2 mat-dialog-title>Close accounting period</h2>
+    <h2 mat-dialog-title class="help-modal-title">Close accounting period <app-context-help-button helpId="cp-close-accounting-period" /></h2>
     <mat-dialog-content>
       <p>
         Period: <strong>{{ data.startDate }}</strong> through <strong>{{ data.endDate }}</strong>

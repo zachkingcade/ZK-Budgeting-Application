@@ -1,0 +1,16 @@
+{
+  "id": "accounting-periods-closing",
+  "slug": "accounting-periods-closing",
+  "title": "Accounting periods and closing",
+  "summary": "How periods work, what close does, and what you cannot do afterward.",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Period length comes from Settings. Closing the oldest open period archives that date range: balances snapshot, and new posting into those dates stops. You close in chronological order."
+    },
+    {
+      "type": "p",
+      "text": "Before close, clear pending in the range and make sure period settings exist. After close, you can still read archived entries on the Accounting periods page—you just cannot post there anymore."
+    }
+  ]
+}

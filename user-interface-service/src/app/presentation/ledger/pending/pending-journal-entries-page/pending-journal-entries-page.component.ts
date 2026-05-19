@@ -38,10 +38,12 @@ import {
 
 type SelectOption<T extends string | number> = { id: T; label: string };
 
+import { ContextHelpButtonComponent } from '../../../../help/components/context-help-button/context-help-button.component';
 @Component({
   selector: 'app-pending-journal-entries-page',
   standalone: true,
   imports: [
+    ContextHelpButtonComponent,
     PageCage,
     ConfirmationModalComponent,
     PendingImportBarComponent,

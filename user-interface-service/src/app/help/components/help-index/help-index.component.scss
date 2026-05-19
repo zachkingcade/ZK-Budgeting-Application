@@ -1,0 +1,16 @@
+.help-index__intro {
+  margin: 0 0 1.25rem;
+  line-height: 1.5;
+  color: var(--mat-sys-on-surface, inherit);
+}
+
+.help-index__list {
+  border: 1px solid var(--app-border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--app-surface-elevated, #fff);
+}
+
+.help-index__list a {
+  color: var(--mat-sys-on-surface, inherit);
+  text-decoration: none;
+}

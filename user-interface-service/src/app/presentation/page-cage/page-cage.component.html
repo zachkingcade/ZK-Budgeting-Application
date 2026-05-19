@@ -5,8 +5,13 @@
     </button>
 
     <div id="titleDiv">
-      <h1 class="app-title">{{pageName}}</h1>
-      <h5 class="subtext">{{subText}}</h5>
+      <div class="page-cage__titleRow">
+        <h1 class="app-title">{{ pageName }}</h1>
+        @if (pageHelpId) {
+          <app-context-help-button [helpId]="pageHelpId" />
+        }
+      </div>
+      <h5 class="subtext">{{ subText }}</h5>
     </div>
     <div class="topbar-spacer"></div>
     <app-notification-bell />
@@ -115,6 +120,28 @@
           <div class="nav-section-links" id="nav-section-user-account" role="group" aria-labelledby="nav-section-user-account-heading">
             <a routerLink="/settings" routerLinkActive="active" class="nav-link nav-link--nested">Settings</a>
             <a routerLink="/notifications" routerLinkActive="active" class="nav-link nav-link--nested">Notifications</a>
+          </div>
+        }
+      </div>
+
+      <div class="nav-section">
+        <button
+          type="button"
+          class="nav-section-toggle"
+          [attr.aria-expanded]="isNavSectionExpanded('help')"
+          [attr.aria-controls]="isNavSectionExpanded('help') ? 'nav-section-help' : null"
+          id="nav-section-help-heading"
+          (click)="toggleNavSection('help')"
+        >
+          <span class="nav-section-chevron" [class.nav-section-chevron--open]="isNavSectionExpanded('help')" aria-hidden="true"></span>
+          <span class="nav-section-label">Help</span>
+        </button>
+        @if (isNavSectionExpanded('help')) {
+          <div class="nav-section-links" id="nav-section-help" role="group" aria-labelledby="nav-section-help-heading">
+            <a routerLink="/help" routerLinkActive="active" class="nav-link nav-link--nested" [routerLinkActiveOptions]="{ exact: true }">Help home</a>
+            @for (entry of helpNavEntries; track entry.slug) {
+              <a [routerLink]="['/help', entry.slug]" routerLinkActive="active" class="nav-link nav-link--nested">{{ entry.title }}</a>
+            }
           </div>
         }
       </div>

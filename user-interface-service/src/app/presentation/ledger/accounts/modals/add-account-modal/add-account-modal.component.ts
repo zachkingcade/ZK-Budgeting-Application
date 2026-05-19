@@ -14,10 +14,12 @@ import { readLedgerApiErrorMessage } from '../../../../../adapter/ledger-service
 
 type Option = { id: number; label: string };
 
+import { ContextHelpButtonComponent } from '../../../../../help/components/context-help-button/context-help-button.component';
 @Component({
   selector: 'app-add-account-modal',
   standalone: true,
   imports: [
+    ContextHelpButtonComponent,
     CommonModule,
     FormsModule,
     MatButtonModule,

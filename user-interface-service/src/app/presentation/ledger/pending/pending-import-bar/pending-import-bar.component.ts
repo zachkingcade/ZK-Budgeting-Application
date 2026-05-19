@@ -10,10 +10,12 @@ import { ImportFormatObject } from '../../../../adapter/ledger-service/dto/impor
 
 type SelectOption<T extends string | number> = { id: T; label: string };
 
+import { ContextHelpButtonComponent } from '../../../../help/components/context-help-button/context-help-button.component';
 @Component({
   selector: 'app-pending-import-bar',
   standalone: true,
   imports: [
+    ContextHelpButtonComponent,
     CommonModule,
     FormsModule,
     MatButtonModule,

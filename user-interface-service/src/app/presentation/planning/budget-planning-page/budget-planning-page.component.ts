@@ -49,6 +49,7 @@ import { PageCage } from '../../page-cage/page-cage.component';
 import { ConfirmationModalComponent } from '../../shared/confirmation-modal/confirmation-modal.component';
 import { TableRowActionsMenuComponent } from '../../shared/table-row-actions-menu/table-row-actions-menu.component';
 import { ITableRowAction } from '../../shared/table-row-actions-menu/table-row-action.types';
+import { ContextHelpButtonComponent } from '../../../help/components/context-help-button/context-help-button.component';
 
 const FREQUENCY_UNITS: readonly string[] = ['days', 'weeks', 'months', 'years'];
 
@@ -69,6 +70,7 @@ type IBudgetOverviewPieSliceWithPath = IBudgetOverviewPieSlice & { pathD: string
   selector: 'app-budget-planning-page',
   standalone: true,
   imports: [
+    ContextHelpButtonComponent,
     CommonModule,
     FormsModule,
     PageCage,

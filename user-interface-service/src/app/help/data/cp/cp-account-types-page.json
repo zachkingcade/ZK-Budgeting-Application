@@ -1,0 +1,15 @@
+{
+  "id": "cp-account-types-page",
+  "title": "Account types",
+  "seeMoreHelpId": "system-account-types",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Account types group your real accounts under a classification—Asset, Liability, Expense, and the rest. You might have types like “Bank” or “Credit card” with individual accounts under each."
+    },
+    {
+      "type": "p",
+      "text": "System types ship with the app and cannot be edited; yours are fully under your control. The “hide system account types” checkbox is handy when you only want to see what you created."
+    }
+  ]
+}

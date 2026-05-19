@@ -1,0 +1,11 @@
+{
+  "id": "cp-settings-ledger",
+  "title": "Ledger defaults",
+  "seeMoreHelpId": "settings-defaults",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Choose the date range and sort order you usually want when you open the ledger. “Use page default” leaves the built-in behavior for that field."
+    }
+  ]
+}

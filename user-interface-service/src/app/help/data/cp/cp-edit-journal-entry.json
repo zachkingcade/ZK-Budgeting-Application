@@ -1,0 +1,15 @@
+{
+  "id": "cp-edit-journal-entry",
+  "title": "Edit journal entry",
+  "seeMoreHelpId": "journal-entries-double-entry",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "You are changing something already on the books. Dates in closed periods cannot be edited—if the app blocks you, check accounting periods or adjust pending items instead."
+    },
+    {
+      "type": "p",
+      "text": "Line notes can be updated here without affecting whether the entry balances."
+    }
+  ]
+}

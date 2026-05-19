@@ -1,0 +1,15 @@
+{
+  "id": "cp-reports-page",
+  "title": "Reports",
+  "seeMoreHelpId": "reports",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Reports are generated in the background—request one, then refresh the list or wait for a notification when it is ready. Status tells you whether it is still queued, running, or finished."
+    },
+    {
+      "type": "p",
+      "text": "When a report shows completed, open it to download the PDF."
+    }
+  ]
+}

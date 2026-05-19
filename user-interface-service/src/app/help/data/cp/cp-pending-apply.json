@@ -1,0 +1,15 @@
+{
+  "id": "cp-pending-apply",
+  "title": "Apply to ledger",
+  "seeMoreHelpId": "pending-import-workflow",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "When the drafts look right, Apply posts them to the ledger in one go. If something cannot post (wrong period, unbalanced lines, missing account), you will see a list of what failed so you can fix those rows and try again."
+    },
+    {
+      "type": "p",
+      "text": "After a successful apply, the transactions leave pending and show up on the Ledger page like any other journal entry."
+    }
+  ]
+}

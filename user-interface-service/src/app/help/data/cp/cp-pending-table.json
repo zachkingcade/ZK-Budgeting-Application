@@ -1,0 +1,15 @@
+{
+  "id": "cp-pending-table",
+  "title": "Pending transactions",
+  "seeMoreHelpId": "pending-import-workflow",
+  "paragraphs": [
+    {
+      "type": "p",
+      "text": "Each row is one transaction waiting for you. Use the account pickers to say which ledger accounts the debits and credits should hit, and use the row menu if you need to change the date, remove a row, or save a pattern as replayable."
+    },
+    {
+      "type": "p",
+      "text": "Take your time here—getting accounts right before you apply saves cleanup on the ledger later."
+    }
+  ]
+}
