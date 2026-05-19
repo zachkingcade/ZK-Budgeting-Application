@@ -61,7 +61,7 @@ public class JwtDecoderConfig {
                 return OAuth2TokenValidatorResult.success();
             }
             String tokenType = jwt.getClaimAsString("token_type");
-            if ("user".equals(tokenType)) {
+            if ("user".equals(tokenType) || "service".equals(tokenType)) {
                 return OAuth2TokenValidatorResult.success();
             }
             return OAuth2TokenValidatorResult.failure(new OAuth2Error(

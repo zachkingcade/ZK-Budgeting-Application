@@ -1,7 +1,7 @@
 .modalBackdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--app-scrim);
   z-index: 1000;
 }
 
@@ -18,9 +18,9 @@
 
 .modalCard {
   width: min(920px, 100%);
-  background: white;
+  background: var(--app-surface-elevated);
   border-radius: 14px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--app-shadow-lg);
   overflow: hidden;
 }
 
@@ -30,7 +30,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1rem 0.75rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--app-border-strong);
 }
 
 .modalTitle {
@@ -41,7 +41,7 @@
 
 .modalError {
   padding: 0.75rem 1rem 0 1rem;
-  color: #b91c1c;
+  color: var(--app-error-text);
   font-weight: 600;
 }
 
@@ -55,9 +55,9 @@
   gap: 0.75rem;
   margin-bottom: 1rem;
   padding: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--app-border-strong);
   border-radius: 12px;
-  background: #fafafa;
+  background: var(--app-surface-subtle);
 }
 
 .metaItem {
@@ -68,13 +68,13 @@
 
 .metaLabel {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--app-text-muted);
   font-weight: 600;
 }
 
 .metaValue {
   font-size: 1rem;
-  color: #111827;
+  color: var(--mat-sys-on-surface);
 }
 
 .entryFields {
@@ -100,7 +100,7 @@
 
 .linesTableWrap {
   overflow: auto;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--app-border-strong);
   border-radius: 12px;
 }
 
@@ -112,7 +112,7 @@
 .linesTable th,
 .linesTable td {
   padding: 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--app-border-strong);
   vertical-align: top;
 }
 
@@ -130,10 +130,11 @@
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 0.75rem 1rem 1rem 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--app-border-strong);
 }
 
 .submitButton {
-  background-color: lightblue;
+  background-color: var(--app-button-primary);
+  color: var(--app-button-on-primary);
 }
 

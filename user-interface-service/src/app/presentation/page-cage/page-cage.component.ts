@@ -1,4 +1,4 @@
-import { Component, DestroyRef, HostListener, Input, signal } from '@angular/core';
+import { Component, DestroyRef, HostListener, Input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -7,17 +7,19 @@ import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { filter } from 'rxjs';
 import { AuthManagerService } from '../../application/auth/auth-manager.service';
+import { NotificationsPollingService } from '../../application/notifications/notifications-polling.service';
+import { NotificationBellComponent } from '../shared/notification-bell/notification-bell.component';
 
 type PageCageNavSectionId = 'master-ledger' | 'accounts' | 'planning' | 'reporting' | 'user-account';
 
 @Component({
   selector: 'app-page-cage',
   standalone: true,
-  imports: [FontAwesomeModule, RouterLink, RouterLinkActive],
+  imports: [FontAwesomeModule, RouterLink, RouterLinkActive, NotificationBellComponent],
   templateUrl: './page-cage.component.html',
   styleUrl: './page-cage.component.scss',
 })
-export class PageCage {
+export class PageCage implements OnInit {
   @Input() pageName: string = 'Unnamed Page';
   @Input() subText: string = 'Contact admin and report this error';
   sidebarOpen: boolean = false;
@@ -30,6 +32,7 @@ export class PageCage {
 
   constructor(
     private readonly authManager: AuthManagerService,
+    private readonly notificationsPolling: NotificationsPollingService,
     private readonly router: Router,
     private readonly destroyRef: DestroyRef,
   ) {
@@ -42,6 +45,10 @@ export class PageCage {
       .subscribe((e: NavigationEnd) => {
         this.applyRouteToNavSection(e.urlAfterRedirects);
       });
+  }
+
+  ngOnInit(): void {
+    this.notificationsPolling.start();
   }
 
   protected isNavSectionExpanded(section: PageCageNavSectionId): boolean {
@@ -91,6 +98,10 @@ export class PageCage {
       this.expandedNavSection.set('user-account');
       return;
     }
+    if (path === '/notifications' || path.startsWith('/notifications/')) {
+      this.expandedNavSection.set('user-account');
+      return;
+    }
   }
 
   get username(): string | null {
@@ -117,6 +128,7 @@ export class PageCage {
   }
 
   logoutClicked(): void {
+    this.notificationsPolling.stop();
     this.authManager
       .logout()
       .pipe(takeUntilDestroyed(this.destroyRef))

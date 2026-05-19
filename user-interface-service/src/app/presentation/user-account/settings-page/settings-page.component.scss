@@ -11,7 +11,7 @@
 
 .settingsPanel__rules {
   margin: 0 0 1rem;
-  color: rgba(0, 0, 0, 0.7);
+  color: var(--app-text-muted);
   font-size: 0.9rem;
   line-height: 1.45;
 }
@@ -27,4 +27,27 @@
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
+}
+
+.settingsThemeGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.settingsThemeGrid__heading {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+}
+
+.settingsThemeGrid__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.settingsPanel__rules {
+  color: var(--app-text-muted, rgba(0, 0, 0, 0.7));
 }

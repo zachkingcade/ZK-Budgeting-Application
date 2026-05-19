@@ -22,41 +22,15 @@ import { enrichedJournalLinesToDrafts } from '../../../../domain/replayable-jour
 import { ConfirmationModalComponent } from '../../../shared/confirmation-modal/confirmation-modal.component';
 import { AddJournalEntryModalComponent } from '../modals/add-journal-entry-modal/add-journal-entry-modal.component';
 import { EditJournalEntryModalComponent } from '../modals/edit-journal-entry-modal/edit-journal-entry-modal.component';
+import { UserPreferencesService } from '../../../../application/settings/user-preferences.service';
+import {
+  cloneLedgerFilterState,
+  DEFAULT_LEDGER_FILTER_STATE,
+  ILedgerFilterSortState,
+  LedgerDateRangeOption,
+} from '../ledger-filter-state';
 
-export type LedgerDateRangeOption =
-  | 'Last 7 days'
-  | 'Last 14 days'
-  | 'Last 30 days'
-  | 'Last 60 days'
-  | 'All unarchived';
-
-export type LedgerSortByOption = 'Date (Asc.)' | 'Date (Des.)';
-
-export interface ILedgerFilterSortState {
-  searchTerm: string;
-  selectedDate: LedgerDateRangeOption;
-  selectedSortBy: LedgerSortByOption;
-  selectedAccountTypeIds: number[];
-  selectedAccountIds: number[];
-}
-
-const DEFAULT_FILTER_SORT_STATE: ILedgerFilterSortState = {
-  searchTerm: '',
-  selectedDate: 'Last 30 days',
-  selectedSortBy: 'Date (Asc.)',
-  selectedAccountTypeIds: [],
-  selectedAccountIds: [],
-};
-
-function cloneFilterSortState(state: ILedgerFilterSortState): ILedgerFilterSortState {
-  return {
-    searchTerm: state.searchTerm,
-    selectedDate: state.selectedDate,
-    selectedSortBy: state.selectedSortBy,
-    selectedAccountTypeIds: [...state.selectedAccountTypeIds],
-    selectedAccountIds: [...state.selectedAccountIds],
-  };
-}
+export type { ILedgerFilterSortState, LedgerDateRangeOption, LedgerSortByOption } from '../ledger-filter-state';
 
 @Component({
   selector: 'app-ledger-page',
@@ -79,6 +53,7 @@ export class LedgerPage implements OnInit {
     private readonly journalEntries: JournalEntryApplicationService,
     private readonly dialog: MatDialog,
     private readonly toast: ToastService,
+    private readonly userPreferences: UserPreferencesService,
     private readonly destroyRef: DestroyRef,
   ) {}
 
@@ -87,8 +62,8 @@ export class LedgerPage implements OnInit {
   readonly loadError = signal<string | null>(null);
   readonly removingEntryId = signal<number | null>(null);
 
-  readonly currentState = signal<ILedgerFilterSortState>(cloneFilterSortState(DEFAULT_FILTER_SORT_STATE));
-  readonly lastAppliedState = signal<ILedgerFilterSortState>(cloneFilterSortState(DEFAULT_FILTER_SORT_STATE));
+  readonly currentState = signal<ILedgerFilterSortState>(cloneLedgerFilterState(DEFAULT_LEDGER_FILTER_STATE));
+  readonly lastAppliedState = signal<ILedgerFilterSortState>(cloneLedgerFilterState(DEFAULT_LEDGER_FILTER_STATE));
 
   readonly addModalOpen = signal<boolean>(false);
   readonly editModalOpen = signal<boolean>(false);
@@ -117,11 +92,25 @@ export class LedgerPage implements OnInit {
         this.applyFilters({ nextState: state, markApplied: true });
       });
 
-    this.applyFilters({ nextState: this.currentState(), markApplied: true });
+    this.initStateFromPreferences();
+  }
+
+  private initStateFromPreferences(): void {
+    const apply = () => {
+      const initial = cloneLedgerFilterState(this.userPreferences.getLedgerInitialState());
+      this.currentState.set(initial);
+      this.lastAppliedState.set(cloneLedgerFilterState(initial));
+      this.applyFilters({ nextState: initial, markApplied: true });
+    };
+    if (this.userPreferences.isHydrated()) {
+      apply();
+      return;
+    }
+    this.userPreferences.ensureLoaded().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => apply());
   }
 
   onStateChanged(nextState: ILedgerFilterSortState): void {
-    const cloned = cloneFilterSortState(nextState);
+    const cloned = cloneLedgerFilterState(nextState);
     const applied = this.lastAppliedState();
     this.currentState.set(cloned);
     /** Compare to lastApplied: ngModel mutates `currentState()` in place before emit. */
@@ -203,7 +192,7 @@ export class LedgerPage implements OnInit {
   }
 
   clearClicked(): void {
-    const defaultState: ILedgerFilterSortState = cloneFilterSortState(DEFAULT_FILTER_SORT_STATE);
+    const defaultState: ILedgerFilterSortState = cloneLedgerFilterState(DEFAULT_LEDGER_FILTER_STATE);
     this.currentState.set(defaultState);
     this.applyFilters({ nextState: defaultState, markApplied: true });
   }
@@ -215,7 +204,7 @@ export class LedgerPage implements OnInit {
   private applyFilters(opts: { nextState: ILedgerFilterSortState; markApplied: boolean }): void {
     const request: GETAllJournalEntrysRequest = this.buildGetAllRequest(opts.nextState);
     if (opts.markApplied) {
-      this.lastAppliedState.set(cloneFilterSortState(opts.nextState));
+      this.lastAppliedState.set(cloneLedgerFilterState(opts.nextState));
     }
 
     this.loading.set(true);

@@ -14,10 +14,11 @@
         Transactions cannot be posted in closed periods or before the oldest unclosed period start (dates that would never archive).
       </p>
 
-      <form [formGroup]="accountingPeriodForm" class="settingsForm">
+      <form [formGroup]="form" class="settingsForm">
         <mat-form-field appearance="outline" class="settingsForm__field">
           <mat-label>Frequency unit</mat-label>
           <mat-select formControlName="frequencyUnit">
+            <mat-option value="">—</mat-option>
             <mat-option value="DAYS">Days</mat-option>
             <mat-option value="WEEKS">Weeks</mat-option>
             <mat-option value="MONTHS">Months</mat-option>
@@ -34,6 +35,119 @@
           <input matInput type="date" formControlName="firstStartDate" />
         </mat-form-field>
       </form>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="settingsPanel" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Ledger</mat-panel-title>
+        <mat-panel-description>Default filters when opening the ledger</mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <p class="settingsPanel__rules">
+        Leave an option on “Use page default” to keep the built-in default for that field.
+      </p>
+
+      <form [formGroup]="form" class="settingsForm">
+        <mat-form-field appearance="outline" class="settingsForm__field">
+          <mat-label>Date range</mat-label>
+          <mat-select formControlName="ledgerDateRange">
+            <mat-option value="">Use page default</mat-option>
+            @for (opt of ledgerDateOptions; track opt) {
+              <mat-option [value]="opt">{{ opt }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="settingsForm__field">
+          <mat-label>Sort by</mat-label>
+          <mat-select formControlName="ledgerSortBy">
+            <mat-option value="">Use page default</mat-option>
+            @for (opt of ledgerSortOptions; track opt) {
+              <mat-option [value]="opt">{{ opt }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </form>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="settingsPanel" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Accounts</mat-panel-title>
+        <mat-panel-description>Default filters when opening accounts</mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <form [formGroup]="form" class="settingsForm">
+        <mat-form-field appearance="outline" class="settingsForm__field">
+          <mat-label>Account types</mat-label>
+          <mat-select formControlName="accountsAccountTypeIds" multiple>
+            @for (opt of accountTypeOptions(); track opt.id) {
+              <mat-option [value]="opt.id">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+          <mat-hint>Leave empty for all types. Select one or more to filter by default.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="settingsForm__field">
+          <mat-label>Sort by</mat-label>
+          <mat-select formControlName="accountsSortBy">
+            <mat-option value="">Use page default</mat-option>
+            @for (opt of accountsSortOptions; track opt) {
+              <mat-option [value]="opt">{{ opt }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </form>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="settingsPanel" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Account Types</mat-panel-title>
+        <mat-panel-description>Default sort when opening account types</mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <form [formGroup]="form" class="settingsForm">
+        <mat-form-field appearance="outline" class="settingsForm__field">
+          <mat-label>Sort by</mat-label>
+          <mat-select formControlName="accountTypesSortBy">
+            <mat-option value="">Use page default</mat-option>
+            @for (opt of accountTypesSortOptions; track opt) {
+              <mat-option [value]="opt">{{ opt }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </form>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="settingsPanel" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Style</mat-panel-title>
+        <mat-panel-description>Color theme</mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <p class="settingsPanel__rules">Light themes fade to white; dark themes fade to black.</p>
+
+      <div class="settingsThemeGrid">
+        <h3 class="settingsThemeGrid__heading">Light</h3>
+        <div class="settingsThemeGrid__row">
+          @for (themeId of lightThemes; track themeId) {
+            <app-theme-swatch
+              [themeId]="themeId"
+              [selected]="isThemeSelected(themeId)"
+              (selectedChange)="selectTheme($event)"
+            />
+          }
+        </div>
+        <h3 class="settingsThemeGrid__heading">Dark</h3>
+        <div class="settingsThemeGrid__row">
+          @for (themeId of darkThemes; track themeId) {
+            <app-theme-swatch
+              [themeId]="themeId"
+              [selected]="isThemeSelected(themeId)"
+              (selectedChange)="selectTheme($event)"
+            />
+          }
+        </div>
+      </div>
     </mat-expansion-panel>
 
     <div class="settingsPage__actions">

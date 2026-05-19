@@ -25,16 +25,16 @@
 
 .rje__bannerError,
 .rje__error {
-  color: #b00020;
+  color: var(--app-error-text-strong);
 }
 
 .rje__empty {
   padding: 1rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--app-text-muted);
 }
 
 .rje__tableWrap {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--app-border-strong);
   border-radius: 12px;
   overflow: auto;
 }
@@ -67,7 +67,7 @@
 
 .rje__linesWrap {
   overflow: auto;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--app-border-strong);
   border-radius: 8px;
 }
 
@@ -84,7 +84,7 @@
   th {
     text-align: left;
     font-size: 0.8rem;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--app-text-muted);
   }
 }
 

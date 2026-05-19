@@ -67,7 +67,7 @@ export interface ChangePendingDateDialogResult {
         margin: 0 0 1rem;
         font-size: 0.9rem;
         line-height: 1.45;
-        color: #b45309;
+        color: var(--app-warning-text);
       }
       .dateField {
         width: 100%;

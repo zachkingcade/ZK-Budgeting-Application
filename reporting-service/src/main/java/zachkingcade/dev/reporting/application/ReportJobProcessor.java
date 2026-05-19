@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import zachkingcade.dev.reporting.adapter.outbound.LedgerApiClient;
+import zachkingcade.dev.reporting.adapter.outbound.UserServiceNotificationClient;
 import zachkingcade.dev.reporting.adapter.outbound.UserServiceTokenProvider;
 import zachkingcade.dev.reporting.adapter.persistence.jpa.CompletedReportEntity;
 import zachkingcade.dev.reporting.adapter.persistence.jpa.ReportJobEntity;
@@ -26,6 +27,7 @@ public class ReportJobProcessor {
     private final CompletedReportJpaRepository completedReportRepository;
     private final ReportRegistry reportRegistry;
     private final UserServiceTokenProvider userServiceTokenProvider;
+    private final UserServiceNotificationClient userServiceNotificationClient;
     private final LedgerApiClient ledgerApiClient;
     private final ObjectMapper objectMapper;
 
@@ -34,6 +36,7 @@ public class ReportJobProcessor {
             CompletedReportJpaRepository completedReportRepository,
             ReportRegistry reportRegistry,
             UserServiceTokenProvider userServiceTokenProvider,
+            UserServiceNotificationClient userServiceNotificationClient,
             LedgerApiClient ledgerApiClient,
             ObjectMapper objectMapper
     ) {
@@ -41,6 +44,7 @@ public class ReportJobProcessor {
         this.completedReportRepository = completedReportRepository;
         this.reportRegistry = reportRegistry;
         this.userServiceTokenProvider = userServiceTokenProvider;
+        this.userServiceNotificationClient = userServiceNotificationClient;
         this.ledgerApiClient = ledgerApiClient;
         this.objectMapper = objectMapper;
     }
@@ -72,6 +76,7 @@ public class ReportJobProcessor {
             done.setStoredAt(Instant.now());
             completedReportRepository.save(done);
             reportJobLifecycleService.markCompleted(job.getId());
+            userServiceNotificationClient.registerReportReady(job.getOwningUserId(), job.getReportType());
         } catch (Exception e) {
             log.error("Report job failed id=[{}]", job.getId(), e);
             reportJobLifecycleService.markFailed(job.getId(), truncate(e.getMessage()));

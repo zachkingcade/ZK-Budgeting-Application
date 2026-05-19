@@ -27,7 +27,8 @@
 }
 
 .addButton {
-    background-color: lightblue;
+    background-color: var(--app-button-primary);
+  color: var(--app-button-on-primary);
 }
 
 .table {

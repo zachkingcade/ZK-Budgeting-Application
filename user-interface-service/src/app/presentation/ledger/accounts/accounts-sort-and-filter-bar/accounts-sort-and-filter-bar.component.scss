@@ -3,7 +3,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  background-color: white;
+  background-color: var(--app-surface-elevated);
   border-radius: 15px;
   gap: 1em;
   flex-shrink: 0;
@@ -46,14 +46,16 @@
 }
 
 .redButton {
-  background-color: lightcoral;
+  background-color: var(--app-button-danger);
+  color: var(--app-button-on-danger);
 }
 
 .blueButton {
-  background-color: lightblue;
+  background-color: var(--app-button-primary);
+  color: var(--app-button-on-primary);
 }
 
 mat-icon {
-  color: #9ca3af;
+  color: var(--app-text-disabled);
   margin-right: 6px;
 }

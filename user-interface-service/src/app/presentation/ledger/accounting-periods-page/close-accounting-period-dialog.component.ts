@@ -50,11 +50,11 @@ import { INextToCloseView } from '../../../adapter/ledger-service/dto/accounting
         line-height: 1.45;
       }
       .warning {
-        color: #b45309;
+        color: var(--app-warning-text);
         font-weight: 500;
       }
       .error {
-        color: #b00020;
+        color: var(--app-error-text-strong);
       }
     `,
   ],

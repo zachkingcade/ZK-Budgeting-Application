@@ -55,15 +55,15 @@
   width: 100%;
   text-align: left;
   padding: 0.6rem 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--app-border);
   border-radius: 6px;
-  background: #fff;
+  background: var(--app-surface-elevated);
   cursor: pointer;
 }
 
 .periodList__item--active {
-  border-color: #3f51b5;
-  background: rgba(63, 81, 181, 0.08);
+  border-color: var(--app-selection-border);
+  background: var(--app-selection-bg);
 }
 
 .periodList__dates {
@@ -75,15 +75,15 @@
 .periodList__count {
   display: block;
   font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--app-text-muted);
   margin-top: 0.2rem;
 }
 
 .archivedTable__frame {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--app-border-strong);
   border-radius: 12px;
   overflow: hidden;
-  background: #fff;
+  background: var(--app-surface-elevated);
   flex: 1;
   min-height: 12rem;
   max-height: min(28rem, calc(100vh - 18rem));
@@ -102,11 +102,11 @@
 }
 
 .accountingPeriodsPage__error {
-  color: #b00020;
+  color: var(--app-error-text-strong);
 }
 
 .accountingPeriodsPage__empty {
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--app-text-muted);
 }
 
 @media (max-width: 768px) {

@@ -51,7 +51,7 @@ export interface SaveAsReplayableDialogData {
         width: 100%;
       }
       .error {
-        color: #b00020;
+        color: var(--app-error-text-strong);
       }
     `,
   ],

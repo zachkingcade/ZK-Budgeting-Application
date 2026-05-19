@@ -18,6 +18,14 @@ export class UserHttpClientService {
     return this.httpClient.post<T>(this.buildUrl(path), body);
   }
 
+  put<T>(path: string, body: unknown): Observable<T> {
+    return this.httpClient.put<T>(this.buildUrl(path), body);
+  }
+
+  patch<T>(path: string, body: unknown): Observable<T> {
+    return this.httpClient.patch<T>(this.buildUrl(path), body);
+  }
+
   delete<T>(path: string): Observable<T | null> {
     return this.httpClient.delete<T | null>(this.buildUrl(path));
   }

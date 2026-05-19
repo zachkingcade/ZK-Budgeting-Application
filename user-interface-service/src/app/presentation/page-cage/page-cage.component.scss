@@ -10,7 +10,7 @@ html {
 
 .app-shell {
   height: 97vh;
-  background: #f5f7fb;
+  background: var(--app-shell-bg, #f5f7fb);
   overflow :hidden;
   display: flex;
   flex-direction: column;
@@ -23,8 +23,8 @@ html {
   align-items: center;
   gap: 12px;
   padding: 0 16px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--app-surface-elevated, white);
+  border-bottom: 1px solid var(--app-border, #e5e7eb);
 }
 
 .hamburger-btn,
@@ -53,13 +53,17 @@ html {
     height: 100%;
 }
 
+.topbar-spacer {
+  flex: 1;
+}
+
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   width: 260px;
   height: 100vh;
-  background: #212c3b;
+  background: var(--app-sidebar-bg, #212c3b);
   color: white;
   transform: translateX(-100%);
   transition: transform 0.25s ease;
@@ -196,13 +200,13 @@ html {
 }
 
 .nav-link.active {
-  background: #2563eb;
+  background: var(--app-nav-active, #2563eb);
 }
 
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--app-scrim);
   z-index: 999;
 }
 
@@ -229,7 +233,7 @@ html {
 #footerLeft {
     font-weight: bold;
     font-size: 22px;
-    color: rgb(148, 148, 148);
+    color: var(--app-footer-muted);
     margin-top: 10px;
     width: 50vw;
     margin-left: 2vw;
@@ -239,7 +243,7 @@ html {
     display: flex;
     font-weight: bold;
     font-size: 22px;
-    color: rgb(148, 148, 148);
+    color: var(--app-footer-muted);
     margin-top: 10px;
     gap: 15px;
     width: 48vw;

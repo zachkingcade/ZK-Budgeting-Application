@@ -1,0 +1,61 @@
+// Shared layout patterns used across modals, filter bars, and action buttons.
+// Imported globally from styles.scss (not encapsulated).
+
+.modalBackdrop {
+  background: var(--app-scrim);
+}
+
+.modalCard {
+  background: var(--app-surface-elevated);
+  color: var(--mat-sys-on-surface);
+  box-shadow: var(--app-shadow-lg);
+}
+
+.modalHeader,
+.modalFooter {
+  border-color: var(--app-border-strong);
+}
+
+.modalTitle {
+  color: var(--mat-sys-on-surface);
+}
+
+.modalError {
+  color: var(--app-error-text);
+}
+
+.modalMessage {
+  color: var(--mat-sys-on-surface);
+}
+
+.confirmButton {
+  background-color: var(--app-button-danger) !important;
+  color: var(--app-button-on-danger) !important;
+}
+
+.filterAndSortBar {
+  background-color: var(--app-surface-elevated);
+  color: var(--mat-sys-on-surface);
+}
+
+.filterAndSortBar mat-icon {
+  color: var(--app-text-disabled);
+}
+
+.blueButton,
+.primaryButton,
+.actionButton--primary {
+  background-color: var(--app-button-primary) !important;
+  color: var(--app-button-on-primary) !important;
+}
+
+.redButton,
+.actionButton--danger {
+  background-color: var(--app-button-danger) !important;
+  color: var(--app-button-on-danger) !important;
+}
+
+.pageToolbarButton {
+  background-color: var(--app-button-primary) !important;
+  color: var(--app-button-on-primary) !important;
+}

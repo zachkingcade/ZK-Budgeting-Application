@@ -1,0 +1,81 @@
+@use '@angular/material' as mat;
+@use './app-tokens' as tokens;
+
+@mixin theme-block($primary, $tertiary, $scheme: light) {
+  @include mat.theme(
+    (
+      color: (
+        primary: $primary,
+        tertiary: $tertiary,
+        theme-type: $scheme,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+html[data-theme='light-blue'],
+html:not([data-theme]) {
+  @include theme-block(mat.$azure-palette, mat.$blue-palette, light);
+  body {
+    color-scheme: light;
+  }
+  @include tokens.app-tokens-light(#f5f7fb, #212c3b, #2563eb, #2563eb, #93c5fd, #fca5a5);
+}
+
+html[data-theme='dark-blue'] {
+  @include theme-block(mat.$blue-palette, mat.$azure-palette, light);
+  body {
+    color-scheme: light;
+  }
+  @include tokens.app-tokens-light(#eef2ff, #1e293b, #1e40af, #1e40af, #60a5fa, #f87171);
+}
+
+html[data-theme='orange'] {
+  @include theme-block(mat.$orange-palette, mat.$orange-palette, light);
+  body {
+    color-scheme: light;
+  }
+  @include tokens.app-tokens-light(#fff7ed, #292524, #ea580c, #ea580c, #fdba74, #fca5a5);
+}
+
+html[data-theme='purple'] {
+  @include theme-block(mat.$violet-palette, mat.$violet-palette, light);
+  body {
+    color-scheme: light;
+  }
+  @include tokens.app-tokens-light(#f5f3ff, #2e1065, #7c3aed, #7c3aed, #c4b5fd, #fca5a5);
+}
+
+html[data-theme='light-blue-dark'] {
+  @include theme-block(mat.$azure-palette, mat.$blue-palette, dark);
+  body {
+    color-scheme: dark;
+  }
+  @include tokens.app-tokens-dark(#0f172a, #0b1220, #60a5fa, #60a5fa, #3b82f6, #f87171);
+}
+
+html[data-theme='dark-blue-dark'] {
+  @include theme-block(mat.$blue-palette, mat.$azure-palette, dark);
+  body {
+    color-scheme: dark;
+  }
+  @include tokens.app-tokens-dark(#0c1222, #070d18, #3b82f6, #3b82f6, #2563eb, #f87171);
+}
+
+html[data-theme='orange-dark'] {
+  @include theme-block(mat.$orange-palette, mat.$orange-palette, dark);
+  body {
+    color-scheme: dark;
+  }
+  @include tokens.app-tokens-dark(#1c1917, #0c0a09, #fb923c, #fb923c, #ea580c, #f87171);
+}
+
+html[data-theme='purple-dark'] {
+  @include theme-block(mat.$violet-palette, mat.$violet-palette, dark);
+  body {
+    color-scheme: dark;
+  }
+  @include tokens.app-tokens-dark(#1e1b4b, #0f0a1f, #a78bfa, #a78bfa, #7c3aed, #f87171);
+}

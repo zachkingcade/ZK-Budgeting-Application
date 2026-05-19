@@ -60,12 +60,17 @@ export class AccountsSortAndFilterBarComponent implements OnInit {
         next: (res) => {
           const list: Array<{ id: number; description: string; active: boolean }> =
             (res.data?.accountTypeList ?? []) as any;
-          this.accountTypeOptions.set(
-            list.map((t: { id: number; description: string; active: boolean }) => ({
-              id: t.id,
-              label: t.active ? t.description : `${t.description} (inactive)`,
-            })),
-          );
+          const options = list.map((t: { id: number; description: string; active: boolean }) => ({
+            id: t.id,
+            label: t.active ? t.description : `${t.description} (inactive)`,
+          }));
+          this.accountTypeOptions.set(options);
+          const valid = new Set(options.map((o) => o.id));
+          const filtered = (this.state.selectedAccountTypeIds ?? []).filter((id) => valid.has(id));
+          if (filtered.length !== (this.state.selectedAccountTypeIds ?? []).length) {
+            this.state = { ...this.state, selectedAccountTypeIds: filtered };
+            this.emitState();
+          }
         },
       });
   }

@@ -1,37 +1,17 @@
 
 // Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use './styles/themes/themes';
+@use './styles/component-theme';
 
 html {
   height: 100%;
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
   height: 100%;
 }
@@ -44,4 +24,43 @@ body {
 .toast-error .mdc-snackbar__surface {
   background-color: var(--mat-sys-error-container);
   color: var(--mat-sys-on-error-container);
+}
+
+// Material dialogs (overlay appended to body; must use theme tokens explicitly).
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: var(--app-surface-elevated);
+  color: var(--mat-sys-on-surface);
+}
+
+.mat-mdc-dialog-container .mat-mdc-dialog-title,
+.mat-mdc-dialog-container .mat-mdc-dialog-content {
+  color: var(--mat-sys-on-surface);
+}
+
+// mtx-select / Material form fields on themed surfaces.
+.filterAndSortBar .mat-mdc-form-field,
+.modalCard .mat-mdc-form-field {
+  color: var(--mat-sys-on-surface);
+}
+
+// Notification bell dropdown (overlay panel).
+.notification-bell-menu-panel.mat-mdc-menu-panel {
+  width: min(26rem, calc(100vw - 2rem));
+  min-width: unset;
+  max-width: min(26rem, calc(100vw - 2rem));
+  overflow-x: hidden !important;
+}
+
+.notification-bell-menu-panel .mat-mdc-menu-content {
+  padding: 0;
+  overflow-x: hidden !important;
+  overflow-y: auto;
+  max-height: min(70vh, 32rem);
+}
+
+.notification-bell-menu-panel .notification-bell__panel,
+.notification-bell-menu-panel .notification-bell__item,
+.notification-bell-menu-panel .notification-bell__actions {
+  max-width: 100%;
+  box-sizing: border-box;
 }

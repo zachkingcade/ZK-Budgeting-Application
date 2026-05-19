@@ -16,6 +16,7 @@ import { AccountTypesSortAndFilterBarComponent } from '../account-types-sort-and
 import { AccountTypesTableComponent } from '../account-types-table/account-types-table.component';
 import { AddAccountTypeModalComponent } from '../modals/add-account-type-modal/add-account-type-modal.component';
 import { EditAccountTypeModalComponent } from '../modals/edit-account-type-modal/edit-account-type-modal.component';
+import { UserPreferencesService } from '../../../../application/settings/user-preferences.service';
 import {
   AccountTypeRowView,
   cloneAccountTypesFilterState,
@@ -43,6 +44,7 @@ export class AccountTypesPageComponent implements OnInit {
   constructor(
     private readonly accountTypesApplicationService: AccountTypesApplicationService,
     private readonly accountClassificationsApplicationService: AccountClassificationsApplicationService,
+    private readonly userPreferences: UserPreferencesService,
     private readonly destroyRef: DestroyRef,
   ) {}
 
@@ -136,9 +138,23 @@ export class AccountTypesPageComponent implements OnInit {
             map.set(c.id, c.description);
           }
           this.classificationLabelById.set(map);
-          this.applyFilters({ nextState: this.currentState(), markApplied: true });
+          this.initStateFromPreferences();
         },
       });
+  }
+
+  private initStateFromPreferences(): void {
+    const apply = () => {
+      const initial = cloneAccountTypesFilterState(this.userPreferences.getAccountTypesInitialState());
+      this.currentState.set(initial);
+      this.lastAppliedState.set(cloneAccountTypesFilterState(initial));
+      this.applyFilters({ nextState: initial, markApplied: true });
+    };
+    if (this.userPreferences.isHydrated()) {
+      apply();
+      return;
+    }
+    this.userPreferences.ensureLoaded().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => apply());
   }
 
   onStateChanged(nextState: IAccountTypesFilterState): void {

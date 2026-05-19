@@ -3,7 +3,7 @@
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-  background-color: white;
+  background-color: var(--app-surface-elevated);
   border-radius: 15px;
   gap: 1em;
   flex-shrink: 0;
@@ -36,7 +36,7 @@
 
 .importBar__fileName {
   font-size: 0.95rem;
-  color: #374151;
+  color: var(--app-on-surface-secondary);
   max-width: 520px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -44,6 +44,7 @@
 }
 
 .importBar__importButton {
-  background-color: lightblue;
+  background-color: var(--app-button-primary);
+  color: var(--app-button-on-primary);
 }
 

@@ -13,8 +13,10 @@ import zachkingcade.dev.user.application.port.in.Session.FindSessionBySessionTok
 import zachkingcade.dev.user.application.port.in.Session.RefreshSessionUseCase;
 import zachkingcade.dev.user.application.port.in.user.LoginUserUseCase;
 import zachkingcade.dev.user.application.port.in.user.LogoutUserUseCase;
+import zachkingcade.dev.user.application.port.in.notification.NotificationsUseCase;
 import zachkingcade.dev.user.application.port.in.user.RegisterUserUseCase;
 import zachkingcade.dev.user.application.port.out.user.UserRepositoryPort;
+import zachkingcade.dev.user.domain.notification.Notification;
 import zachkingcade.dev.user.application.results.LogInUserResult;
 import zachkingcade.dev.user.application.results.RefreshSessionResult;
 import zachkingcade.dev.user.domain.session.Session;
@@ -32,6 +34,7 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
     FindSessionBySessionTokenUseCase findSessionBySessionTokenUseCase;
     DeleteSessionUseCase deleteSessionUseCase;
     JWTService jwtService;
+    NotificationsUseCase notificationsUseCase;
 
     public UserService(
             UserRepositoryPort userRepository,
@@ -39,7 +42,8 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
             CreateUserSessionUseCase createUserSessionUseCase,
             JWTService jwtService,
             FindSessionBySessionTokenUseCase findSessionBySessionTokenUseCase,
-            DeleteSessionUseCase deleteSessionUseCase
+            DeleteSessionUseCase deleteSessionUseCase,
+            NotificationsUseCase notificationsUseCase
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -47,6 +51,7 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
         this.jwtService = jwtService;
         this.findSessionBySessionTokenUseCase = findSessionBySessionTokenUseCase;
         this.deleteSessionUseCase = deleteSessionUseCase;
+        this.notificationsUseCase = notificationsUseCase;
     }
 
     @Override
@@ -71,6 +76,11 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
         entity.setUpdatedDate(newUser.getUpdated_date());
         UserEntity saved = userRepository.save(entity);
 
+        notificationsUseCase.register(
+                Notification.ADMIN_USER_ID,
+                "user-service",
+                "New account registered",
+                command.username());
 
         return newUser.withId(saved.getUserId());
     }

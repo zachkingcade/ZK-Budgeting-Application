@@ -22,6 +22,13 @@ export class UserSettingsApi {
     return this.client.post<ApiResponseDto<IUserSettingDto>>('/user/settings', body);
   }
 
+  updateByName(name: string, settingValue: string): Observable<ApiResponseDto<IUserSettingDto>> {
+    return this.client.put<ApiResponseDto<IUserSettingDto>>(
+      `/user/settings/by-name/${encodeURIComponent(name)}`,
+      { settingValue },
+    );
+  }
+
   deleteByName(name: string): Observable<ApiResponseDto<void> | null> {
     return this.client.delete<ApiResponseDto<void> | null>(
       `/user/settings/by-name/${encodeURIComponent(name)}`,

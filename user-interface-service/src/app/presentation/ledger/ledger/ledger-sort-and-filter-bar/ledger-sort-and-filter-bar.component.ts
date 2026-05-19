@@ -8,7 +8,11 @@ import { AccountsApplicationService } from '../../../../application/ledger/accou
 import { AccountTypesApplicationService } from '../../../../application/ledger/account-types.application-service';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { ILedgerFilterSortState, LedgerDateRangeOption, LedgerSortByOption } from '../ledger-page/ledger-page.component';
+import {
+  ILedgerFilterSortState,
+  LedgerDateRangeOption,
+  LedgerSortByOption,
+} from '../ledger-filter-state';
 import { catchError, of } from 'rxjs';
 
 type LedgerOption<TId extends string | number> = { id: TId; label: string };

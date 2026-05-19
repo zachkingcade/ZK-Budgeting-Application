@@ -1,0 +1,58 @@
+<button
+  type="button"
+  class="notification-bell__trigger"
+  [matMenuTriggerFor]="notificationMenu"
+  aria-label="Notifications"
+  (menuOpened)="onMenuOpened()"
+  (menuClosed)="onMenuClosed()"
+>
+  <fa-icon [icon]="faBell"></fa-icon>
+  @if (notifications.unreadCount() > 0) {
+    <span class="notification-bell__badge" aria-hidden="true">{{ notifications.unreadCount() }}</span>
+  }
+</button>
+
+<mat-menu
+  #notificationMenu="matMenu"
+  class="notification-bell__menu"
+  panelClass="notification-bell-menu-panel"
+  xPosition="before"
+>
+  <ng-template matMenuContent>
+  <div class="notification-bell__panel" (click)="$event.stopPropagation()">
+    @if (notifications.previewNotifications().length === 0) {
+      <p class="notification-bell__empty">No notifications</p>
+    } @else {
+      @for (item of notifications.previewNotifications(); track item.id) {
+        <button
+          type="button"
+          class="notification-bell__item"
+          [class.notification-bell__item--unread]="!item.seen"
+          (click)="onNotificationClick(item, $event)"
+        >
+          <div class="notification-bell__title" [class.notification-bell__title--unread]="!item.seen">
+            {{ item.title }}
+          </div>
+          <div class="notification-bell__message">{{ truncateMessage(item.message) }}</div>
+          <div class="notification-bell__meta">
+            <span>{{ item.system }}</span>
+            <span>{{ item.datetime | date: 'short' }}</span>
+          </div>
+        </button>
+      }
+    }
+    <div class="notification-bell__actions">
+      <a mat-stroked-button class="notification-bell__action" routerLink="/notifications">See all</a>
+      <button
+        mat-stroked-button
+        type="button"
+        class="notification-bell__action"
+        [disabled]="actionLoading() || notifications.previewNotifications().length === 0"
+        (click)="clearPreview(); $event.stopPropagation()"
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+  </ng-template>
+</mat-menu>

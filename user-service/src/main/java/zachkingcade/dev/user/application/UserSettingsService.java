@@ -47,6 +47,21 @@ public class UserSettingsService implements UserSettingsUseCase {
     }
 
     @Override
+    public UserSetting updateByName(Long userId, String settingName, String settingValue) {
+        UserSetting existing = repository.findByNameAndUserId(settingName, userId)
+                .orElseThrow(() -> new NotFoundException("Setting not found"));
+        Instant now = Instant.now();
+        UserSetting updated = new UserSetting(
+                existing.settingId(),
+                userId,
+                settingName,
+                settingValue,
+                existing.createdDate(),
+                now);
+        return repository.save(updated);
+    }
+
+    @Override
     public void deleteById(Long userId, Long settingId) {
         if (repository.findByIdAndUserId(settingId, userId).isEmpty()) {
             throw new NotFoundException("Setting not found");

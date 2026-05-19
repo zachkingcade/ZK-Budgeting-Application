@@ -69,10 +69,10 @@ export type LoadReplayableJournalEntryDialogResult = IJournalEntryLineDraft[];
   styles: [
     `
       .error {
-        color: #b00020;
+        color: var(--app-error-text-strong);
       }
       .empty {
-        color: rgba(0, 0, 0, 0.6);
+        color: var(--app-text-muted);
       }
       .listTable {
         width: 100%;
@@ -81,7 +81,7 @@ export type LoadReplayableJournalEntryDialogResult = IJournalEntryLineDraft[];
         cursor: pointer;
       }
       .listTable__row--selected {
-        background: rgba(63, 81, 181, 0.08);
+        background: var(--app-selection-bg);
       }
     `,
   ],

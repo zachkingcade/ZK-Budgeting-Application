@@ -28,6 +28,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -89,6 +90,31 @@ class UserSettingsControllerWebMvcTest {
                 .andExpect(status().isOk());
 
         verify(userSettingsUseCase).deleteByName(1L, "foo");
+    }
+
+    @Test
+    void shouldUpdateByNameWithDotsInSettingName() throws Exception {
+        when(userSettingsUseCase.updateByName(eq(1L), eq("ui.theme"), eq("orange")))
+                .thenReturn(new UserSetting(5L, 1L, "ui.theme", "orange", Instant.EPOCH, Instant.EPOCH));
+
+        mvc.perform(put("/user/settings/by-name/ui.theme")
+                        .with(jwt().jwt(userJwt(1L)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"settingValue":"orange"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.settingValue").value("orange"));
+
+        verify(userSettingsUseCase).updateByName(1L, "ui.theme", "orange");
+    }
+
+    @Test
+    void shouldDeleteByNameWithDotsInSettingName() throws Exception {
+        mvc.perform(delete("/user/settings/by-name/ledger.default.date_range").with(jwt().jwt(userJwt(1L))))
+                .andExpect(status().isOk());
+
+        verify(userSettingsUseCase).deleteByName(1L, "ledger.default.date_range");
     }
 
     @Test

@@ -1,0 +1,69 @@
+<app-page-cage pageName="Notifications" subText="Your account notifications">
+  <div class="notifications-page">
+    <div class="notifications-page__toolbar">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="reload()"
+        [disabled]="reloading()"
+      >
+        @if (reloading()) {
+          <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+          <fa-icon [icon]="faReload"></fa-icon>
+        }
+        <span>Reload</span>
+      </button>
+    </div>
+
+    @if (loadError()) {
+      <p class="notifications-page__error">{{ loadError() }}</p>
+    }
+
+    <div class="notifications-page__list" role="list">
+      @if (notifications.notifications().length === 0 && !reloading()) {
+        <p class="notifications-page__empty">No notifications</p>
+      }
+      @for (item of notifications.notifications(); track item.id) {
+        <div
+          class="notifications-page__row"
+          role="listitem"
+          [class.notifications-page__row--unread]="!item.seen"
+          (click)="onRowClick(item)"
+        >
+          <div class="notifications-page__content">
+            <div class="notifications-page__title" [class.notifications-page__title--unread]="!item.seen">
+              {{ item.title }}
+            </div>
+            <div class="notifications-page__message">{{ item.message }}</div>
+            <div class="notifications-page__meta">
+              <span>{{ item.system }}</span>
+              <span>{{ item.datetime | date: 'medium' }}</span>
+            </div>
+          </div>
+          <button
+            mat-icon-button
+            type="button"
+            class="notifications-page__delete"
+            aria-label="Delete notification"
+            (click)="deleteNotification(item, $event)"
+          >
+            <fa-icon [icon]="faDelete"></fa-icon>
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="notifications-page__footer">
+      <button
+        mat-flat-button
+        color="warn"
+        type="button"
+        [disabled]="clearing() || notifications.notifications().length === 0"
+        (click)="clearAll()"
+      >
+        Clear all
+      </button>
+    </div>
+  </div>
+</app-page-cage>

@@ -23,6 +23,8 @@ public class UserServiceTokenProvider {
             "ledger.accounts.read",
             "ledger.journalentries.read"
     );
+    private static final List<String> NOTIFICATION_AUDIENCES = List.of("user-service");
+    private static final List<String> NOTIFICATION_SCOPES = List.of("notifications.write");
 
     private final RestClient userServiceRestClient;
     private final ObjectMapper objectMapper;
@@ -44,11 +46,15 @@ public class UserServiceTokenProvider {
     }
 
     public String getLedgerAccessToken(long actingForUserId) {
-        CacheKey key = new CacheKey(
-                joinSorted(DEFAULT_AUDIENCES),
-                joinSorted(DEFAULT_SCOPES),
-                actingForUserId
-        );
+        return fetchToken(DEFAULT_AUDIENCES, DEFAULT_SCOPES, actingForUserId, true);
+    }
+
+    public String getNotificationsAccessToken() {
+        return fetchToken(NOTIFICATION_AUDIENCES, NOTIFICATION_SCOPES, 0L, false);
+    }
+
+    private String fetchToken(List<String> audiences, List<String> scopes, long actingForUserId, boolean includeActingUser) {
+        CacheKey key = new CacheKey(joinSorted(audiences), joinSorted(scopes), actingForUserId);
         Instant now = Instant.now();
         CachedToken cached = cache.get(key);
         if (cached != null && cached.expiresAt().isAfter(now.plusSeconds(30))) {
@@ -57,9 +63,11 @@ public class UserServiceTokenProvider {
         var requestBody = objectMapper.createObjectNode();
         requestBody.put("serviceName", serviceName);
         requestBody.put("secret", serviceSecret);
-        requestBody.put("actingForUserId", actingForUserId);
-        requestBody.set("audiences", objectMapper.valueToTree(DEFAULT_AUDIENCES));
-        requestBody.set("scopes", objectMapper.valueToTree(DEFAULT_SCOPES));
+        if (includeActingUser) {
+            requestBody.put("actingForUserId", actingForUserId);
+        }
+        requestBody.set("audiences", objectMapper.valueToTree(audiences));
+        requestBody.set("scopes", objectMapper.valueToTree(scopes));
         String body = userServiceRestClient.post()
                 .uri("/user/service/login")
                 .header("Content-Type", "application/json")

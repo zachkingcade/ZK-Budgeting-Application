@@ -15,6 +15,7 @@ import { AccountsSortAndFilterBarComponent } from '../accounts-sort-and-filter-b
 import { AccountsTableComponent } from '../accounts-table/accounts-table.component';
 import { AddAccountModalComponent } from '../modals/add-account-modal/add-account-modal.component';
 import { EditAccountModalComponent } from '../modals/edit-account-modal/edit-account-modal.component';
+import { UserPreferencesService } from '../../../../application/settings/user-preferences.service';
 import {
   cloneAccountsFilterState,
   DEFAULT_ACCOUNTS_FILTER_STATE,
@@ -40,6 +41,7 @@ import {
 export class AccountsPageComponent implements OnInit {
   constructor(
     private readonly accountsApplicationService: AccountsApplicationService,
+    private readonly userPreferences: UserPreferencesService,
     private readonly destroyRef: DestroyRef,
   ) {}
 
@@ -81,7 +83,21 @@ export class AccountsPageComponent implements OnInit {
         this.applyFilters({ nextState: state, markApplied: true });
       });
 
-    this.applyFilters({ nextState: this.currentState(), markApplied: true });
+    this.initStateFromPreferences();
+  }
+
+  private initStateFromPreferences(): void {
+    const apply = () => {
+      const initial = cloneAccountsFilterState(this.userPreferences.getAccountsInitialState());
+      this.currentState.set(initial);
+      this.lastAppliedState.set(cloneAccountsFilterState(initial));
+      this.applyFilters({ nextState: initial, markApplied: true });
+    };
+    if (this.userPreferences.isHydrated()) {
+      apply();
+      return;
+    }
+    this.userPreferences.ensureLoaded().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => apply());
   }
 
   onStateChanged(nextState: IAccountsFilterState): void {

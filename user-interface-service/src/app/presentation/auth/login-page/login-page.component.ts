@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AuthManagerService } from '../../../application/auth/auth-manager.service';
+import { UserPreferencesService } from '../../../application/settings/user-preferences.service';
 
 @Component({
   selector: 'app-login-page',
@@ -31,6 +32,7 @@ export class LoginPageComponent {
 
   constructor(
     private readonly authManager: AuthManagerService,
+    private readonly userPreferences: UserPreferencesService,
     private readonly router: Router,
     private readonly destroyRef: DestroyRef,
   ) {
@@ -57,6 +59,7 @@ export class LoginPageComponent {
       .subscribe({
         next: () => {
           this.submitting.set(false);
+          this.userPreferences.refresh().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
           void this.router.navigateByUrl('/ledger');
         },
         error: () => {

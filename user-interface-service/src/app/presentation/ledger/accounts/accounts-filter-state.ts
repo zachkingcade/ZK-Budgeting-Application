@@ -1,20 +1,9 @@
-export type AccountsSortByOption =
-  | 'Description (Asc.)'
-  | 'Description (Des.)'
-  | 'Creation order (Asc.)'
-  | 'Creation order (Des.)';
+import {
+  AccountsSortByOption,
+  IAccountsFilterState,
+} from '../../../domain/ui-preferences/accounts-display-settings';
 
-export interface IAccountsFilterState {
-  searchTerm: string;
-  selectedAccountTypeIds: number[];
-  selectedSortBy: AccountsSortByOption;
-  /** When true, include inactive accounts in results (maps to hideInactive=false). */
-  showInactive: boolean;
-  /** When true, show only inactive accounts (maps to hideActive=true). */
-  hideActiveOnly: boolean;
-  /** When true, request grouped-by-type layout from the ledger API. */
-  groupByAccountType: boolean;
-}
+export type { AccountsSortByOption, IAccountsFilterState };
 
 export const DEFAULT_ACCOUNTS_FILTER_STATE: IAccountsFilterState = {
   searchTerm: '',

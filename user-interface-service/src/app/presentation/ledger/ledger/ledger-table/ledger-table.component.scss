@@ -49,11 +49,11 @@
 }
 
 .ledger-table__entry-row.altRow {
-  background-color: #eef4ff;
+  background-color: var(--app-row-highlight);
 }
 
 .ledger-table__detail-row.altRow td {
-  background-color: #eef4ff;
+  background-color: var(--app-row-highlight);
 }
 
 .ledger-table__detail-row td {
@@ -138,11 +138,11 @@
 }
 
 .affect-positive {
-  color: #2e7d32;
+  color: var(--app-debit-text);
 }
 
 .affect-negative {
-  color: #c62828;
+  color: var(--app-credit-text);
 }
 
 .ledger-table__line-notes {

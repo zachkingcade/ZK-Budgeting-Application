@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zachkingcade.dev.reporting.adapter.outbound.LedgerApiClient;
+import zachkingcade.dev.reporting.adapter.outbound.UserServiceNotificationClient;
 import zachkingcade.dev.reporting.adapter.outbound.UserServiceTokenProvider;
 import zachkingcade.dev.reporting.adapter.persistence.jpa.ReportJobEntity;
 import zachkingcade.dev.reporting.adapter.persistence.repository.CompletedReportJpaRepository;
@@ -25,6 +26,7 @@ class ReportJobProcessorTest {
         CompletedReportJpaRepository completedRepo = mock(CompletedReportJpaRepository.class);
         ReportRegistry registry = mock(ReportRegistry.class);
         UserServiceTokenProvider tokenProvider = mock(UserServiceTokenProvider.class);
+        UserServiceNotificationClient notificationClient = mock(UserServiceNotificationClient.class);
         LedgerApiClient ledgerApiClient = mock(LedgerApiClient.class);
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -46,6 +48,7 @@ class ReportJobProcessorTest {
                 completedRepo,
                 registry,
                 tokenProvider,
+                notificationClient,
                 ledgerApiClient,
                 objectMapper
         );
@@ -54,6 +57,7 @@ class ReportJobProcessorTest {
 
         verify(completedRepo, times(1)).save(any());
         verify(lifecycle, times(1)).markCompleted(42L);
+        verify(notificationClient, times(1)).registerReportReady(1L, "ACCOUNT_BALANCE");
         verify(lifecycle, never()).markFailed(eq(42L), any());
     }
 
@@ -68,6 +72,7 @@ class ReportJobProcessorTest {
         CompletedReportJpaRepository completedRepo = mock(CompletedReportJpaRepository.class);
         ReportRegistry registry = mock(ReportRegistry.class);
         UserServiceTokenProvider tokenProvider = mock(UserServiceTokenProvider.class);
+        UserServiceNotificationClient notificationClient = mock(UserServiceNotificationClient.class);
         LedgerApiClient ledgerApiClient = mock(LedgerApiClient.class);
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -78,6 +83,7 @@ class ReportJobProcessorTest {
                 completedRepo,
                 registry,
                 tokenProvider,
+                notificationClient,
                 ledgerApiClient,
                 objectMapper
         );
@@ -100,6 +106,7 @@ class ReportJobProcessorTest {
         CompletedReportJpaRepository completedRepo = mock(CompletedReportJpaRepository.class);
         ReportRegistry registry = mock(ReportRegistry.class);
         UserServiceTokenProvider tokenProvider = mock(UserServiceTokenProvider.class);
+        UserServiceNotificationClient notificationClient = mock(UserServiceNotificationClient.class);
         LedgerApiClient ledgerApiClient = mock(LedgerApiClient.class);
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -117,6 +124,7 @@ class ReportJobProcessorTest {
                 completedRepo,
                 registry,
                 tokenProvider,
+                notificationClient,
                 ledgerApiClient,
                 objectMapper
         );
@@ -126,6 +134,7 @@ class ReportJobProcessorTest {
         ArgumentCaptor<String> reason = ArgumentCaptor.forClass(String.class);
         verify(lifecycle).markFailed(eq(42L), reason.capture());
         verify(lifecycle, never()).markCompleted(anyLong());
+        verify(notificationClient, never()).registerReportReady(anyLong(), any());
         verify(completedRepo, never()).save(any());
         // message is Jackson-dependent; assert high-signal substring
         org.junit.jupiter.api.Assertions.assertTrue(

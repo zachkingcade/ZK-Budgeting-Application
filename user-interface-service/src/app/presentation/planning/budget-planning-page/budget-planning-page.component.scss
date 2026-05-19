@@ -49,25 +49,25 @@
 
 .bp__muted {
   display: block;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--app-text-muted);
   font-size: 0.85rem;
 }
 
 .bp__error,
 .bp__bannerError {
-  color: #b00020;
+  color: var(--app-error-text-strong);
   margin: 0.5rem 0 1rem;
 }
 
 .bp__bannerError {
   padding: 0.5rem 0.75rem;
-  background: rgba(176, 0, 32, 0.08);
+  background: var(--app-hint-bg);
   border-radius: 4px;
 }
 
 .bp__empty {
   padding: 1rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--app-text-muted);
 }
 
 .bp__tableWrap {
@@ -79,15 +79,15 @@
 }
 
 .bp__panel {
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--app-border);
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  background: #fafafa;
+  background: var(--app-surface-subtle);
 }
 
 .bp__panelNested {
-  background: #fff;
+  background: var(--app-surface-elevated);
 }
 
 .bp__formGrid {
@@ -135,7 +135,7 @@
 }
 
 .bp__budgetCard {
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--app-border);
   border-radius: 8px;
   margin-bottom: 1rem;
   overflow: hidden;
@@ -146,7 +146,7 @@
   align-items: flex-start;
   gap: 0.25rem;
   padding: 0.5rem 0.75rem;
-  background: #f5f5f5;
+  background: var(--app-surface-muted);
 }
 
 .bp__budgetMeta {
@@ -164,7 +164,7 @@
 .bp__fundMeterTrack {
   height: 6px;
   border-radius: 3px;
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--app-overlay-subtle);
   overflow: hidden;
 }
 
@@ -188,7 +188,7 @@
   align-self: flex-start;
   table-layout: auto;
   font-size: 0.8125rem;
-  color: rgba(0, 0, 0, 0.68);
+  color: var(--app-text-muted-strong);
 
   th,
   td {
@@ -201,7 +201,7 @@
   thead th {
     font-weight: 500;
     font-size: 0.75rem;
-    color: rgba(0, 0, 0, 0.55);
+    color: var(--app-text-muted);
     padding-top: 0;
   }
 
@@ -211,7 +211,7 @@
     padding-left: 0;
     padding-right: 0.35rem;
     white-space: nowrap;
-    color: rgba(0, 0, 0, 0.72);
+    color: var(--app-text-muted-strong);
   }
 
   .bp__budgetSummaryCorner {
@@ -234,7 +234,7 @@
 
   tr.bp__budgetSummaryReq--neutral td,
   tr.bp__budgetSummaryReq--neutral th[scope='row'] {
-    color: rgba(0, 0, 0, 0.55);
+    color: var(--app-text-muted);
     font-weight: 500;
   }
 }
@@ -253,9 +253,9 @@
 .bp__warnPanel {
   margin: 0 0 1rem;
   padding: 0.75rem 1rem;
-  border: 1px solid #e65100;
+  border: 1px solid var(--app-warn-panel-border);
   border-radius: 6px;
-  background: #fff3e0;
+  background: var(--app-warn-panel-bg);
 }
 
 .bp__spacer {
@@ -267,7 +267,7 @@
 }
 
 .bp__warn {
-  color: #b00020;
+  color: var(--app-error-text-strong);
   font-size: 0.9rem;
   margin: 0 0 0.75rem;
 }
@@ -292,26 +292,26 @@
 
 .bp__nestedTable th,
 .bp__nestedTable td {
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--app-border);
   padding: 0.4rem 0.5rem;
   text-align: left;
 }
 
 .bp__nestedTable th {
-  background: #f0f0f0;
+  background: var(--app-surface-inset);
   font-weight: 600;
 }
 
 .bp__nestedTable tfoot td {
   font-weight: 600;
-  background: #fafafa;
-  border-top: 2px solid rgba(0, 0, 0, 0.2);
+  background: var(--app-surface-subtle);
+  border-top: 2px solid var(--app-border-strong);
 }
 
 .bp__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--app-scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -320,12 +320,12 @@
 }
 
 .bp__dialog {
-  background: #fff;
+  background: var(--app-surface-elevated);
   border-radius: 8px;
   padding: 1.25rem;
   min-width: min(420px, 100%);
   max-width: 520px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--app-shadow-md);
 }
 
 .bp__dialogWide {
@@ -340,7 +340,7 @@
   padding: 0.25rem 0;
   border: none;
   background: none;
-  color: rgba(0, 0, 0, 0.72);
+  color: var(--app-text-muted-strong);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -358,9 +358,9 @@
   gap: 0.5rem;
   margin-bottom: 0.75rem;
   padding: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--app-border);
   border-radius: 6px;
-  background: #fafafa;
+  background: var(--app-surface-subtle);
 }
 
 .bp__dupHint {
@@ -384,7 +384,7 @@
   width: 200px;
   height: 200px;
   flex-shrink: 0;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));
 }
 
 .bp__ovPieSvg {
@@ -398,7 +398,7 @@
 }
 
 .bp__ovPieEmpty {
-  fill: #e8e8e8;
+  fill: var(--app-chart-track);
 }
 
 .bp__ovTableWrap {
@@ -416,13 +416,13 @@
 .bp__ovTable th,
 .bp__ovTable td {
   padding: 0.4rem 0.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--app-border);
   text-align: left;
 }
 
 .bp__ovTable th {
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--app-chart-label);
   font-size: 0.8rem;
 }
 
@@ -453,17 +453,17 @@
   width: 1rem;
   height: 1rem;
   border-radius: 3px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1px var(--app-border);
 }
 
 .bp__ovEmpty {
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--app-text-muted);
   font-style: italic;
 }
 
 /* Incomes tab — expandable rows */
 .bp__incomeList {
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--app-border);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -481,18 +481,18 @@
 }
 
 .bp__incomeListHead {
-  background: #f0f0f0;
+  background: var(--app-surface-inset);
   font-weight: 600;
   font-size: 0.8rem;
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--app-chart-label);
 }
 
 .bp__incomeCard {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--app-border);
 }
 
 .bp__incomeSummary {
-  background: #fafafa;
+  background: var(--app-surface-subtle);
 }
 
 .bp__incomeCell--num {
@@ -512,12 +512,12 @@
 
 .bp__incomeBody {
   padding: 0.75rem 1rem 1rem 2.75rem;
-  background: #fff;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--app-surface-elevated);
+  border-top: 1px solid var(--app-border);
 }
 
 .bp__warnInline {
-  color: #b00020;
+  color: var(--app-error-text-strong);
   font-weight: 600;
 }
 
@@ -543,6 +543,6 @@
   .bp__incomeCell:not(.bp__incomeCell--account):not(.bp__incomeCell--actions) {
     grid-column: 2;
     font-size: 0.8rem;
-    color: rgba(0, 0, 0, 0.65);
+    color: var(--app-chart-label);
   }
 }

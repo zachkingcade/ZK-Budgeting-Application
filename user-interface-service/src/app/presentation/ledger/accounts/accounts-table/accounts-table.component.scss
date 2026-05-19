@@ -68,8 +68,8 @@
   font-size: 0.75rem;
   padding: 0.1rem 0.4rem;
   border-radius: 999px;
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--app-badge-bg);
+  color: var(--app-badge-text);
   vertical-align: middle;
 }
 

@@ -8,6 +8,8 @@
       <h1 class="app-title">{{pageName}}</h1>
       <h5 class="subtext">{{subText}}</h5>
     </div>
+    <div class="topbar-spacer"></div>
+    <app-notification-bell />
   </header>
 
   @if (sidebarOpen) {
@@ -112,6 +114,7 @@
         @if (isNavSectionExpanded('user-account')) {
           <div class="nav-section-links" id="nav-section-user-account" role="group" aria-labelledby="nav-section-user-account-heading">
             <a routerLink="/settings" routerLinkActive="active" class="nav-link nav-link--nested">Settings</a>
+            <a routerLink="/notifications" routerLinkActive="active" class="nav-link nav-link--nested">Notifications</a>
           </div>
         }
       </div>

@@ -1,0 +1,111 @@
+.notification-bell__trigger {
+  position: relative;
+  border: none;
+  background: transparent;
+  color: var(--app-text-primary, inherit);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+
+  &:hover {
+    background: var(--app-surface-hover, rgba(0, 0, 0, 0.06));
+  }
+}
+
+.notification-bell__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.1rem;
+  text-align: center;
+}
+
+.notification-bell__panel {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.5rem 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.notification-bell__empty {
+  margin: 0.5rem 1rem;
+  color: var(--app-text-muted, #6b7280);
+  font-size: 0.875rem;
+}
+
+.notification-bell__item {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--app-border, #e5e7eb);
+  color: var(--app-text-primary, inherit);
+  overflow-x: hidden;
+
+  &:hover {
+    background: var(--app-surface-hover, rgba(0, 0, 0, 0.04));
+  }
+}
+
+.notification-bell__title {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  overflow-wrap: anywhere;
+
+  &--unread {
+    font-weight: 600;
+  }
+}
+
+.notification-bell__message {
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.notification-bell__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  color: var(--app-text-muted, var(--mat-sys-on-surface-variant, #6b7280));
+
+  span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.notification-bell__actions {
+  display: flex;
+  gap: 0;
+  border-top: 1px solid var(--app-border, #e5e7eb);
+  min-width: 0;
+}
+
+.notification-bell__action {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 0;
+  margin: 0;
+  white-space: nowrap;
+}

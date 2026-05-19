@@ -10,6 +10,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script>
+    (function () {
+      var key = 'zk.ui.theme';
+      var valid = [
+        'light-blue', 'dark-blue', 'orange', 'purple',
+        'light-blue-dark', 'dark-blue-dark', 'orange-dark', 'purple-dark'
+      ];
+      var stored = localStorage.getItem(key);
+      var theme = valid.indexOf(stored) >= 0 ? stored : 'light-blue';
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme.indexOf('-dark') >= 0 ? 'dark' : 'light';
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>

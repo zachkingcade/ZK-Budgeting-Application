@@ -14,6 +14,8 @@ public interface UserSettingsUseCase {
 
     UserSetting create(Long userId, String settingName, String settingValue);
 
+    UserSetting updateByName(Long userId, String settingName, String settingValue);
+
     void deleteById(Long userId, Long settingId);
 
     void deleteByName(Long userId, String settingName);

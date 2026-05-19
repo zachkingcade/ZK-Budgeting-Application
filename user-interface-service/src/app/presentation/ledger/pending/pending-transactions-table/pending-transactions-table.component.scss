@@ -7,7 +7,7 @@
 }
 
 .pendingTable__error {
-  color: #b91c1c;
+  color: var(--app-error-text);
   font-weight: 600;
   margin: 0.5rem 0;
 }
@@ -19,10 +19,10 @@
 }
 
 .pendingTable__frame {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--app-border-strong);
   border-radius: 12px;
   overflow: hidden;
-  background: #fff;
+  background: var(--app-surface-elevated);
   flex: 1;
   min-height: 0;
   display: flex;
@@ -120,11 +120,11 @@
 }
 
 .compactEffect--plus {
-  color: #2e7d32;
+  color: var(--app-debit-text);
 }
 
 .compactEffect--minus {
-  color: #c62828;
+  color: var(--app-credit-text);
 }
 
 .cellFieldCompact {
@@ -190,22 +190,22 @@
 
 .accountsSummary {
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--app-on-surface-secondary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .accountsSummaryPlaceholder {
-  color: #9ca3af;
+  color: var(--app-text-disabled);
   font-size: 0.875rem;
 }
 
 .pendingTable__row.altRow {
-  background-color: #eef4ff;
+  background-color: var(--app-row-highlight);
 }
 
 .pendingTable__detailRow.altRow td {
-  background-color: #eef4ff;
+  background-color: var(--app-row-highlight);
 }
 
 .lineEffect {
@@ -216,16 +216,16 @@
 }
 
 .affect-positive {
-  color: #2e7d32;
+  color: var(--app-debit-text);
 }
 
 .affect-negative {
-  color: #c62828;
+  color: var(--app-credit-text);
 }
 
 .detail {
   padding: 0.75rem 1rem 1rem 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--app-border-strong);
 }
 
 .detail__totals {
@@ -233,7 +233,7 @@
   gap: 1rem;
   flex-wrap: wrap;
   font-variant-numeric: tabular-nums;
-  color: #374151;
+  color: var(--app-on-surface-secondary);
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -256,7 +256,7 @@
 }
 
 .detail__error {
-  color: #b91c1c;
+  color: var(--app-error-text);
   font-weight: 600;
   margin: 0.25rem 0 0.75rem 0;
 }
@@ -286,7 +286,7 @@
 
 .detail__linesWrap {
   overflow: auto;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--app-border-strong);
   border-radius: 12px;
 }
 
@@ -298,7 +298,7 @@
 .linesTable th,
 .linesTable td {
   padding: 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--app-border-strong);
   vertical-align: top;
 }
 
@@ -325,6 +325,6 @@
 
 .pendingTable__emptyHint {
   margin: 0.25rem 0 0 0;
-  color: #4b5563;
+  color: var(--app-on-surface-secondary);
 }
 

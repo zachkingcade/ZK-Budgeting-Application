@@ -11,6 +11,7 @@ import { BudgetPlanningPageComponent } from './presentation/planning/budget-plan
 import { ReplayableJournalEntriesPageComponent } from './presentation/planning/replayable-journal-entries-page/replayable-journal-entries-page.component';
 import { AccountingPeriodsPageComponent } from './presentation/ledger/accounting-periods-page/accounting-periods-page.component';
 import { SettingsPageComponent } from './presentation/user-account/settings-page/settings-page.component';
+import { NotificationsPageComponent } from './presentation/user-account/notifications-page/notifications-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'ledger' },
@@ -25,4 +26,5 @@ export const routes: Routes = [
   { path: 'replayable-journal-entries', component: ReplayableJournalEntriesPageComponent, canMatch: [authGuard] },
   { path: 'accounting-periods', component: AccountingPeriodsPageComponent, canMatch: [authGuard] },
   { path: 'settings', component: SettingsPageComponent, canMatch: [authGuard] },
+  { path: 'notifications', component: NotificationsPageComponent, canMatch: [authGuard] },
 ];
