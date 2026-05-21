@@ -3,11 +3,11 @@ Last updated: 2026-04-22
 
 # ZK-Budgeting-Application
 
-&nbsp;&nbsp;&nbsp;&nbsp; This project is a full-stack financial tracking system designed to demonstrate modern backend engineering practices using a microservices architecture. <br>
-It centers around accurate double-entry accounting, with a strong emphasis on data integrity, clear service boundaries, and maintainable system design. <br>
-The system is composed of independent services responsible for authentication, transactional data, and reporting, each with well-defined responsibilities. <br>
-Communication between services is secured using scoped JWTs, ensuring both flexibility and safety in a distributed environment. Reporting is handled <br>
-asynchronously to support more complex workloads without impacting core operations. Overall, the project prioritizes correctness, scalability, and <br>
+&nbsp;&nbsp;&nbsp;&nbsp; This project is a full-stack financial tracking system designed to demonstrate modern backend engineering practices using a microservices architecture.
+It centers around accurate double-entry accounting, with a strong emphasis on data integrity, clear service boundaries, and maintainable system design.
+The system is composed of independent services responsible for authentication, transactional data, and reporting, each with well-defined responsibilities.
+Communication between services is secured using scoped JWTs, ensuring both flexibility and safety in a distributed environment. Reporting is handled
+asynchronously to support more complex workloads without impacting core operations. Overall, the project prioritizes correctness, scalability, and 
 clarity over shortcuts, making it a strong representation of real-world system design.
 
 ## Start here
