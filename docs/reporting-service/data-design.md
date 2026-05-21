@@ -8,7 +8,7 @@ Back to: [Reporting service guide](../guide-reporting-service.md)
 
 ## Database and schema
 
-- **Database**: PostgreSQL (shared in local dev via `docker-compose.yml`)
+- **Database**: PostgreSQL (shared in local dev via `docker-compose.yml.local`)
 - **Schema**: `reporting` (see `reporting-service/src/main/resources/application.yml`)
 - **Migrations**: Flyway under [`../../reporting-service/src/main/resources/db/migration/`](../../reporting-service/src/main/resources/db/migration/)
 

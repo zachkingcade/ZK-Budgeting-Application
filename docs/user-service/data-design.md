@@ -8,7 +8,7 @@ Back to: [User service guide](../guide-user-service.md)
 
 ## Database and schema
 
-- **Database**: PostgreSQL (shared in local dev via `docker-compose.yml`)
+- **Database**: PostgreSQL (shared in local dev via `docker-compose.yml.local`)
 - **Schema**: `auth` (see `user-service/src/main/resources/application.yml`)
 - **Migrations**: Flyway under [`../../user-service/src/main/resources/db/migration/`](../../user-service/src/main/resources/db/migration/)
 

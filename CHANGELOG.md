@@ -10,7 +10,7 @@ Minimal viable product (MVP). Development history spans 2026-02-26 → Ongoing.
 ### Added
 
 - Repository + backend project initialized
-- Local Postgres via `docker-compose.yml`
+- Local Postgres via `docker-compose.yml.local`; production stack via `docker-compose.yml.production` (UI on port 80 only)
 - Ledger service domain model, repositories, and initial HTTP endpoints
 - Ledger features: accounts, account types, account classifications, journal entries
 - Logging and request metadata enrichment for API responses

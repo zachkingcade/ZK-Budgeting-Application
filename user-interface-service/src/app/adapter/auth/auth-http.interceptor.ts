@@ -3,8 +3,9 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, switchMap, throwError } from 'rxjs';
 import { AuthManagerService } from '../../application/auth/auth-manager.service';
+import { environment } from '../../../environments/environment';
 
-const USER_SERVICE_BASE_URL: string = 'http://localhost:8082';
+const USER_SERVICE_BASE_URL: string = environment.userApiUrl;
 
 const USER_SERVICE_PUBLIC_PATHS = [
   '/user/register',

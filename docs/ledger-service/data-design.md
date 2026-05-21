@@ -8,7 +8,7 @@ Back to: [Ledger service guide](../guide-ledger-service.md)
 
 ## Database and schema
 
-- **Database**: PostgreSQL (shared across services in `docker-compose.yml`)
+- **Database**: PostgreSQL (shared across services in `docker-compose.yml.local` / `docker-compose.yml.production`)
 - **Schema**: `ledger`
 - **Migrations**: Flyway under [`../../ledger-service/src/main/resources/db/migration/`](../../ledger-service/src/main/resources/db/migration/)
 

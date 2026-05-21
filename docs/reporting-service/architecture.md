@@ -27,7 +27,7 @@ See: [`../standards/microservice-springboot-consistency.md`](../standards/micros
 
 This page describes intent; canonical wiring and configuration live in:
 
-- Compose wiring: [`../../docker-compose.yml`](../../docker-compose.yml)
+- Compose wiring: [`../../docker-compose.yml.local`](../../docker-compose.yml.local) (local), [`../../docker-compose.yml.production`](../../docker-compose.yml.production) (droplet)
 - Service config: [`../../reporting-service/src/main/resources/application.yml`](../../reporting-service/src/main/resources/application.yml)
 - Cross-service conventions: [`../standards/microservice-springboot-consistency.md`](../standards/microservice-springboot-consistency.md)
 

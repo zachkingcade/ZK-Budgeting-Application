@@ -20,7 +20,7 @@ See: [`../standards/microservice-springboot-consistency.md`](../standards/micros
 
 ## Communication
 
-- Other services call `user-service` for identity-related operations as configured by `USER_SERVICE_BASE_URL` in `docker-compose.yml`.
+- Other services call `user-service` for identity-related operations as configured by `USER_SERVICE_BASE_URL` in the compose files (`docker-compose.yml.local` / `docker-compose.yml.production`).
 - Default local port: `8082`.
 
 ## Reference
