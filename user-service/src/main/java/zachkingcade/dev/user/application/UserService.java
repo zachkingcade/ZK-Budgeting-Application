@@ -24,6 +24,7 @@ import zachkingcade.dev.user.domain.user.User;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class UserService implements RegisterUserUseCase, LoginUserUseCase, LogoutUserUseCase, RefreshSessionUseCase {
@@ -35,6 +36,7 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
     DeleteSessionUseCase deleteSessionUseCase;
     JWTService jwtService;
     NotificationsUseCase notificationsUseCase;
+    RolesService rolesService;
 
     public UserService(
             UserRepositoryPort userRepository,
@@ -43,7 +45,8 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
             JWTService jwtService,
             FindSessionBySessionTokenUseCase findSessionBySessionTokenUseCase,
             DeleteSessionUseCase deleteSessionUseCase,
-            NotificationsUseCase notificationsUseCase
+            NotificationsUseCase notificationsUseCase,
+            RolesService rolesService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -52,6 +55,7 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
         this.findSessionBySessionTokenUseCase = findSessionBySessionTokenUseCase;
         this.deleteSessionUseCase = deleteSessionUseCase;
         this.notificationsUseCase = notificationsUseCase;
+        this.rolesService = rolesService;
     }
 
     @Override
@@ -108,7 +112,15 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
         CreateSessionCommand sessionCommand = new CreateSessionCommand(userEntity);
         Session session = this.createUserSessionUseCase.createSession(sessionCommand);
 
-        return new LogInUserResult(userEntity.getUsername(), session.getSessionToken(), session.getCreated(), session.getExpires(), accessToken, accessTokenCreated, accessTokenExpires);
+        return new LogInUserResult(
+                userEntity.getUsername(),
+                session.getSessionToken(),
+                session.getCreated(),
+                session.getExpires(),
+                accessToken,
+                accessTokenCreated,
+                accessTokenExpires,
+                rolesService.getRolesForUser(userEntity.getUserId()));
     }
     
     
@@ -150,7 +162,7 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
         }
 
         if(sessionEntity.getExpiresDate().isBefore(Instant.now())){
-            return new RefreshSessionResult(false,null,null, null);
+            return new RefreshSessionResult(false, null, null, null, List.of());
         }
 
         // Create new Access Token
@@ -159,6 +171,11 @@ public class UserService implements RegisterUserUseCase, LoginUserUseCase, Logou
         Instant accessTokenCreated = Instant.now();
         Instant accessTokenExpires = accessTokenCreated.plus(10, ChronoUnit.MINUTES);
 
-        return new RefreshSessionResult(true, accessToken, accessTokenCreated, accessTokenExpires);
+        return new RefreshSessionResult(
+                true,
+                accessToken,
+                accessTokenCreated,
+                accessTokenExpires,
+                rolesService.getRolesForUser(userEntity.getUserId()));
     }
 }

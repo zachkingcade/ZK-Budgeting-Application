@@ -1,0 +1,52 @@
+<app-page-cage [pageName]="pageName" [subText]="subText">
+  <div class="admin-feedback-page">
+    <div class="admin-feedback-page__toolbar">
+      <button mat-stroked-button type="button" (click)="reload()" [disabled]="reloading()">
+        @if (reloading()) {
+          <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+          <fa-icon [icon]="faReload"></fa-icon>
+        }
+        <span>Reload</span>
+      </button>
+    </div>
+
+    @if (loadError()) {
+      <p class="admin-feedback-page__error">{{ loadError() }}</p>
+    }
+
+    <div class="admin-feedback-page__list" role="list">
+      @if (items().length === 0 && !reloading()) {
+        <p class="admin-feedback-page__empty">No items</p>
+      }
+      @for (item of items(); track item.id) {
+        <div
+          class="admin-feedback-page__row"
+          role="listitem"
+          [class.admin-feedback-page__row--unread]="!item.seen"
+          (click)="onRowClick(item)"
+        >
+          <div class="admin-feedback-page__content">
+            <div class="admin-feedback-page__title" [class.admin-feedback-page__title--unread]="!item.seen">
+              {{ item.title }}
+            </div>
+            <div class="admin-feedback-page__message">{{ item.message }}</div>
+            <div class="admin-feedback-page__meta">
+              <span>{{ item.username }}</span>
+              <span>{{ item.createdAt | date: 'medium' }}</span>
+            </div>
+          </div>
+          <button
+            mat-icon-button
+            type="button"
+            class="admin-feedback-page__delete"
+            aria-label="Delete feedback"
+            (click)="deleteItem(item, $event)"
+          >
+            <fa-icon [icon]="faDelete"></fa-icon>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</app-page-cage>

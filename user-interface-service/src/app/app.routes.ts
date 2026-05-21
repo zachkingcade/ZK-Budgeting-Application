@@ -14,6 +14,9 @@ import { SettingsPageComponent } from './presentation/user-account/settings-page
 import { NotificationsPageComponent } from './presentation/user-account/notifications-page/notifications-page.component';
 import { HelpIndexComponent } from './help/components/help-index/help-index.component';
 import { HelpPageComponent } from './help/components/help-page/help-page.component';
+import { AdminBugsPageComponent } from './presentation/admin/admin-bugs-page/admin-bugs-page.component';
+import { AdminSuggestionsPageComponent } from './presentation/admin/admin-suggestions-page/admin-suggestions-page.component';
+import { adminGuard } from './presentation/auth/admin.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'ledger' },
@@ -31,4 +34,6 @@ export const routes: Routes = [
   { path: 'notifications', component: NotificationsPageComponent, canMatch: [authGuard] },
   { path: 'help', component: HelpIndexComponent, canMatch: [authGuard] },
   { path: 'help/:slug', component: HelpPageComponent, canMatch: [authGuard] },
+  { path: 'admin/bugs', component: AdminBugsPageComponent, canMatch: [authGuard, adminGuard] },
+  { path: 'admin/suggestions', component: AdminSuggestionsPageComponent, canMatch: [authGuard, adminGuard] },
 ];

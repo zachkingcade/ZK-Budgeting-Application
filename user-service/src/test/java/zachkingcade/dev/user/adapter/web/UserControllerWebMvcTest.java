@@ -23,6 +23,7 @@ import zachkingcade.dev.user.config.SecurityConfig;
 import zachkingcade.dev.user.domain.user.User;
 
 import java.time.Instant;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -101,7 +102,8 @@ class UserControllerWebMvcTest {
                         now.plusSeconds(3600),
                         "access-token",
                         now,
-                        now.plusSeconds(900)
+                        now.plusSeconds(900),
+                        List.of("admin")
                 ));
 
         mvc.perform(post("/user/login")
@@ -173,7 +175,7 @@ class UserControllerWebMvcTest {
         // HAPPY PATH
         Instant now = Instant.parse("2026-01-01T00:00:00Z");
         when(refreshSessionUseCase.refreshSession(any()))
-                .thenReturn(new RefreshSessionResult(true, "new-access-token", now, now.plusSeconds(900)));
+                .thenReturn(new RefreshSessionResult(true, "new-access-token", now, now.plusSeconds(900), List.of()));
 
         mvc.perform(post("/user/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -193,7 +195,7 @@ class UserControllerWebMvcTest {
         expected failure message=Session expired, please login again.
         */
         when(refreshSessionUseCase.refreshSession(any()))
-                .thenReturn(new RefreshSessionResult(false, null, null, null));
+                .thenReturn(new RefreshSessionResult(false, null, null, null, List.of()));
 
         mvc.perform(post("/user/refresh")
                         .contentType(MediaType.APPLICATION_JSON)

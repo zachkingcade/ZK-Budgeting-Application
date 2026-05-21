@@ -266,3 +266,13 @@ html {
 fa-icon {
   font-size: 25px;
 }
+
+.footer-feedback-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+}

@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Send feedback</h2>
+<mat-dialog-content class="submit-feedback-dialog__content">
+  <p class="submit-feedback-dialog__hint">Tell us about a bug or share an idea to improve the app.</p>
+
+  <mat-radio-group [(ngModel)]="feedbackType" name="feedbackType" class="submit-feedback-dialog__type">
+    <mat-radio-button value="bug">Bug report</mat-radio-button>
+    <mat-radio-button value="suggestion">Suggestion</mat-radio-button>
+  </mat-radio-group>
+
+  <mat-form-field appearance="outline" class="submit-feedback-dialog__field">
+    <mat-label>Title</mat-label>
+    <input matInput [(ngModel)]="title" name="feedbackTitle" maxlength="200" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="submit-feedback-dialog__field">
+    <mat-label>Message</mat-label>
+    <textarea matInput rows="6" [(ngModel)]="message" name="feedbackMessage"></textarea>
+  </mat-form-field>
+
+  @if (errorMessage()) {
+    <p class="submit-feedback-dialog__error" role="alert">{{ errorMessage() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()" [disabled]="submitting()">Cancel</button>
+  <button mat-flat-button color="primary" type="button" (click)="submit()" [disabled]="submitting()">
+    @if (submitting()) {
+      <mat-spinner diameter="20" />
+    } @else {
+      Send
+    }
+  </button>
+</mat-dialog-actions>

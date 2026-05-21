@@ -124,6 +124,28 @@
         }
       </div>
 
+      @if (isAdmin()) {
+        <div class="nav-section">
+          <button
+            type="button"
+            class="nav-section-toggle"
+            [attr.aria-expanded]="isNavSectionExpanded('admin')"
+            [attr.aria-controls]="isNavSectionExpanded('admin') ? 'nav-section-admin' : null"
+            id="nav-section-admin-heading"
+            (click)="toggleNavSection('admin')"
+          >
+            <span class="nav-section-chevron" [class.nav-section-chevron--open]="isNavSectionExpanded('admin')" aria-hidden="true"></span>
+            <span class="nav-section-label">Admin</span>
+          </button>
+          @if (isNavSectionExpanded('admin')) {
+            <div class="nav-section-links" id="nav-section-admin" role="group" aria-labelledby="nav-section-admin-heading">
+              <a routerLink="/admin/bugs" routerLinkActive="active" class="nav-link nav-link--nested">Bugs</a>
+              <a routerLink="/admin/suggestions" routerLinkActive="active" class="nav-link nav-link--nested">Suggestions</a>
+            </div>
+          }
+        </div>
+      }
+
       <div class="nav-section">
         <button
           type="button"
@@ -170,6 +192,10 @@
     <div id="footerRight">
 
       Made by zachary Kingcade
+
+      <button type="button" class="footer-feedback-btn" aria-label="Send feedback" (click)="openFeedbackDialog()">
+        <fa-icon [icon]="faFeedback"></fa-icon>
+      </button>
 
       <a href="https://github.com/zachkingcade/ZK-Budgeting-Application" target="_blank" rel="noopener noreferrer" class="socialIcon">
         <fa-icon [icon]="faGithub"></fa-icon>

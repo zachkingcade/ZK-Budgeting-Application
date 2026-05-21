@@ -8,15 +8,19 @@ import zachkingcade.dev.user.application.port.out.notification.NotificationRepos
 import zachkingcade.dev.user.domain.notification.Notification;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
 public class NotificationsService implements NotificationsUseCase {
 
     private final NotificationRepositoryPort repository;
+    private final RolesService rolesService;
 
-    public NotificationsService(NotificationRepositoryPort repository) {
+    public NotificationsService(NotificationRepositoryPort repository, RolesService rolesService) {
         this.repository = repository;
+        this.rolesService = rolesService;
     }
 
     @Override
@@ -28,7 +32,15 @@ public class NotificationsService implements NotificationsUseCase {
 
     @Override
     public List<Notification> listForUser(Long userId, Integer limit) {
-        return repository.findByUserIdOrderByCreatedAtDesc(userId, limit);
+        List<Notification> merged = new ArrayList<>(repository.findByUserIdOrderByCreatedAtDesc(userId, null));
+        if (rolesService.isAdmin(userId)) {
+            merged.addAll(repository.findByUserIdOrderByCreatedAtDesc(Notification.ADMIN_USER_ID, null));
+            merged.sort(Comparator.comparing(Notification::datetime).reversed());
+        }
+        if (limit != null && limit > 0 && merged.size() > limit) {
+            return merged.subList(0, limit);
+        }
+        return merged;
     }
 
     @Override
@@ -38,7 +50,7 @@ public class NotificationsService implements NotificationsUseCase {
 
     @Override
     public Notification markSeen(Long userId, Long notificationId) {
-        Notification existing = repository.findByIdAndUserId(notificationId, userId)
+        Notification existing = findAccessibleNotification(userId, notificationId)
                 .orElseThrow(() -> new NotFoundException("Notification not found"));
         if (existing.seen()) {
             return existing;
@@ -57,21 +69,37 @@ public class NotificationsService implements NotificationsUseCase {
     @Override
     @Transactional
     public void delete(Long userId, Long notificationId) {
-        if (repository.findByIdAndUserId(notificationId, userId).isEmpty()) {
-            throw new NotFoundException("Notification not found");
-        }
-        repository.deleteByIdAndUserId(notificationId, userId);
+        Notification existing = findAccessibleNotification(userId, notificationId)
+                .orElseThrow(() -> new NotFoundException("Notification not found"));
+        repository.deleteByIdAndUserId(existing.id(), existing.userId());
     }
 
     @Override
     @Transactional
     public void clearByIds(Long userId, List<Long> ids) {
-        repository.deleteByIdsAndUserId(ids, userId);
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        for (Long id : ids) {
+            findAccessibleNotification(userId, id).ifPresent(notification ->
+                    repository.deleteByIdAndUserId(notification.id(), notification.userId()));
+        }
     }
 
     @Override
     @Transactional
     public void clearAll(Long userId) {
         repository.deleteAllByUserId(userId);
+    }
+
+    private java.util.Optional<Notification> findAccessibleNotification(Long callerUserId, Long notificationId) {
+        java.util.Optional<Notification> personal = repository.findByIdAndUserId(notificationId, callerUserId);
+        if (personal.isPresent()) {
+            return personal;
+        }
+        if (rolesService.isAdmin(callerUserId)) {
+            return repository.findByIdAndUserId(notificationId, Notification.ADMIN_USER_ID);
+        }
+        return java.util.Optional.empty();
     }
 }

@@ -5,6 +5,7 @@ import java.time.Instant;
 public record RefreshLoginResponse(
         String accessToken,
         Instant accessTokenCreatedAt,
-        Instant AccessTokenExpiresAt
+        Instant AccessTokenExpiresAt,
+        java.util.List<String> roles
 ) {
 }

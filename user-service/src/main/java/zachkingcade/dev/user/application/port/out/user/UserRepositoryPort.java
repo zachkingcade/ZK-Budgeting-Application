@@ -11,4 +11,6 @@ public interface UserRepositoryPort {
     UserEntity save(UserEntity entityToSave);
 
     Optional<UserEntity> getByUsername(String username);
+
+    Optional<UserEntity> findByUserId(long userId);
 }

@@ -9,6 +9,7 @@ public record LogInUserResult(
         Instant sessionExpiresAt,
         String accessToken,
         Instant accessTokenCreatedAt,
-        Instant AccessTokenExpiresAt
+        Instant AccessTokenExpiresAt,
+        java.util.List<String> roles
 ) {
 }

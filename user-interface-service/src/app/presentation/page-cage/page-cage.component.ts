@@ -11,8 +11,11 @@ import { NotificationsPollingService } from '../../application/notifications/not
 import { NotificationBellComponent } from '../shared/notification-bell/notification-bell.component';
 import { HelpContentService } from '../../help/help-content.service';
 import { ContextHelpButtonComponent } from '../../help/components/context-help-button/context-help-button.component';
+import { MatDialog } from '@angular/material/dialog';
+import { faCommentDots } from '@fortawesome/free-solid-svg-icons';
+import { SubmitFeedbackDialogComponent } from '../shared/submit-feedback-dialog/submit-feedback-dialog.component';
 
-type PageCageNavSectionId = 'master-ledger' | 'accounts' | 'planning' | 'reporting' | 'user-account' | 'help';
+type PageCageNavSectionId = 'master-ledger' | 'accounts' | 'planning' | 'reporting' | 'user-account' | 'help' | 'admin';
 
 @Component({
   selector: 'app-page-cage',
@@ -30,6 +33,7 @@ export class PageCage implements OnInit {
   faGithub: IconDefinition = faGithub;
   faLinkedin: IconDefinition = faLinkedin;
   faLogout: IconDefinition = faRightFromBracket;
+  faFeedback: IconDefinition = faCommentDots;
 
   /** At most one section expanded; synced from route on navigation. */
   protected readonly expandedNavSection = signal<PageCageNavSectionId | null>(null);
@@ -40,6 +44,7 @@ export class PageCage implements OnInit {
     private readonly notificationsPolling: NotificationsPollingService,
     private readonly router: Router,
     private readonly destroyRef: DestroyRef,
+    private readonly dialog: MatDialog,
   ) {
     this.applyRouteToNavSection(this.router.url);
     this.router.events
@@ -111,6 +116,20 @@ export class PageCage implements OnInit {
       this.expandedNavSection.set('help');
       return;
     }
+    if (path === '/admin/bugs' || path === '/admin/suggestions' || path.startsWith('/admin/')) {
+      this.expandedNavSection.set('admin');
+    }
+  }
+
+  protected isAdmin(): boolean {
+    return this.authManager.isAdmin();
+  }
+
+  protected openFeedbackDialog(): void {
+    this.dialog.open(SubmitFeedbackDialogComponent, {
+      width: 'min(32rem, calc(100vw - 2rem))',
+      maxWidth: '95vw',
+    });
   }
 
   get username(): string | null {

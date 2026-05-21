@@ -6,6 +6,7 @@ export interface ILoginUserResponseDto {
   accessToken: string;
   accessTokenCreatedAt: string;
   AccessTokenExpiresAt: string;
+  roles: string[];
 }
 
 export type LoginUserResponseDto = ILoginUserResponseDto;

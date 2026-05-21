@@ -12,6 +12,7 @@ export interface IAuthSnapshot {
   sessionToken: string | null;
   accessToken: string | null;
   accessTokenExpiresAt: string | null;
+  roles: string[];
 }
 
 @Injectable({
@@ -33,7 +34,12 @@ export class AuthManagerService {
       sessionToken: cachedSession?.sessionToken ?? null,
       accessToken: this.accessToken,
       accessTokenExpiresAt: this.accessTokenExpiresAt,
+      roles: cachedSession?.roles ?? [],
     };
+  }
+
+  isAdmin(): boolean {
+    return this.getAuthSnapshot().roles.includes('admin');
   }
 
   clearAuthState(): void {
@@ -50,6 +56,7 @@ export class AuthManagerService {
           username: response.data.username,
           sessionToken: response.data.sessionToken,
           sessionExpiresAt: response.data.sessionExpiresAt,
+          roles: response.data.roles ?? [],
         });
 
         this.accessToken = response.data.accessToken;
@@ -136,6 +143,14 @@ export class AuthManagerService {
 
         this.accessToken = accessToken;
         this.accessTokenExpiresAt = accessTokenExpiresAt;
+
+        this.sessionStorage.setCachedSession({
+          username: cachedSession.username,
+          sessionToken: cachedSession.sessionToken,
+          sessionExpiresAt: cachedSession.sessionExpiresAt,
+          roles: response.data.roles ?? cachedSession.roles,
+        });
+
         return accessToken;
       }),
       catchError(() => of(null)),

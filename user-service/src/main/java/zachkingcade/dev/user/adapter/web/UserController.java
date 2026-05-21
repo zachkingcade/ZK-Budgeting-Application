@@ -63,7 +63,15 @@ public class UserController {
     public ResponseEntity<ApiResponse<LoginUserResponse>> loginUser(@RequestBody LoginUserRequest request){
         LoginUserCommand command = new LoginUserCommand(request.username(), request.password());
         LogInUserResult applicationResult = loginUserUseCase.loginUser(command);
-        LoginUserResponse response = new LoginUserResponse(applicationResult.username(), applicationResult.sessionToken(), applicationResult.sessionCreatedAt(), applicationResult.sessionExpiresAt(), applicationResult.accessToken(), applicationResult.accessTokenCreatedAt(), applicationResult.AccessTokenExpiresAt());
+        LoginUserResponse response = new LoginUserResponse(
+                applicationResult.username(),
+                applicationResult.sessionToken(),
+                applicationResult.sessionCreatedAt(),
+                applicationResult.sessionExpiresAt(),
+                applicationResult.accessToken(),
+                applicationResult.accessTokenCreatedAt(),
+                applicationResult.AccessTokenExpiresAt(),
+                applicationResult.roles());
         ApiResponse<LoginUserResponse> apiResponse = new ApiResponse<>(String.format("User [%s] Logged into system successfully",request.username()), new MetaData(1L), response);
         return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
     }
@@ -104,7 +112,11 @@ public class UserController {
     public ResponseEntity<ApiResponse<RefreshLoginResponse>> refreshUser(@RequestBody RefreshLoginRequest request){
         RefreshSessionCommand command = new RefreshSessionCommand(request.username(), request.sessionToken());
         RefreshSessionResult result = refreshSessionUseCase.refreshSession(command);
-        RefreshLoginResponse response = new RefreshLoginResponse(result.accessToken(), result.accessTokenCreatedAt(), result.AccessTokenExpiresAt());
+        RefreshLoginResponse response = new RefreshLoginResponse(
+                result.accessToken(),
+                result.accessTokenCreatedAt(),
+                result.AccessTokenExpiresAt(),
+                result.roles());
         String statusMessage = result.sessionRefreshed()? "Session Refreshed, new accessToken provided." : "Session expired, please login again.";
         ApiResponse<RefreshLoginResponse> apiResponse = new ApiResponse<>(String.format(statusMessage,request.username()), new MetaData(1L), response);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
