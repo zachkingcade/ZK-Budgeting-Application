@@ -16,6 +16,7 @@ describe('PageCage', () => {
       sessionToken: null,
       accessToken: null,
       accessTokenExpiresAt: null,
+      roles: [],
     }),
     logout: () => of(undefined),
   };

@@ -6,7 +6,10 @@ import { of, throwError } from 'rxjs';
 import { AccountsPageComponent } from './accounts-page.component';
 import { AccountsApplicationService } from '../../../../application/ledger/accounts.application-service';
 import { AccountTypesApplicationService } from '../../../../application/ledger/account-types.application-service';
+import { UserPreferencesService } from '../../../../application/settings/user-preferences.service';
 import { AccountEnrichedObject } from '../../../../adapter/ledger-service/dto/account/AccountEnrichedObject';
+import { DEFAULT_ACCOUNTS_FILTER_STATE } from '../accounts-filter-state';
+import { EMPTY_UI_PREFERENCES } from '../../../../domain/ui-preferences/ui-preferences';
 
 describe('AccountsPageComponent', () => {
   let component: AccountsPageComponent;
@@ -34,12 +37,23 @@ describe('AccountsPageComponent', () => {
     getAll: jasmine.createSpy('getAll').and.returnValue(of({ data: { accountTypeList: [] } } as any)),
   } as any;
 
+  const userPreferencesMock: Pick<
+    UserPreferencesService,
+    'isHydrated' | 'ensureLoaded' | 'getAccountsInitialState' | 'hasAccountsDisplayDefaults'
+  > = {
+    isHydrated: () => true,
+    ensureLoaded: () => of(EMPTY_UI_PREFERENCES),
+    getAccountsInitialState: () => ({ ...DEFAULT_ACCOUNTS_FILTER_STATE }),
+    hasAccountsDisplayDefaults: () => false,
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AccountsPageComponent],
       providers: [
         provideZonelessChangeDetection(),
         { provide: ActivatedRoute, useValue: activatedRouteStub },
+        { provide: UserPreferencesService, useValue: userPreferencesMock },
       ],
     });
 
@@ -74,6 +88,18 @@ describe('AccountsPageComponent', () => {
     expect(component.loadError()).toBeNull();
   });
 
+  it('should reload when filter state changes', async () => {
+    (accountsService.getAll as jasmine.Spy).calls.reset();
+
+    component.onStateChanged({
+      ...DEFAULT_ACCOUNTS_FILTER_STATE,
+      showInactive: true,
+    });
+    await fixture.whenStable();
+
+    expect(accountsService.getAll).toHaveBeenCalledTimes(1);
+  });
+
   it('should show modal error when toggle active fails', () => {
     /*
     NEGATIVE PATH: method=update,
@@ -102,4 +128,3 @@ describe('AccountsPageComponent', () => {
     expect(component.modalError()).toBe('Could not update account status.');
   });
 });
-

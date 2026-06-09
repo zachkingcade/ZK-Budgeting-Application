@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { of, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { catchError, map, of, Subject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { PageCage } from '../../../page-cage/page-cage.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -65,22 +65,30 @@ export class AccountsPageComponent implements OnInit {
   readonly accountPendingToggle = signal<AccountEnrichedObject | null>(null);
   readonly togglingAccountId = signal<number | null>(null);
 
-  private readonly refreshIntent$ = new Subject<{ mode: 'immediate' | 'searchDebounce'; state: IAccountsFilterState }>();
+  private readonly loadRequest$ = new Subject<IAccountsFilterState>();
 
   ngOnInit(): void {
-    this.refreshIntent$
+    this.loadRequest$
       .pipe(
-        switchMap((intent) =>
-          intent.mode === 'immediate' ? of(intent.state) : of(intent.state).pipe(debounceTime(250)),
-        ),
-        distinctUntilChanged((a, b) => this.statesEqual(a, b)),
+        switchMap((state) => {
+          const cloned = cloneAccountsFilterState(state);
+          this.lastAppliedState.set(cloned);
+          this.loading.set(true);
+          this.loadError.set(null);
+          const request = this.buildGetAllRequest(cloned);
+          return this.accountsApplicationService.getAll(request).pipe(
+            map((res) => res.data?.accountsList ?? []),
+            catchError(() => {
+              this.loadError.set('Could not load accounts.');
+              return of([] as AccountEnrichedObject[]);
+            }),
+          );
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((state) => {
-        if (!this.statesEqual(state, this.currentState())) {
-          return;
-        }
-        this.applyFilters({ nextState: state, markApplied: true });
+      .subscribe((list) => {
+        this.accounts.set(list);
+        this.loading.set(false);
       });
 
     this.initStateFromPreferences();
@@ -90,8 +98,7 @@ export class AccountsPageComponent implements OnInit {
     const apply = () => {
       const initial = cloneAccountsFilterState(this.userPreferences.getAccountsInitialState());
       this.currentState.set(initial);
-      this.lastAppliedState.set(cloneAccountsFilterState(initial));
-      this.applyFilters({ nextState: initial, markApplied: true });
+      this.requestLoad(initial);
     };
     if (this.userPreferences.isHydrated()) {
       apply();
@@ -102,24 +109,26 @@ export class AccountsPageComponent implements OnInit {
 
   onStateChanged(nextState: IAccountsFilterState): void {
     const cloned = cloneAccountsFilterState(nextState);
-    const applied = this.lastAppliedState();
     this.currentState.set(cloned);
-    /** Compare to lastApplied: ngModel mutates `currentState()` in place before emit. */
-    if (this.statesEqual(applied, cloned)) {
-      return;
+    this.requestLoad(cloned);
+  }
+
+  showReturnToDefaults(): boolean {
+    if (!this.userPreferences.hasAccountsDisplayDefaults()) {
+      return false;
     }
-    const onlySearchChanged =
-      this.nonSearchPartsEqual(applied, cloned) &&
-      (applied.searchTerm ?? '') !== (cloned.searchTerm ?? '');
-    if (onlySearchChanged) {
-      const searchCleared = (cloned.searchTerm ?? '').trim().length === 0;
-      this.refreshIntent$.next({
-        mode: searchCleared ? 'immediate' : 'searchDebounce',
-        state: cloned,
-      });
-      return;
-    }
-    this.refreshIntent$.next({ mode: 'immediate', state: cloned });
+    const initial = this.userPreferences.getAccountsInitialState();
+    const current = this.currentState();
+    return (
+      current.selectedSortBy !== initial.selectedSortBy ||
+      !this.arraysEqual(current.selectedAccountTypeIds, initial.selectedAccountTypeIds)
+    );
+  }
+
+  returnToDefaultsClicked(): void {
+    const initial = cloneAccountsFilterState(this.userPreferences.getAccountsInitialState());
+    this.currentState.set(initial);
+    this.requestLoad(initial);
   }
 
   openAddModal(): void {
@@ -206,11 +215,15 @@ export class AccountsPageComponent implements OnInit {
   clearClicked(): void {
     const defaultState = cloneAccountsFilterState(DEFAULT_ACCOUNTS_FILTER_STATE);
     this.currentState.set(defaultState);
-    this.applyFilters({ nextState: defaultState, markApplied: true });
+    this.requestLoad(defaultState);
   }
 
   refresh(): void {
-    this.applyFilters({ nextState: this.lastAppliedState(), markApplied: false });
+    this.requestLoad(this.lastAppliedState());
+  }
+
+  private requestLoad(state: IAccountsFilterState): void {
+    this.loadRequest$.next(cloneAccountsFilterState(state));
   }
 
   onAddCancelled(): void {
@@ -257,33 +270,6 @@ export class AccountsPageComponent implements OnInit {
       });
   }
 
-  private applyFilters(opts: { nextState: IAccountsFilterState; markApplied: boolean }): void {
-    if (opts.markApplied) {
-      this.lastAppliedState.set(cloneAccountsFilterState(opts.nextState));
-    }
-
-    const request = this.buildGetAllRequest(opts.nextState);
-
-    this.loading.set(true);
-    this.loadError.set(null);
-
-    this.accountsApplicationService
-      .getAll(request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          const data = res.data;
-          // When `groupByType` is true, the ledger returns `accountsList` in account-type order (same rows, single sort).
-          this.accounts.set(data?.accountsList ?? []);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loadError.set('Could not load accounts.');
-          this.loading.set(false);
-        },
-      });
-  }
-
   private buildGetAllRequest(state: IAccountsFilterState): GETAllAccountsRequest {
     const filters: AccountFilterObject = {};
     const trimmedSearch = (state.searchTerm ?? '').trim();
@@ -312,23 +298,6 @@ export class AccountsPageComponent implements OnInit {
       return { type: 'id', direction };
     }
     return { type: 'description', direction };
-  }
-
-  private statesEqual(a: IAccountsFilterState, b: IAccountsFilterState): boolean {
-    return (
-      a.searchTerm === b.searchTerm &&
-      this.nonSearchPartsEqual(a, b)
-    );
-  }
-
-  private nonSearchPartsEqual(a: IAccountsFilterState, b: IAccountsFilterState): boolean {
-    return (
-      a.selectedSortBy === b.selectedSortBy &&
-      a.showInactive === b.showInactive &&
-      a.hideActiveOnly === b.hideActiveOnly &&
-      a.groupByAccountType === b.groupByAccountType &&
-      this.arraysEqual(a.selectedAccountTypeIds, b.selectedAccountTypeIds)
-    );
   }
 
   private arraysEqual(x: number[], y: number[]): boolean {

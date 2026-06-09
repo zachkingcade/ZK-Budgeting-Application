@@ -41,6 +41,14 @@ export class LedgerTable {
   readonly isExpansionDetailRow = (_index: number, row: JournalEntryDTOEnrichedResponse): boolean =>
     this.expandedEntryIds().has(row.id);
 
+  collapseAllExpanded(): void {
+    if (this.expandedEntryIds().size === 0) {
+      return;
+    }
+    this.expandedEntryIds.set(new Set<number>());
+    this.table?.renderRows();
+  }
+
   toggleDetails(entry: JournalEntryDTOEnrichedResponse): void {
     this.expandedEntryIds.update((prev) => {
       const next = new Set(prev);
@@ -131,17 +139,5 @@ export class LedgerTable {
 
   onRemoveEntry(entry: JournalEntryDTOEnrichedResponse): void {
     this.deleteRequested.emit(entry);
-  }
-
-  onEditLine(entry: JournalEntryDTOEnrichedResponse, line: JournalLineDTOEnrichedResponse): void {
-    // Not implemented in this feature scope (entry-level edit modal covers line notes).
-    void entry;
-    void line;
-  }
-
-  onRemoveLine(entry: JournalEntryDTOEnrichedResponse, line: JournalLineDTOEnrichedResponse): void {
-    // Not implemented in this feature scope.
-    void entry;
-    void line;
   }
 }

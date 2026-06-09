@@ -91,4 +91,19 @@ export class UserPreferencesService {
     const prefs = this.cached ?? EMPTY_UI_PREFERENCES;
     return mergeAccountTypesDisplayDefaults(prefs.accountTypes, DEFAULT_ACCOUNT_TYPES_FILTER_STATE);
   }
+
+  hasLedgerDisplayDefaults(): boolean {
+    const prefs = this.cached ?? EMPTY_UI_PREFERENCES;
+    return !!(prefs.ledger.dateRange || prefs.ledger.sortBy);
+  }
+
+  hasAccountsDisplayDefaults(): boolean {
+    const prefs = this.cached ?? EMPTY_UI_PREFERENCES;
+    return prefs.accounts.accountTypeIds.length > 0 || !!prefs.accounts.sortBy;
+  }
+
+  hasAccountTypesDisplayDefaults(): boolean {
+    const prefs = this.cached ?? EMPTY_UI_PREFERENCES;
+    return !!prefs.accountTypes.sortBy;
+  }
 }

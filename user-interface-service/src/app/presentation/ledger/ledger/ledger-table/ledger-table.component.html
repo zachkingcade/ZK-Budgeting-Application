@@ -78,24 +78,6 @@
                       {{ directionLabel(line.direction) }} ({{ line.lineAffectOnAccount }})
                     </span>
                     <span class="ledger-table__line-notes">{{ line.notes || '—' }}</span>
-                    <span class="ledger-table__line-actions">
-                      <button
-                        mat-icon-button
-                        type="button"
-                        aria-label="Edit journal line"
-                        (click)="onEditLine(row, line)"
-                      >
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button
-                        mat-icon-button
-                        type="button"
-                        aria-label="Remove journal line"
-                        (click)="onRemoveLine(row, line)"
-                      >
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </span>
                   </div>
                 }
               </div>

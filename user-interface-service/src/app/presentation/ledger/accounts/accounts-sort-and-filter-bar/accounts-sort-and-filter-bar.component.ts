@@ -68,56 +68,76 @@ export class AccountsSortAndFilterBarComponent implements OnInit {
           const valid = new Set(options.map((o) => o.id));
           const filtered = (this.state.selectedAccountTypeIds ?? []).filter((id) => valid.has(id));
           if (filtered.length !== (this.state.selectedAccountTypeIds ?? []).length) {
-            this.state = { ...this.state, selectedAccountTypeIds: filtered };
-            this.emitState();
+            this.emitSnapshot({ selectedAccountTypeIds: filtered });
           }
         },
       });
   }
 
-  emitState(): void {
+  private emitSnapshot(overrides: Partial<IAccountsFilterState> = {}): void {
     this.stateChanged.emit({
-      searchTerm: this.state.searchTerm,
-      selectedAccountTypeIds: [...(this.state.selectedAccountTypeIds ?? [])],
-      selectedSortBy: this.state.selectedSortBy,
-      showInactive: this.state.showInactive,
-      hideActiveOnly: this.state.hideActiveOnly,
-      groupByAccountType: this.state.groupByAccountType,
+      searchTerm: overrides.searchTerm ?? this.state.searchTerm,
+      selectedAccountTypeIds: overrides.selectedAccountTypeIds ?? [...(this.state.selectedAccountTypeIds ?? [])],
+      selectedSortBy: overrides.selectedSortBy ?? this.state.selectedSortBy,
+      showInactive: overrides.showInactive ?? this.state.showInactive,
+      hideActiveOnly: overrides.hideActiveOnly ?? this.state.hideActiveOnly,
+      groupByAccountType: overrides.groupByAccountType ?? this.state.groupByAccountType,
     });
   }
 
-  onSortByChange(): void {
-    this.emitState();
+  onSortByChange(selectedSortBy: AccountsSortByOption): void {
+    this.emitSnapshot({ selectedSortBy });
   }
 
   onSearchChange(searchTerm: string | null): void {
-    this.stateChanged.emit({
-      searchTerm: searchTerm ?? '',
-      selectedAccountTypeIds: [...(this.state.selectedAccountTypeIds ?? [])],
-      selectedSortBy: this.state.selectedSortBy,
-      showInactive: this.state.showInactive,
-      hideActiveOnly: this.state.hideActiveOnly,
-      groupByAccountType: this.state.groupByAccountType,
+    this.emitSnapshot({ searchTerm: searchTerm ?? '' });
+  }
+
+  onAccountTypesChange(value: unknown): void {
+    this.emitSnapshot({ selectedAccountTypeIds: this.normalizeIdArray(value) });
+  }
+
+  private normalizeIdArray(value: unknown): number[] {
+    if (value == null) {
+      return [];
+    }
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => this.extractId(item))
+        .filter((id): id is number => id !== null);
+    }
+    const single = this.extractId(value);
+    return single === null ? [] : [single];
+  }
+
+  private extractId(value: unknown): number | null {
+    if (typeof value === 'number' && Number.isInteger(value)) {
+      return value;
+    }
+    if (typeof value === 'object' && value !== null && 'id' in value) {
+      const id = (value as { id: unknown }).id;
+      if (typeof id === 'number' && Number.isInteger(id)) {
+        return id;
+      }
+    }
+    return null;
+  }
+
+  onShowInactiveChange(checked: boolean): void {
+    this.emitSnapshot({
+      showInactive: checked,
+      hideActiveOnly: checked ? this.state.hideActiveOnly : false,
     });
   }
 
-  onAccountTypesChange(): void {
-    this.emitState();
-  }
-
-  onShowInactiveChange(): void {
-    this.emitState();
-  }
-
   onHideActiveOnlyChange(checked: boolean): void {
-    if (checked && !this.state.showInactive) {
-      this.state.showInactive = true;
-    }
-    this.emitState();
+    this.emitSnapshot({
+      hideActiveOnly: checked,
+      showInactive: checked ? true : this.state.showInactive,
+    });
   }
 
-  onGroupByTypeChange(): void {
-    this.emitState();
+  onGroupByTypeChange(checked: boolean): void {
+    this.emitSnapshot({ groupByAccountType: checked });
   }
-
 }

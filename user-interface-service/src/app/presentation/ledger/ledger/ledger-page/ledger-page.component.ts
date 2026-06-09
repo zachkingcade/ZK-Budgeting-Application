@@ -1,7 +1,7 @@
-import { Component, DestroyRef, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { of, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { catchError, map, of, Subject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { PageCage } from '../../../page-cage/page-cage.component';
 import { LedgerTable } from '../ledger-table/ledger-table.component';
 import { LedgerSortAndFilterBar } from '../ledger-sort-and-filter-bar/ledger-sort-and-filter-bar.component';
@@ -49,6 +49,8 @@ export type { ILedgerFilterSortState, LedgerDateRangeOption, LedgerSortByOption 
   styleUrl: './ledger-page.component.scss',
 })
 export class LedgerPage implements OnInit {
+  @ViewChild(LedgerTable) private ledgerTable?: LedgerTable;
+
   constructor(
     private readonly journalEntries: JournalEntryApplicationService,
     private readonly dialog: MatDialog,
@@ -74,22 +76,30 @@ export class LedgerPage implements OnInit {
   readonly entryBeingEdited = signal<JournalEntryDTOEnrichedResponse | null>(null);
   readonly entryPendingDelete = signal<JournalEntryDTOEnrichedResponse | null>(null);
 
-  private readonly refreshIntent$ = new Subject<{ mode: 'immediate' | 'searchDebounce'; state: ILedgerFilterSortState }>();
+  private readonly loadRequest$ = new Subject<ILedgerFilterSortState>();
 
   ngOnInit(): void {
-    this.refreshIntent$
+    this.loadRequest$
       .pipe(
-        switchMap((intent) =>
-          intent.mode === 'immediate' ? of(intent.state) : of(intent.state).pipe(debounceTime(250)),
-        ),
-        distinctUntilChanged((a, b) => this.statesEqual(a, b)),
+        switchMap((state) => {
+          const cloned = cloneLedgerFilterState(state);
+          this.lastAppliedState.set(cloned);
+          this.loading.set(true);
+          this.loadError.set(null);
+          const request = this.buildGetAllRequest(cloned);
+          return this.journalEntries.getAll(request).pipe(
+            map((res) => res.data?.journalEntryList ?? []),
+            catchError(() => {
+              this.loadError.set('Could not load journal entries.');
+              return of([] as JournalEntryDTOEnrichedResponse[]);
+            }),
+          );
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((state) => {
-        if (!this.statesEqual(state, this.currentState())) {
-          return;
-        }
-        this.applyFilters({ nextState: state, markApplied: true });
+      .subscribe((list) => {
+        this.entries.set(list);
+        this.loading.set(false);
       });
 
     this.initStateFromPreferences();
@@ -99,8 +109,7 @@ export class LedgerPage implements OnInit {
     const apply = () => {
       const initial = cloneLedgerFilterState(this.userPreferences.getLedgerInitialState());
       this.currentState.set(initial);
-      this.lastAppliedState.set(cloneLedgerFilterState(initial));
-      this.applyFilters({ nextState: initial, markApplied: true });
+      this.requestLoad(initial);
     };
     if (this.userPreferences.isHydrated()) {
       apply();
@@ -111,24 +120,25 @@ export class LedgerPage implements OnInit {
 
   onStateChanged(nextState: ILedgerFilterSortState): void {
     const cloned = cloneLedgerFilterState(nextState);
-    const applied = this.lastAppliedState();
     this.currentState.set(cloned);
-    /** Compare to lastApplied: ngModel mutates `currentState()` in place before emit. */
-    if (this.statesEqual(applied, cloned)) {
-      return;
+    this.requestLoad(cloned);
+  }
+
+  showReturnToDefaults(): boolean {
+    if (!this.userPreferences.hasLedgerDisplayDefaults()) {
+      return false;
     }
-    const onlySearchChanged =
-      this.nonSearchPartsEqual(applied, cloned) &&
-      (applied.searchTerm ?? '') !== (cloned.searchTerm ?? '');
-    if (onlySearchChanged) {
-      const searchCleared = (cloned.searchTerm ?? '').trim().length === 0;
-      this.refreshIntent$.next({
-        mode: searchCleared ? 'immediate' : 'searchDebounce',
-        state: cloned,
-      });
-      return;
-    }
-    this.refreshIntent$.next({ mode: 'immediate', state: cloned });
+    const initial = this.userPreferences.getLedgerInitialState();
+    const current = this.currentState();
+    return (
+      current.selectedDate !== initial.selectedDate || current.selectedSortBy !== initial.selectedSortBy
+    );
+  }
+
+  returnToDefaultsClicked(): void {
+    const initial = cloneLedgerFilterState(this.userPreferences.getLedgerInitialState());
+    this.currentState.set(initial);
+    this.requestLoad(initial);
   }
 
   openAddModal(): void {
@@ -192,36 +202,18 @@ export class LedgerPage implements OnInit {
   }
 
   clearClicked(): void {
-    const defaultState: ILedgerFilterSortState = cloneLedgerFilterState(DEFAULT_LEDGER_FILTER_STATE);
+    const defaultState = cloneLedgerFilterState(DEFAULT_LEDGER_FILTER_STATE);
     this.currentState.set(defaultState);
-    this.applyFilters({ nextState: defaultState, markApplied: true });
+    this.requestLoad(defaultState);
   }
 
   refresh(): void {
-    this.applyFilters({ nextState: this.lastAppliedState(), markApplied: false });
+    this.requestLoad(this.lastAppliedState());
   }
 
-  private applyFilters(opts: { nextState: ILedgerFilterSortState; markApplied: boolean }): void {
-    const request: GETAllJournalEntrysRequest = this.buildGetAllRequest(opts.nextState);
-    if (opts.markApplied) {
-      this.lastAppliedState.set(cloneLedgerFilterState(opts.nextState));
-    }
-
-    this.loading.set(true);
-    this.loadError.set(null);
-    this.journalEntries
-      .getAll(request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.entries.set(res.data?.journalEntryList ?? []);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loadError.set('Could not load journal entries.');
-          this.loading.set(false);
-        },
-      });
+  private requestLoad(state: ILedgerFilterSortState): void {
+    this.ledgerTable?.collapseAllExpanded();
+    this.loadRequest$.next(cloneLedgerFilterState(state));
   }
 
   onDeleteConfirmed(): void {
@@ -295,11 +287,7 @@ export class LedgerPage implements OnInit {
       direction: state.selectedSortBy === 'Date (Asc.)' ? 'ascending' : 'descending',
     };
 
-    const request: GETAllJournalEntrysRequest = {
-      sort,
-      filters,
-    };
-    return request;
+    return { sort, filters };
   }
 
   private daysBackFromOption(option: LedgerDateRangeOption): number {
@@ -315,28 +303,5 @@ export class LedgerPage implements OnInit {
     const month: string = String(d.getMonth() + 1).padStart(2, '0');
     const day: string = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-  }
-
-  private statesEqual(a: ILedgerFilterSortState, b: ILedgerFilterSortState): boolean {
-    return a.searchTerm === b.searchTerm && this.nonSearchPartsEqual(a, b);
-  }
-
-  private nonSearchPartsEqual(a: ILedgerFilterSortState, b: ILedgerFilterSortState): boolean {
-    return (
-      a.selectedDate === b.selectedDate &&
-      a.selectedSortBy === b.selectedSortBy &&
-      this.arraysEqual(a.selectedAccountTypeIds, b.selectedAccountTypeIds) &&
-      this.arraysEqual(a.selectedAccountIds, b.selectedAccountIds)
-    );
-  }
-
-  private arraysEqual(a: number[], b: number[]): boolean {
-    if (a.length !== b.length) return false;
-    const aSorted: number[] = [...a].sort((x, y) => x - y);
-    const bSorted: number[] = [...b].sort((x, y) => x - y);
-    for (let i: number = 0; i < aSorted.length; i++) {
-      if (aSorted[i] !== bSorted[i]) return false;
-    }
-    return true;
   }
 }

@@ -70,6 +70,7 @@ public class BudgetPlanningPersistenceAdapter implements BudgetPlanningPersisten
         BudgetPlanEntity e = budgetPlanJpaRepository
                 .findByIdAndUserId(planId, userId)
                 .orElseThrow(() -> new NotFoundException("Budget plan not found"));
+        bpFundingLineJpaRepository.deleteAll(bpFundingLineJpaRepository.findAllByBudgetPlanId(planId));
         budgetPlanJpaRepository.delete(e);
     }
 

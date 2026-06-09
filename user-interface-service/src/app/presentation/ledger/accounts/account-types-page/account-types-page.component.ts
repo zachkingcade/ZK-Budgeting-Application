@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, of, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { catchError, map, of, Subject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { PageCage } from '../../../page-cage/page-cage.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -70,54 +70,36 @@ export class AccountTypesPageComponent implements OnInit {
   readonly typePendingToggle = signal<AccountTypeRowView | null>(null);
   readonly togglingTypeId = signal<number | null>(null);
 
-  private readonly refreshIntent$ = new Subject<{ mode: 'immediate' | 'searchDebounce'; state: IAccountTypesFilterState }>();
-  private readonly loadAccountTypes$ = new Subject<{
-    nextState: IAccountTypesFilterState;
-    markApplied: boolean;
-  }>();
+  private readonly loadRequest$ = new Subject<IAccountTypesFilterState>();
 
   ngOnInit(): void {
-    this.loadAccountTypes$
+    this.loadRequest$
       .pipe(
-        switchMap(({ nextState, markApplied }) => {
-          if (markApplied) {
-            this.lastAppliedState.set(cloneAccountTypesFilterState(nextState));
-          }
+        switchMap((state) => {
+          const cloned = cloneAccountTypesFilterState(state);
+          this.lastAppliedState.set(cloned);
           this.loading.set(true);
           this.loadError.set(null);
-          return this.accountTypesApplicationService.getAll(this.buildGetAllRequest(nextState)).pipe(
+          return this.accountTypesApplicationService.getAll(this.buildGetAllRequest(cloned)).pipe(
+            map((res) => {
+              const list: AccountTypeObject[] = res.data?.accountTypeList ?? [];
+              const labelMap = this.classificationLabelById();
+              return list.map((t) => ({
+                ...t,
+                classificationLabel: labelMap.get(t.classificationId) ?? '—',
+              }));
+            }),
             catchError(() => {
               this.loadError.set('Could not load account types.');
-              return of({ data: { accountTypeList: [] } } as any);
+              return of([] as AccountTypeRowView[]);
             }),
           );
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((res) => {
-        const list: AccountTypeObject[] = res.data?.accountTypeList ?? [];
-        const labelMap = this.classificationLabelById();
-        const rows: AccountTypeRowView[] = list.map((t) => ({
-          ...t,
-          classificationLabel: labelMap.get(t.classificationId) ?? '—',
-        }));
+      .subscribe((rows) => {
         this.accountTypes.set(rows);
         this.loading.set(false);
-      });
-
-    this.refreshIntent$
-      .pipe(
-        switchMap((intent) =>
-          intent.mode === 'immediate' ? of(intent.state) : of(intent.state).pipe(debounceTime(250)),
-        ),
-        distinctUntilChanged((a, b) => this.statesEqual(a, b)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((state) => {
-        if (!this.statesEqual(state, this.currentState())) {
-          return;
-        }
-        this.applyFilters({ nextState: state, markApplied: true });
       });
 
     this.accountClassificationsApplicationService
@@ -147,8 +129,7 @@ export class AccountTypesPageComponent implements OnInit {
     const apply = () => {
       const initial = cloneAccountTypesFilterState(this.userPreferences.getAccountTypesInitialState());
       this.currentState.set(initial);
-      this.lastAppliedState.set(cloneAccountTypesFilterState(initial));
-      this.applyFilters({ nextState: initial, markApplied: true });
+      this.requestLoad(initial);
     };
     if (this.userPreferences.isHydrated()) {
       apply();
@@ -158,25 +139,23 @@ export class AccountTypesPageComponent implements OnInit {
   }
 
   onStateChanged(nextState: IAccountTypesFilterState): void {
-    const applied = this.lastAppliedState();
     const cloned = cloneAccountTypesFilterState(nextState);
     this.currentState.set(cloned);
-    /** Compare to lastApplied: ngModel mutates `currentState()` in place before emit. */
-    if (this.statesEqual(applied, cloned)) {
-      return;
+    this.requestLoad(cloned);
+  }
+
+  showReturnToDefaults(): boolean {
+    if (!this.userPreferences.hasAccountTypesDisplayDefaults()) {
+      return false;
     }
-    const onlySearchChanged =
-      this.nonSearchPartsEqual(applied, cloned) &&
-      (applied.searchTerm ?? '') !== (cloned.searchTerm ?? '');
-    if (onlySearchChanged) {
-      const searchCleared = (cloned.searchTerm ?? '').trim().length === 0;
-      this.refreshIntent$.next({
-        mode: searchCleared ? 'immediate' : 'searchDebounce',
-        state: cloned,
-      });
-      return;
-    }
-    this.refreshIntent$.next({ mode: 'immediate', state: cloned });
+    const initial = this.userPreferences.getAccountTypesInitialState();
+    return this.currentState().selectedSortBy !== initial.selectedSortBy;
+  }
+
+  returnToDefaultsClicked(): void {
+    const initial = cloneAccountTypesFilterState(this.userPreferences.getAccountTypesInitialState());
+    this.currentState.set(initial);
+    this.requestLoad(initial);
   }
 
   openAddModal(): void {
@@ -238,14 +217,15 @@ export class AccountTypesPageComponent implements OnInit {
   clearClicked(): void {
     const defaultState = cloneAccountTypesFilterState(DEFAULT_ACCOUNT_TYPES_FILTER_STATE);
     this.currentState.set(defaultState);
-    this.applyFilters({ nextState: defaultState, markApplied: true });
+    this.requestLoad(defaultState);
   }
 
   refresh(): void {
-    this.applyFilters({
-      nextState: cloneAccountTypesFilterState(this.currentState()),
-      markApplied: false,
-    });
+    this.requestLoad(this.lastAppliedState());
+  }
+
+  private requestLoad(state: IAccountTypesFilterState): void {
+    this.loadRequest$.next(cloneAccountTypesFilterState(state));
   }
 
   onAddCancelled(): void {
@@ -292,10 +272,6 @@ export class AccountTypesPageComponent implements OnInit {
       });
   }
 
-  private applyFilters(opts: { nextState: IAccountTypesFilterState; markApplied: boolean }): void {
-    this.loadAccountTypes$.next(opts);
-  }
-
   private buildGetAllRequest(state: IAccountTypesFilterState): GETAllAccountTypesRequest {
     const filters: AccountTypeFilters = {};
     const trimmedSearch = (state.searchTerm ?? '').trim();
@@ -323,26 +299,5 @@ export class AccountTypesPageComponent implements OnInit {
       return { type: 'id', direction };
     }
     return { type: 'description', direction };
-  }
-
-  private statesEqual(a: IAccountTypesFilterState, b: IAccountTypesFilterState): boolean {
-    return a.searchTerm === b.searchTerm && this.nonSearchPartsEqual(a, b);
-  }
-
-  private nonSearchPartsEqual(a: IAccountTypesFilterState, b: IAccountTypesFilterState): boolean {
-    return (
-      a.selectedSortBy === b.selectedSortBy &&
-      a.showInactive === b.showInactive &&
-      a.hideActiveOnly === b.hideActiveOnly &&
-      a.hideSystemAccounts === b.hideSystemAccounts &&
-      this.arraysEqual(a.selectedClassificationIds, b.selectedClassificationIds)
-    );
-  }
-
-  private arraysEqual(x: number[], y: number[]): boolean {
-    if (x.length !== y.length) return false;
-    const xs = [...x].sort((a, b) => a - b);
-    const ys = [...y].sort((a, b) => a - b);
-    return xs.every((v, i) => v === ys[i]);
   }
 }

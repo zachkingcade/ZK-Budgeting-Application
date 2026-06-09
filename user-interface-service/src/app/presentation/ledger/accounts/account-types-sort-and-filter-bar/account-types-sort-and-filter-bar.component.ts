@@ -62,57 +62,71 @@ export class AccountTypesSortAndFilterBarComponent implements OnInit {
       });
   }
 
-  emitState(): void {
+  private emitSnapshot(overrides: Partial<IAccountTypesFilterState> = {}): void {
     this.stateChanged.emit({
-      searchTerm: this.state.searchTerm,
-      selectedClassificationIds: [...(this.state.selectedClassificationIds ?? [])],
-      selectedSortBy: this.state.selectedSortBy,
-      showInactive: this.state.showInactive,
-      hideActiveOnly: this.state.hideActiveOnly,
-      hideSystemAccounts: this.state.hideSystemAccounts,
+      searchTerm: overrides.searchTerm ?? this.state.searchTerm,
+      selectedClassificationIds:
+        overrides.selectedClassificationIds ?? [...(this.state.selectedClassificationIds ?? [])],
+      selectedSortBy: overrides.selectedSortBy ?? this.state.selectedSortBy,
+      showInactive: overrides.showInactive ?? this.state.showInactive,
+      hideActiveOnly: overrides.hideActiveOnly ?? this.state.hideActiveOnly,
+      hideSystemAccounts: overrides.hideSystemAccounts ?? this.state.hideSystemAccounts,
     });
   }
 
-  onSortByChange(): void {
-    this.emitState();
+  onSortByChange(selectedSortBy: AccountTypesSortByOption): void {
+    this.emitSnapshot({ selectedSortBy });
   }
 
   onSearchChange(searchTerm: string | null): void {
-    this.stateChanged.emit({
-      searchTerm: searchTerm ?? '',
-      selectedClassificationIds: [...(this.state.selectedClassificationIds ?? [])],
-      selectedSortBy: this.state.selectedSortBy,
-      showInactive: this.state.showInactive,
-      hideActiveOnly: this.state.hideActiveOnly,
-      hideSystemAccounts: this.state.hideSystemAccounts,
+    this.emitSnapshot({ searchTerm: searchTerm ?? '' });
+  }
+
+  onClassificationsChange(value: unknown): void {
+    this.emitSnapshot({ selectedClassificationIds: this.normalizeIdArray(value) });
+  }
+
+  private normalizeIdArray(value: unknown): number[] {
+    if (value == null) {
+      return [];
+    }
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => this.extractId(item))
+        .filter((id): id is number => id !== null);
+    }
+    const single = this.extractId(value);
+    return single === null ? [] : [single];
+  }
+
+  private extractId(value: unknown): number | null {
+    if (typeof value === 'number' && Number.isInteger(value)) {
+      return value;
+    }
+    if (typeof value === 'object' && value !== null && 'id' in value) {
+      const id = (value as { id: unknown }).id;
+      if (typeof id === 'number' && Number.isInteger(id)) {
+        return id;
+      }
+    }
+    return null;
+  }
+
+  onShowInactiveChange(checked: boolean): void {
+    this.emitSnapshot({
+      showInactive: checked,
+      hideActiveOnly: checked ? this.state.hideActiveOnly : false,
     });
-  }
-
-  onClassificationsChange(): void {
-    this.emitState();
-  }
-
-  onShowInactiveChange(): void {
-    this.emitState();
   }
 
   onHideActiveOnlyChange(checked: boolean): void {
-    if (checked && !this.state.showInactive) {
-      this.state.showInactive = true;
-    }
-    this.emitState();
+    this.emitSnapshot({
+      hideActiveOnly: checked,
+      showInactive: checked ? true : this.state.showInactive,
+    });
   }
 
   onHideSystemAccountsChange(checked: boolean): void {
-    // Do not mutate this.state here: it is the same object as the parent's currentState and
-    // mutating before emit makes the parent's hideToggled check see no change (prev already updated).
-    this.stateChanged.emit({
-      searchTerm: this.state.searchTerm,
-      selectedClassificationIds: [...this.state.selectedClassificationIds],
-      selectedSortBy: this.state.selectedSortBy,
-      showInactive: this.state.showInactive,
-      hideActiveOnly: this.state.hideActiveOnly,
-      hideSystemAccounts: checked,
-    });
+    this.emitSnapshot({ hideSystemAccounts: checked });
   }
 }

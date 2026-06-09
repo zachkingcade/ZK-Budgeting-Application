@@ -69,7 +69,7 @@ export class LedgerSortAndFilterBar {
             list.map((t: { id: number; description: string; active: boolean }) => ({
               id: t.id,
               label: t.active ? t.description : `${t.description} (inactive)`,
-            }))
+            })),
           );
         },
       });
@@ -83,35 +83,68 @@ export class LedgerSortAndFilterBar {
           const list: Array<{ accountId: number; accountDisplayName: string; active: boolean }> =
             (res.data?.accountsList ?? []) as any;
           this.accountOptions.set(
-            list
-              .map((a: { accountId: number; accountDisplayName: string; active: boolean }) => ({
-                id: a.accountId,
-                label: a.active ? a.accountDisplayName : `${a.accountDisplayName} (inactive)`,
-              }))
+            list.map((a: { accountId: number; accountDisplayName: string; active: boolean }) => ({
+              id: a.accountId,
+              label: a.active ? a.accountDisplayName : `${a.accountDisplayName} (inactive)`,
+            })),
           );
         },
       });
   }
 
-  onSearchChanged(searchTerm: string | null): void {
+  private emitSnapshot(overrides: Partial<ILedgerFilterSortState> = {}): void {
     this.stateChanged.emit({
-      searchTerm: searchTerm ?? '',
-      selectedDate: this.state.selectedDate,
-      selectedSortBy: this.state.selectedSortBy,
-      selectedAccountTypeIds: [...(this.state.selectedAccountTypeIds ?? [])],
-      selectedAccountIds: [...(this.state.selectedAccountIds ?? [])],
+      searchTerm: overrides.searchTerm ?? this.state.searchTerm,
+      selectedDate: overrides.selectedDate ?? this.state.selectedDate,
+      selectedSortBy: overrides.selectedSortBy ?? this.state.selectedSortBy,
+      selectedAccountTypeIds: overrides.selectedAccountTypeIds ?? [...(this.state.selectedAccountTypeIds ?? [])],
+      selectedAccountIds: overrides.selectedAccountIds ?? [...(this.state.selectedAccountIds ?? [])],
     });
   }
 
-  onStateChanged(): void {
-    const nextState: ILedgerFilterSortState = {
-      searchTerm: this.state.searchTerm,
-      selectedDate: this.state.selectedDate,
-      selectedSortBy: this.state.selectedSortBy,
-      selectedAccountTypeIds: [...(this.state.selectedAccountTypeIds ?? [])],
-      selectedAccountIds: [...(this.state.selectedAccountIds ?? [])],
-    };
-    this.stateChanged.emit(nextState);
+  onSearchChanged(searchTerm: string | null): void {
+    this.emitSnapshot({ searchTerm: searchTerm ?? '' });
   }
 
+  onDateChange(selectedDate: LedgerDateRangeOption): void {
+    this.emitSnapshot({ selectedDate });
+  }
+
+  onSortByChange(selectedSortBy: LedgerSortByOption): void {
+    this.emitSnapshot({ selectedSortBy });
+  }
+
+  onAccountTypesChange(value: unknown): void {
+    this.emitSnapshot({ selectedAccountTypeIds: this.normalizeIdArray(value) });
+  }
+
+  onAccountsChange(value: unknown): void {
+    this.emitSnapshot({ selectedAccountIds: this.normalizeIdArray(value) });
+  }
+
+  private normalizeIdArray(value: unknown): number[] {
+    if (value == null) {
+      return [];
+    }
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => this.extractId(item))
+        .filter((id): id is number => id !== null);
+    }
+    const single = this.extractId(value);
+    return single === null ? [] : [single];
+  }
+
+  private extractId(value: unknown): number | null {
+    if (typeof value === 'number' && Number.isInteger(value)) {
+      return value;
+    }
+    if (typeof value === 'object' && value !== null && 'id' in value) {
+      const id = (value as { id: unknown }).id;
+      if (typeof id === 'number' && Number.isInteger(id)) {
+        return id;
+      }
+    }
+    return null;
+  }
 }

@@ -7,7 +7,10 @@ import { LedgerPage } from './ledger-page.component';
 import { JournalEntryApplicationService } from '../../../../application/ledger/journal-entry.application-service';
 import { AccountsApplicationService } from '../../../../application/ledger/accounts.application-service';
 import { AccountTypesApplicationService } from '../../../../application/ledger/account-types.application-service';
+import { UserPreferencesService } from '../../../../application/settings/user-preferences.service';
 import { JournalEntryDTOEnrichedResponse } from '../../../../adapter/ledger-service/dto/journal-entry/JournalEntryDTOEnrichedResponse';
+import { DEFAULT_LEDGER_FILTER_STATE } from '../ledger-filter-state';
+import { EMPTY_UI_PREFERENCES } from '../../../../domain/ui-preferences/ui-preferences';
 
 describe('LedgerPage', () => {
   let component: LedgerPage;
@@ -39,15 +42,25 @@ describe('LedgerPage', () => {
     getAll: jasmine.createSpy('getAll').and.returnValue(of({ data: { accountTypeList: [] } } as any)),
   } as any;
 
+  const userPreferencesMock: Pick<
+    UserPreferencesService,
+    'isHydrated' | 'ensureLoaded' | 'getLedgerInitialState' | 'hasLedgerDisplayDefaults'
+  > = {
+    isHydrated: () => true,
+    ensureLoaded: () => of(EMPTY_UI_PREFERENCES),
+    getLedgerInitialState: () => ({ ...DEFAULT_LEDGER_FILTER_STATE }),
+    hasLedgerDisplayDefaults: () => false,
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LedgerPage],
       providers: [
         provideZonelessChangeDetection(),
         { provide: ActivatedRoute, useValue: activatedRouteStub },
+        { provide: UserPreferencesService, useValue: userPreferencesMock },
       ],
-    })
-    ;
+    });
 
     TestBed.overrideProvider(JournalEntryApplicationService, { useValue: journalEntriesMock });
     TestBed.overrideProvider(AccountsApplicationService, { useValue: accountsServiceMock });
@@ -81,6 +94,18 @@ describe('LedgerPage', () => {
     expect(journalEntries.getAll).toHaveBeenCalled();
     expect(component.entries()).toEqual([]);
     expect(component.loadError()).toBeNull();
+  });
+
+  it('should reload when filter state changes', async () => {
+    (journalEntries.getAll as jasmine.Spy).calls.reset();
+
+    component.onStateChanged({
+      ...DEFAULT_LEDGER_FILTER_STATE,
+      searchTerm: 'rent',
+    });
+    await fixture.whenStable();
+
+    expect(journalEntries.getAll).toHaveBeenCalledTimes(1);
   });
 
   it('should set modal error when delete fails', async () => {

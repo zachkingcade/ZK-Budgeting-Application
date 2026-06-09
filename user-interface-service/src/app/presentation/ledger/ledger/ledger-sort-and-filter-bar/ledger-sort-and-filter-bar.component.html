@@ -5,7 +5,7 @@
         <input
             matInput
             placeholder="Search notes or description..."
-            [(ngModel)]="state.searchTerm"
+            [ngModel]="state.searchTerm"
             (ngModelChange)="onSearchChanged($event)"
         />
     </mat-form-field>
@@ -13,16 +13,16 @@
     <mat-form-field appearance="outline" class="selectInputs">
         <mat-label>Date Range</mat-label>
 
-        <mtx-select [items]="dateOptions" bindLabel="label" bindValue="id" [(ngModel)]="state.selectedDate" (ngModelChange)="onStateChanged()" [multiple]="false"
-            [searchable]="false" [clearable]="false" placeholder="Select account types">
+        <mtx-select [items]="dateOptions" bindLabel="label" bindValue="id" [ngModel]="state.selectedDate" (ngModelChange)="onDateChange($event)" [multiple]="false"
+            [searchable]="false" [clearable]="false" placeholder="Select date range">
         </mtx-select>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="mtxSelectInputs" subscriptSizing="dynamic">
         <mat-label>Account Types</mat-label>
 
-        <mtx-select [items]="accountTypeOptions()" bindLabel="label" bindValue="id" [(ngModel)]="state.selectedAccountTypeIds"
-            (ngModelChange)="onStateChanged()" (change)="onStateChanged()" (clear)="onStateChanged()" (remove)="onStateChanged()"
+        <mtx-select [items]="accountTypeOptions()" bindLabel="label" bindValue="id" [ngModel]="state.selectedAccountTypeIds"
+            (change)="onAccountTypesChange($event)" (clear)="onAccountTypesChange([])"
             [multiple]="true" placeholder="Select account types">
             <ng-template ng-multi-label-tmp let-items="items">
                 {{ items.length }} selected
@@ -33,9 +33,9 @@
     <mat-form-field appearance="outline" class="mtxSelectInputs" subscriptSizing="dynamic">
         <mat-label>Accounts</mat-label>
 
-        <mtx-select [items]="accountOptions()" bindLabel="label" bindValue="id" [(ngModel)]="state.selectedAccountIds"
-            (ngModelChange)="onStateChanged()" (change)="onStateChanged()" (clear)="onStateChanged()" (remove)="onStateChanged()"
-            [multiple]="true" placeholder="Select account types">
+        <mtx-select [items]="accountOptions()" bindLabel="label" bindValue="id" [ngModel]="state.selectedAccountIds"
+            (change)="onAccountsChange($event)" (clear)="onAccountsChange([])"
+            [multiple]="true" placeholder="Select accounts">
             <ng-template ng-multi-label-tmp let-items="items">
                 {{ items.length }} selected
             </ng-template>
@@ -45,8 +45,8 @@
     <mat-form-field appearance="outline" class="selectInputs">
         <mat-label>Sort By</mat-label>
 
-        <mtx-select [items]="sortByOptions" bindLabel="label" bindValue="id" [(ngModel)]="state.selectedSortBy" (ngModelChange)="onStateChanged()"
-            [multiple]="false" [searchable]="false" [clearable]="false" placeholder="Select account types">
+        <mtx-select [items]="sortByOptions" bindLabel="label" bindValue="id" [ngModel]="state.selectedSortBy" (ngModelChange)="onSortByChange($event)"
+            [multiple]="false" [searchable]="false" [clearable]="false" placeholder="Sort by">
         </mtx-select>
     </mat-form-field>
 </div>

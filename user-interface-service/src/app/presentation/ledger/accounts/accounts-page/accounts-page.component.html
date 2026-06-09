@@ -8,6 +8,12 @@
           <mat-icon>clear_all</mat-icon>
           Clear
         </button>
+        @if (showReturnToDefaults()) {
+          <button mat-stroked-button type="button" (click)="returnToDefaultsClicked()">
+            <mat-icon>settings_backup_restore</mat-icon>
+            Return to defaults
+          </button>
+        }
         <button mat-stroked-button type="button" (click)="refresh()">
           <mat-icon>refresh</mat-icon>
           Refresh

@@ -4,7 +4,7 @@
     <input
       matInput
       placeholder="Search notes or description..."
-      [(ngModel)]="state.searchTerm"
+      [ngModel]="state.searchTerm"
       (ngModelChange)="onSearchChange($event)"
     />
   </mat-form-field>
@@ -15,11 +15,9 @@
       [items]="classificationOptions()"
       bindLabel="label"
       bindValue="id"
-      [(ngModel)]="state.selectedClassificationIds"
-      (ngModelChange)="onClassificationsChange()"
-      (change)="onClassificationsChange()"
-      (clear)="onClassificationsChange()"
-      (remove)="onClassificationsChange()"
+      [ngModel]="state.selectedClassificationIds"
+      (change)="onClassificationsChange($event)"
+      (clear)="onClassificationsChange([])"
       [multiple]="true"
       placeholder="All classifications"
     >
@@ -35,8 +33,8 @@
       [items]="sortByOptions"
       bindLabel="label"
       bindValue="id"
-      [(ngModel)]="state.selectedSortBy"
-      (ngModelChange)="onSortByChange()"
+      [ngModel]="state.selectedSortBy"
+      (ngModelChange)="onSortByChange($event)"
       [multiple]="false"
       [searchable]="false"
       [clearable]="false"
@@ -52,11 +50,11 @@
     >
       Hide system account types
     </mat-slide-toggle>
-    <mat-slide-toggle [(ngModel)]="state.showInactive" (ngModelChange)="onShowInactiveChange()">
+    <mat-slide-toggle [ngModel]="state.showInactive" (ngModelChange)="onShowInactiveChange($event)">
       Show inactive
     </mat-slide-toggle>
     <mat-slide-toggle
-      [(ngModel)]="state.hideActiveOnly"
+      [ngModel]="state.hideActiveOnly"
       (ngModelChange)="onHideActiveOnlyChange($event)"
     >
       Hide active (inactive only)
