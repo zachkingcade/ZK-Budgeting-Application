@@ -106,4 +106,9 @@ export class UserPreferencesService {
     const prefs = this.cached ?? EMPTY_UI_PREFERENCES;
     return !!prefs.accountTypes.sortBy;
   }
+
+  isWelcomeDismissed(): boolean {
+    const prefs = this.cached ?? EMPTY_UI_PREFERENCES;
+    return prefs.onboarding.welcomeDismissed;
+  }
 }

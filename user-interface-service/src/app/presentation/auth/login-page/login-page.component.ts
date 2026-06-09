@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { AuthManagerService } from '../../../application/auth/auth-manager.service';
+import { WelcomeOnboardingService } from '../../../application/onboarding/welcome-onboarding.service';
 import { UserPreferencesService } from '../../../application/settings/user-preferences.service';
 
 @Component({
@@ -35,6 +36,7 @@ export class LoginPageComponent {
   constructor(
     private readonly authManager: AuthManagerService,
     private readonly userPreferences: UserPreferencesService,
+    private readonly welcomeOnboarding: WelcomeOnboardingService,
     private readonly router: Router,
     private readonly destroyRef: DestroyRef,
   ) {
@@ -61,8 +63,13 @@ export class LoginPageComponent {
       .subscribe({
         next: () => {
           this.submitting.set(false);
-          this.userPreferences.refresh().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
-          void this.router.navigateByUrl('/ledger');
+          this.welcomeOnboarding.scheduleWelcomeAfterLogin();
+          this.userPreferences
+            .refresh()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              void this.router.navigateByUrl('/ledger');
+            });
         },
         error: () => {
           this.submitting.set(false);

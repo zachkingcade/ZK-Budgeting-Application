@@ -6,6 +6,7 @@ import { LoginUserRequestDto } from '../../adapter/user-service/dto/user/login-u
 import { RegisterUserRequestDto } from '../../adapter/user-service/dto/user/register-user-request.dto';
 import { LogoutUserRequestDto } from '../../adapter/user-service/dto/user/logout-user-request.dto';
 import { RefreshLoginRequestDto } from '../../adapter/user-service/dto/user/refresh-login-request.dto';
+import { WelcomeOnboardingService } from '../onboarding/welcome-onboarding.service';
 
 export interface IAuthSnapshot {
   username: string | null;
@@ -25,6 +26,7 @@ export class AuthManagerService {
   constructor(
     private readonly userAuthApi: UserAuthApi,
     private readonly sessionStorage: SessionStorageService,
+    private readonly welcomeOnboarding: WelcomeOnboardingService,
   ) {}
 
   getAuthSnapshot(): IAuthSnapshot {
@@ -46,6 +48,7 @@ export class AuthManagerService {
     this.sessionStorage.clearCachedSession();
     this.accessToken = null;
     this.accessTokenExpiresAt = null;
+    this.welcomeOnboarding.clearScheduledWelcome();
   }
 
   login(username: string, password: string): Observable<void> {

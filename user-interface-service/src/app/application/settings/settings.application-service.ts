@@ -35,6 +35,10 @@ import {
   UiPreferencesForm,
 } from '../../domain/ui-preferences/ui-preferences';
 import {
+  ONBOARDING_SETTING_KEYS,
+  isWelcomeDismissed,
+} from '../../domain/onboarding/onboarding-settings';
+import {
   UI_THEME_SETTING_KEY,
   resolveUiThemeId,
 } from '../../domain/ui-preferences/ui-theme-settings';
@@ -93,6 +97,20 @@ export class SettingsApplicationService {
     );
   }
 
+  saveWelcomeDismissed(dismissed: boolean): Observable<void> {
+    return this.userSettingsApi.listAll().pipe(
+      switchMap((response) => {
+        const existingNames = new Set((response.data ?? []).map((s) => s.settingName));
+        const entry = {
+          name: ONBOARDING_SETTING_KEYS.welcomeDismissed,
+          value: dismissed ? 'true' : '',
+        };
+        return this.persistEntry(entry, existingNames);
+      }),
+      map(() => undefined),
+    );
+  }
+
   private persistEntry(
     entry: { name: string; value: string },
     existingNames: Set<string>,
@@ -127,6 +145,9 @@ export class SettingsApplicationService {
       ledger: this.mapLedgerDisplaySettings(byName),
       accounts: this.mapAccountsDisplaySettings(byName),
       accountTypes: this.mapAccountTypesDisplaySettings(byName),
+      onboarding: {
+        welcomeDismissed: isWelcomeDismissed(byName.get(ONBOARDING_SETTING_KEYS.welcomeDismissed)),
+      },
       theme: resolveUiThemeId(byName.get(UI_THEME_SETTING_KEY)),
     };
   }

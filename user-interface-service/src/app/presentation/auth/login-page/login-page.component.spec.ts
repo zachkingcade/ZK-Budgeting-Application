@@ -5,14 +5,22 @@ import { of, throwError } from 'rxjs';
 
 import { LoginPageComponent } from './login-page.component';
 import { AuthManagerService } from '../../../application/auth/auth-manager.service';
+import { WelcomeOnboardingService } from '../../../application/onboarding/welcome-onboarding.service';
+import { UserPreferencesService } from '../../../application/settings/user-preferences.service';
+import { EMPTY_UI_PREFERENCES } from '../../../domain/ui-preferences/ui-preferences';
 
 describe('LoginPageComponent', () => {
   let component: LoginPageComponent;
   let fixture: ComponentFixture<LoginPageComponent>;
+  let welcomeOnboarding: WelcomeOnboardingService;
 
   const authManagerMock: Pick<AuthManagerService, 'login'> = {
     login: jasmine.createSpy('login').and.returnValue(of(void 0)),
   } as any;
+
+  const userPreferencesMock: Pick<UserPreferencesService, 'refresh'> = {
+    refresh: jasmine.createSpy('refresh').and.returnValue(of(EMPTY_UI_PREFERENCES)),
+  };
 
   let router: Router;
 
@@ -38,11 +46,13 @@ describe('LoginPageComponent', () => {
         provideZonelessChangeDetection(),
         provideRouter([]),
         { provide: AuthManagerService, useValue: authManagerMock },
+        { provide: UserPreferencesService, useValue: userPreferencesMock },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
       ],
     }).compileComponents();
 
     router = TestBed.inject(Router);
+    welcomeOnboarding = TestBed.inject(WelcomeOnboardingService);
     spyOn(router, 'navigateByUrl').and.resolveTo(true);
 
     fixture = TestBed.createComponent(LoginPageComponent);
@@ -64,6 +74,7 @@ describe('LoginPageComponent', () => {
 
     expect((authManagerMock.login as jasmine.Spy)).toHaveBeenCalledWith('alice', 'Password123!');
     await fixture.whenStable();
+    expect(welcomeOnboarding.consumeScheduledWelcome()).toBe(true);
     expect(router.navigateByUrl).toHaveBeenCalledWith('/ledger');
     expect(component.errorMessage()).toBeNull();
   });

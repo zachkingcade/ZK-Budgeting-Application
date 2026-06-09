@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Welcome</h2>
+<mat-dialog-content class="welcome-dialog__content">
+  <p>Thank You for giving this a try.</p>
+  <p>
+    If you are not sure where to start, open
+    <a routerLink="/help" (click)="closeWithoutSaving()">Help</a>
+    in the menu. That is the help center for the whole app: guides on setup, the ledger, budgeting, and more. Getting started is a good first read when you land there.
+  </p>
+  <p>
+    If something feels off or you have an idea, use the comment button at the bottom of the page to send a bug report or suggestion.
+  </p>
+  <p>
+    If you need anything else, reach me at
+    <a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>.
+  </p>
+
+  <mat-checkbox [(ngModel)]="dontShowAgain" name="dontShowAgain">
+    Don't show again
+  </mat-checkbox>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-flat-button color="primary" type="button" (click)="ok()">OK</button>
+</mat-dialog-actions>

@@ -202,6 +202,7 @@ export class SettingsPageComponent implements OnInit {
       accountTypes: {
         sortBy: this.form.controls.accountTypesSortBy.value as UiPreferencesForm['accountTypes']['sortBy'],
       },
+      onboarding: { ...this.savedSnapshot.onboarding },
       theme: this.form.controls.theme.value,
     };
   }

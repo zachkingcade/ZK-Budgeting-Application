@@ -13,7 +13,14 @@ import { HelpContentService } from '../../help/help-content.service';
 import { ContextHelpButtonComponent } from '../../help/components/context-help-button/context-help-button.component';
 import { MatDialog } from '@angular/material/dialog';
 import { faCommentDots } from '@fortawesome/free-solid-svg-icons';
+import { SettingsApplicationService } from '../../application/settings/settings.application-service';
+import { UserPreferencesService } from '../../application/settings/user-preferences.service';
+import { WelcomeOnboardingService } from '../../application/onboarding/welcome-onboarding.service';
 import { SubmitFeedbackDialogComponent } from '../shared/submit-feedback-dialog/submit-feedback-dialog.component';
+import {
+  WelcomeDialogComponent,
+  WelcomeDialogResult,
+} from '../shared/welcome-dialog/welcome-dialog.component';
 
 type PageCageNavSectionId = 'master-ledger' | 'accounts' | 'planning' | 'reporting' | 'user-account' | 'help' | 'admin';
 
@@ -45,6 +52,9 @@ export class PageCage implements OnInit {
     private readonly router: Router,
     private readonly destroyRef: DestroyRef,
     private readonly dialog: MatDialog,
+    private readonly welcomeOnboarding: WelcomeOnboardingService,
+    private readonly userPreferences: UserPreferencesService,
+    private readonly settingsService: SettingsApplicationService,
   ) {
     this.applyRouteToNavSection(this.router.url);
     this.router.events
@@ -59,6 +69,40 @@ export class PageCage implements OnInit {
 
   ngOnInit(): void {
     this.notificationsPolling.start();
+    this.maybeShowWelcomeDialog();
+  }
+
+  private maybeShowWelcomeDialog(): void {
+    if (!this.welcomeOnboarding.consumeScheduledWelcome()) {
+      return;
+    }
+
+    this.userPreferences
+      .ensureLoaded()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.userPreferences.isWelcomeDismissed()) {
+          return;
+        }
+
+        const ref = this.dialog.open(WelcomeDialogComponent, {
+          width: 'min(32rem, calc(100vw - 2rem))',
+          maxWidth: '95vw',
+        });
+
+        ref.afterClosed().subscribe((result: WelcomeDialogResult | undefined) => {
+          if (result?.dontShowAgain !== true) {
+            return;
+          }
+
+          this.settingsService
+            .saveWelcomeDismissed(true)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              this.userPreferences.refresh().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+            });
+        });
+      });
   }
 
   protected isNavSectionExpanded(section: PageCageNavSectionId): boolean {
