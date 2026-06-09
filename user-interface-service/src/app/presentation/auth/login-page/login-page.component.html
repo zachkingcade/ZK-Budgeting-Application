@@ -1,30 +1,266 @@
-<div class="login-container">
-  <div class="login-card">
-    <h2>Sign in</h2>
-    <p class="subtext">
-      Please sign in to continue. If you don’t have an account yet,
-      <a routerLink="/register">register here</a>.
-    </p>
+<div class="landing">
+  <header class="landing__brand">
+    <div class="landing__brandMark" aria-hidden="true">
+      <mat-icon>account_balance</mat-icon>
+    </div>
+    <div class="landing__brandText">
+      <span class="landing__productName">ZK Budgetting</span>
+      <span class="landing__productTagline">Personal Budgeting Platform</span>
+    </div>
+  </header>
 
-    <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
-      <mat-form-field appearance="outline">
-        <mat-label>Username</mat-label>
-        <input matInput type="text" formControlName="username" autocomplete="username" />
-      </mat-form-field>
+  <aside class="landing__signin" aria-label="Sign in">
+    <div class="signin-card">
+      <div class="signin-card__icon" aria-hidden="true">
+        <mat-icon>lock</mat-icon>
+      </div>
+      <h2 class="signin-card__title">Welcome Back</h2>
+      <p class="signin-card__subtitle">Sign in to continue to your account.</p>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Password</mat-label>
-        <input matInput type="password" formControlName="password" autocomplete="current-password" />
-      </mat-form-field>
+      <form class="signin-card__form" [formGroup]="form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input matInput type="text" formControlName="username" autocomplete="username" />
+        </mat-form-field>
 
-      @if (errorMessage()) {
-        <div class="error">{{ errorMessage() }}</div>
-      }
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="current-password" />
+        </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit" [disabled]="submitting()">
-        Sign in
-      </button>
-    </form>
-  </div>
+        @if (errorMessage()) {
+          <div class="signin-card__error" role="alert">{{ errorMessage() }}</div>
+        }
+
+        <button mat-flat-button class="signin-card__submit" type="submit" [disabled]="submitting()">
+          Sign In
+        </button>
+      </form>
+
+      <p class="signin-card__register">
+        Don&rsquo;t have an account?
+        <a routerLink="/register">Create one</a>
+      </p>
+    </div>
+  </aside>
+
+  <main class="landing__intro">
+    <section class="hero" aria-labelledby="hero-heading">
+      <h1 id="hero-heading" class="hero__heading">Take control of your finances</h1>
+      <p class="hero__text">
+        Track accounts, manage budgets, and gain insight into your spending with simple, secure reporting tools.
+      </p>
+    </section>
+
+    <section class="features" aria-label="Product features">
+      <article class="feature">
+        <div class="feature__icon" aria-hidden="true"><mat-icon>account_balance_wallet</mat-icon></div>
+        <div class="feature__body">
+          <h3 class="feature__title">Manage Accounts</h3>
+          <p class="feature__text">View and organize your accounts in one place.</p>
+        </div>
+      </article>
+      <article class="feature">
+        <div class="feature__icon" aria-hidden="true"><mat-icon>receipt_long</mat-icon></div>
+        <div class="feature__body">
+          <h3 class="feature__title">Track Transactions</h3>
+          <p class="feature__text">Monitor income and expenses in real time.</p>
+        </div>
+      </article>
+      <article class="feature">
+        <div class="feature__icon" aria-hidden="true"><mat-icon>savings</mat-icon></div>
+        <div class="feature__body">
+          <h3 class="feature__title">Plan Budgets</h3>
+          <p class="feature__text">Create budgets and stay on top of your goals.</p>
+        </div>
+      </article>
+      <article class="feature">
+        <div class="feature__icon" aria-hidden="true"><mat-icon>assessment</mat-icon></div>
+        <div class="feature__body">
+          <h3 class="feature__title">Generate Reports</h3>
+          <p class="feature__text">Visualize trends and make smarter financial decisions.</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="app-preview" aria-label="Budget planning overview preview" aria-hidden="true">
+      <div class="app-preview__frame">
+        <nav class="app-preview__sidebar">
+          <div class="app-preview__navSection">
+            <div class="app-preview__navSectionHead">
+              <span class="app-preview__chevron app-preview__chevron--open"></span>
+              <span>Planning</span>
+            </div>
+            <a class="app-preview__navLink app-preview__navLink--active">Budget planning</a>
+            <a class="app-preview__navLink">Replayable journal entries</a>
+          </div>
+          <div class="app-preview__navSection">
+            <div class="app-preview__navSectionHead">
+              <span class="app-preview__chevron"></span>
+              <span>Master Ledger</span>
+            </div>
+          </div>
+          <div class="app-preview__navSection">
+            <div class="app-preview__navSectionHead">
+              <span class="app-preview__chevron"></span>
+              <span>Accounts</span>
+            </div>
+          </div>
+        </nav>
+
+        <div class="app-preview__main">
+          <header class="app-preview__topbar">
+            <span class="app-preview__menu" aria-hidden="true">☰</span>
+            <div class="app-preview__topbarTitles">
+              <span class="app-preview__pageTitle">Budget planning</span>
+              <span class="app-preview__pageSub">Plan incomes, recurring payables, and budgets (30/365 basis).</span>
+            </div>
+          </header>
+
+          <div class="app-preview__body">
+            <div class="app-preview__editorHead">
+              <mat-icon class="app-preview__backIcon">keyboard_return</mat-icon>
+              <div>
+                <div class="app-preview__planName">Monthly Household Budget</div>
+                <div class="app-preview__planMeta">Plan #1</div>
+              </div>
+            </div>
+
+            <div class="app-preview__tabs" role="tablist">
+              <span class="app-preview__tab app-preview__tab--active" role="tab" aria-selected="true">Overview</span>
+              <span class="app-preview__tab" role="tab">Incomes</span>
+              <span class="app-preview__tab" role="tab">Recurring payables</span>
+              <span class="app-preview__tab" role="tab">Budgets</span>
+            </div>
+
+            <div class="app-preview__tabPanel">
+              <p class="app-preview__hint">
+                Monthly equivalents (30-day basis). Hover a pie slice for its label, amount, and share.
+              </p>
+
+              <div class="app-preview__ovSection">
+                <h3 class="app-preview__ovTitle">Planned income</h3>
+                <div class="app-preview__ovRow">
+                  <div class="app-preview__pieWrap">
+                    <svg viewBox="-2 -2 204 204" class="app-preview__pieSvg" aria-hidden="true">
+                      <circle cx="100" cy="100" r="88" fill="hsl(210 58% 46%)" stroke="#ffffff" stroke-width="1.5" />
+                    </svg>
+                  </div>
+                  <table class="app-preview__ovTable">
+                    <thead>
+                      <tr>
+                        <th class="app-preview__thSwatch" aria-label="Color"></th>
+                        <th>Account</th>
+                        <th>Per month (30d)</th>
+                        <th>Share</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><span class="app-preview__swatch" style="background: hsl(210 58% 46%)"></span></td>
+                        <td>Salary Income</td>
+                        <td>$5,500.00</td>
+                        <td>100.0%</td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td></td>
+                        <th scope="row">Total</th>
+                        <td>$5,500.00</td>
+                        <td>100%</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+
+              <div class="app-preview__ovSection">
+                <h3 class="app-preview__ovTitle">Budgeted amounts</h3>
+                <p class="app-preview__ovSub">By budget account — funding lines per month.</p>
+                <div class="app-preview__ovRow">
+                  <div class="app-preview__pieWrap">
+                    <svg viewBox="-2 -2 204 204" class="app-preview__pieSvg" aria-hidden="true">
+                      <path d="M 100 100 L 100 12 A 88 88 0 1 1 55.7 176 Z" fill="hsl(130 58% 46%)" stroke="#fff" stroke-width="1.5" />
+                      <path d="M 100 100 L 55.7 176 A 88 88 0 0 1 26.9 51 Z" fill="hsl(177 58% 46%)" stroke="#fff" stroke-width="1.5" />
+                      <path d="M 100 100 L 26.9 51 A 88 88 0 0 1 100 12 Z" fill="hsl(224 58% 46%)" stroke="#fff" stroke-width="1.5" />
+                    </svg>
+                  </div>
+                  <table class="app-preview__ovTable">
+                    <thead>
+                      <tr>
+                        <th class="app-preview__thSwatch" aria-label="Color"></th>
+                        <th>Budget account</th>
+                        <th>Budgeted / month</th>
+                        <th>Share</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><span class="app-preview__swatch" style="background: hsl(130 58% 46%)"></span></td>
+                        <td>Groceries Envelope</td>
+                        <td>$450.00</td>
+                        <td>58.4%</td>
+                      </tr>
+                      <tr>
+                        <td><span class="app-preview__swatch" style="background: hsl(177 58% 46%)"></span></td>
+                        <td>Transportation</td>
+                        <td>$200.00</td>
+                        <td>26.0%</td>
+                      </tr>
+                      <tr>
+                        <td><span class="app-preview__swatch" style="background: hsl(224 58% 46%)"></span></td>
+                        <td>Dining Out</td>
+                        <td>$120.00</td>
+                        <td>15.6%</td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td></td>
+                        <th scope="row">Total</th>
+                        <td>$770.00</td>
+                        <td>100%</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Product values">
+      <article class="trust-strip__item">
+        <mat-icon aria-hidden="true">verified_user</mat-icon>
+        <div>
+          <h3>Secure &amp; Private</h3>
+          <p>Your financial data stays protected with secure authentication.</p>
+        </div>
+      </article>
+      <article class="trust-strip__item">
+        <mat-icon aria-hidden="true">touch_app</mat-icon>
+        <div>
+          <h3>Easy to Use</h3>
+          <p>Intuitive tools designed for everyday budgeting workflows.</p>
+        </div>
+      </article>
+      <article class="trust-strip__item">
+        <mat-icon aria-hidden="true">cloud_done</mat-icon>
+        <div>
+          <h3>Always Accessible</h3>
+          <p>Access your accounts and reports from anywhere, anytime.</p>
+        </div>
+      </article>
+      <article class="trust-strip__item">
+        <mat-icon aria-hidden="true">shield</mat-icon>
+        <div>
+          <h3>Built with Security</h3>
+          <p>Industry-standard practices keep your information safe.</p>
+        </div>
+      </article>
+    </section>
+  </main>
 </div>
-

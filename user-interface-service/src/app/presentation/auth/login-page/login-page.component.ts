@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { AuthManagerService } from '../../../application/auth/auth-manager.service';
 import { UserPreferencesService } from '../../../application/settings/user-preferences.service';
@@ -16,6 +17,7 @@ import { UserPreferencesService } from '../../../application/settings/user-prefe
     RouterLink,
     MatButtonModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
   ],
   templateUrl: './login-page.component.html',
